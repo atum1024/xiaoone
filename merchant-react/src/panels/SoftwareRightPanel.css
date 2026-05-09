@@ -1,0 +1,326 @@
+.srp {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  background: var(--xiaoone-bg-soft);
+}
+
+.srp-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 8px 0 12px;
+  background: var(--xiaoone-bg);
+  flex-shrink: 0;
+}
+
+.srp-tabs {
+  flex: 1;
+  min-width: 0;
+}
+
+.srp-close {
+  flex-shrink: 0;
+  margin-top: 6px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  cursor: pointer;
+}
+
+.srp-close:hover {
+  background: var(--xiaoone-bg-hover);
+  color: var(--xiaoone-fg);
+}
+
+.srp-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.srp-pane {
+  max-width: 520px;
+}
+
+.srp-pane--config {
+  max-width: none;
+  width: 100%;
+}
+
+.srp-pane--preview {
+  max-width: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.preview-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-head-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--xiaoone-fg);
+}
+
+.preview-head-sub {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  line-height: 1.4;
+}
+
+.preview-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-url-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--xiaoone-fg-soft);
+}
+
+.preview-url-input {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-frame-wrap {
+  flex: 1;
+  min-height: 260px;
+  border-radius: 10px;
+  border: 1px solid var(--xiaoone-border-soft);
+  overflow: auto;
+  background: var(--xiaoone-bg);
+}
+
+.preview-frame-wrap--demo {
+  height: min(62vh, 520px);
+  min-height: 280px;
+}
+
+.dev-intro {
+  min-height: 260px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: 10px;
+  background: var(--xiaoone-bg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+}
+.dev-intro strong {
+  font-size: 15px;
+  color: var(--xiaoone-fg);
+}
+.dev-intro p {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--xiaoone-fg-mute);
+}
+.dev-intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.srp-micro {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--xiaoone-fg-faint);
+}
+
+.srp-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.srp-logo-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.srp-logo-preview img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--xiaoone-border-soft);
+}
+
+.srp-logo-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.myserver-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.myserver-empty {
+  margin-bottom: 12px;
+}
+
+.myserver-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.myserver-card {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--xiaoone-bg);
+}
+
+.myserver-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.myserver-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.myserver-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--xiaoone-bg-hover);
+  color: var(--xiaoone-fg-mute);
+}
+
+.myserver-rm {
+  margin-left: auto;
+}
+
+.myserver-meta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--xiaoone-fg-mute);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.myserver-meta code {
+  font-size: 11px;
+}
+
+.myserver-time {
+  margin-left: auto;
+}
+
+.myserver-spec {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--xiaoone-bg-soft);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, system-ui, sans-serif;
+}
+
+.myserver-remark {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--xiaoone-fg-soft);
+}
+
+.dlg-tip {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.dlg-plan-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pay-summary {
+  margin-bottom: 12px;
+}
+
+.pay-summary p {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.pay-channels {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pay-btn {
+  flex: 1 1 140px;
+}
+
+.pay-mock {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px dashed var(--xiaoone-border-soft);
+  background: var(--xiaoone-bg-soft);
+  font-size: 12px;
+}
+
+.pay-mock p {
+  margin: 0 0 8px;
+}
+
+.pay-done {
+  margin-top: 4px;
+}

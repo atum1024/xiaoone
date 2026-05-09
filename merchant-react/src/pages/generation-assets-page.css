@@ -1,0 +1,50 @@
+.gap-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--xiaoone-page-pad-y, 20px) var(--xiaoone-page-pad-x, 28px);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg);
+  box-sizing: border-box;
+}
+
+.gap-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.gap-title {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.gap-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--xiaoone-fg-soft);
+  max-width: 46rem;
+}
+
+.gap-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  max-width: 46rem;
+}
+
+.gap-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gap-table {
+  flex: 1;
+  min-height: 200px;
+  overflow: auto;
+}

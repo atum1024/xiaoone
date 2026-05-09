@@ -1,0 +1,365 @@
+.dos {
+  min-height: 100%;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  color: #0f172a;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dos-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+}
+
+.dos-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.dos-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dos-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dos-logo-ph {
+  background: linear-gradient(135deg, #6366f1, #22d3ee);
+}
+
+.dos-links {
+  display: none;
+  gap: 18px;
+  color: #64748b;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+@media (min-width: 520px) {
+  .dos-links { display: flex; }
+}
+
+.dos-cta {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.dos-hero {
+  padding: 28px 20px 22px;
+  text-align: center;
+}
+
+.dos-hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.dos-lead {
+  margin: 0 auto 18px;
+  max-width: 420px;
+  color: #64748b;
+  line-height: 1.55;
+  font-size: 12.5px;
+}
+
+.dos-hero-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dos-btn {
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: default;
+  font-family: inherit;
+}
+
+.dos-btn-primary {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.dos-btn-ghost {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.dos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 0 16px 20px;
+  flex: 1;
+}
+
+.dos-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.dos-card strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.dos-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.dos-foot {
+  margin-top: auto;
+  padding: 12px;
+  text-align: center;
+  font-size: 10px;
+  color: #94a3b8;
+  border-top: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* --- 客服联调（seed 数据切换）--- */
+.dos-chat {
+  margin: 0 16px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.dos-chat-head {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dos-chat-title {
+  font-size: 13px;
+  display: block;
+}
+
+.dos-chat-desc {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.dos-chat-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dos-chat-tabs button {
+  padding: 10px 12px;
+  border: none;
+  background: #f8fafc;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.dos-chat-tabs button:hover {
+  background: #f1f5f9;
+}
+
+.dos-chat-tabs button.is-active {
+  background: #fff;
+  border-bottom-color: #4f46e5;
+}
+
+.dos-chat-tab-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dos-chat-tab-sub {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.dos-chat-panel {
+  padding: 10px 12px 12px;
+}
+
+.dos-chat-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.dos-chat-meta code {
+  font-size: 10px;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #334155;
+}
+
+.dos-chat-meta-sep {
+  color: #cbd5e1;
+}
+
+.dos-chat-status {
+  margin-left: auto;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.dos-chat-status--ok {
+  color: #059669;
+  font-weight: 600;
+}
+
+.dos-chat-error {
+  font-size: 11px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.dos-chat-msgs {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px;
+  background: #fafafa;
+  margin-bottom: 8px;
+}
+
+.dos-chat-empty {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 12px 4px;
+  text-align: center;
+}
+
+.dos-chat-bubble {
+  max-width: 92%;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.dos-chat-bubble.is-visitor {
+  margin-left: auto;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.dos-chat-bubble.is-agent {
+  margin-right: auto;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.dos-chat-role {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 3px;
+}
+
+.dos-chat-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #1e293b;
+}
+
+.dos-chat-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.dos-chat-input {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.dos-chat-input:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+}
+
+.dos-chat-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dos-chat-send {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  background: #4f46e5;
+  color: #fff;
+}
+
+.dos-chat-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

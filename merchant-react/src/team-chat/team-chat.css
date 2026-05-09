@@ -1,0 +1,207 @@
+.tcs-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--xiaoone-bg);
+}
+.tcs-tabs {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--xiaoone-border-soft);
+  background: var(--xiaoone-bg-soft);
+}
+.tcs-tab {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+}
+.tcs-tab:hover {
+  background: var(--xiaoone-bg-hover);
+  color: var(--xiaoone-fg-soft);
+}
+.tcs-tab.is-active {
+  background: var(--xiaoone-bg-elev);
+  border-color: var(--xiaoone-border);
+  color: var(--xiaoone-fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.tcs-tabs-spacer { flex: 1; min-width: 8px; }
+.tcs-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--xiaoone-accent-soft);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+.tcs-new:hover { filter: brightness(1.05); }
+
+.tcs-files {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.tcs-split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+.tcs-list {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--xiaoone-border-soft);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--xiaoone-bg-soft);
+}
+.tcs-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+}
+.tcs-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--xiaoone-fg);
+  transition: background-color 0.1s, border-color 0.1s;
+}
+.tcs-row:hover { background: var(--xiaoone-bg-hover); }
+.tcs-row:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+.tcs-row.is-active {
+  background: var(--xiaoone-bg-elev);
+  border-color: var(--xiaoone-accent-soft);
+}
+.tcs-row.is-loading { background: var(--xiaoone-bg-hover); }
+.tcs-row-ico { flex-shrink: 0; color: var(--xiaoone-fg-mute); }
+.tcs-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--xiaoone-bg-elev);
+  border: 1px solid var(--xiaoone-border);
+  color: var(--xiaoone-fg-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+.tcs-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.tcs-row-title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tcs-row-meta {
+  font-size: 11px;
+  color: var(--xiaoone-fg-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tcs-badge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tcs-time {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--xiaoone-fg-faint);
+}
+.tcs-list-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+.tcs-list-empty p { margin: 0; line-height: 1.5; max-width: 220px; }
+.tcs-list-empty-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--xiaoone-accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+.tcs-list-empty-btn:hover { filter: brightness(1.06); }
+
+.tcs-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.tcs-main-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+.tcs-main-empty p { margin: 0; }

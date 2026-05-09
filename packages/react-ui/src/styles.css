@@ -1,0 +1,201 @@
+@import '@xiaoone/design-tokens/tokens.css';
+@import '@xiaoone/design-tokens/app-shell.css';
+
+:root {
+  --background: var(--xiaoone-bg);
+  --foreground: var(--xiaoone-fg);
+  --card: var(--xiaoone-bg-elev);
+  --card-foreground: var(--xiaoone-fg);
+  --primary: var(--xiaoone-accent);
+  --primary-foreground: oklch(98.5% 0.006 265);
+  --secondary: var(--xiaoone-bg-soft);
+  --secondary-foreground: var(--xiaoone-fg);
+  --muted: var(--xiaoone-bg-soft);
+  --muted-foreground: var(--xiaoone-fg-mute);
+  --border: var(--xiaoone-border);
+  --radius: 8px;
+}
+
+.xo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease, opacity 0.14s ease;
+}
+
+.xo-button:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.xo-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.xo-button--default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.xo-button--default:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--primary) 88%, var(--xiaoone-bg) 12%);
+}
+
+.xo-button--secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-color: var(--border);
+}
+
+.xo-button--outline {
+  background: transparent;
+  color: var(--xiaoone-fg);
+  border-color: var(--border);
+}
+
+.xo-button--outline:hover:not(:disabled) {
+  background: var(--xiaoone-bg-hover);
+}
+
+.xo-button--ghost {
+  background: transparent;
+  color: var(--xiaoone-fg-soft);
+}
+
+.xo-button--ghost:hover:not(:disabled) {
+  background: var(--xiaoone-bg-hover);
+}
+
+.xo-button--destructive {
+  background: var(--xiaoone-danger);
+  color: oklch(98.5% 0.006 265);
+}
+
+.xo-button--sm { height: 32px; padding: 0 10px; font-size: 12px; }
+.xo-button--md { height: 38px; padding: 0 14px; font-size: 14px; }
+.xo-button--lg { height: 44px; padding: 0 18px; font-size: 15px; }
+.xo-button--icon { width: 36px; height: 36px; padding: 0; }
+
+.xo-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--xiaoone-shadow);
+}
+
+.xo-card__header {
+  padding: 16px 16px 8px;
+}
+
+.xo-card__title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.xo-card__description {
+  margin: 5px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+
+.xo-card__content {
+  padding: 12px 16px 16px;
+}
+
+.xo-input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--xiaoone-bg-elev);
+  color: var(--foreground);
+  font: inherit;
+  padding: 0 11px;
+}
+
+.xo-input:focus {
+  outline: 2px solid var(--xiaoone-accent-bg);
+  border-color: var(--xiaoone-accent-soft);
+}
+
+.xo-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.xo-badge--default {
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  border-color: var(--xiaoone-accent-soft);
+}
+
+.xo-badge--success {
+  background: color-mix(in srgb, var(--xiaoone-success), transparent 86%);
+  color: var(--xiaoone-success);
+}
+
+.xo-badge--warning {
+  background: var(--xiaoone-warning-bg);
+  color: var(--xiaoone-warning);
+  border-color: var(--xiaoone-warning-border);
+}
+
+.xo-badge--danger {
+  background: color-mix(in srgb, var(--xiaoone-danger), transparent 86%);
+  color: var(--xiaoone-danger);
+}
+
+.xo-badge--muted {
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg-mute);
+  border-color: var(--border);
+}
+
+.xo-badge--outline {
+  background: transparent;
+  color: var(--xiaoone-fg-soft);
+  border-color: var(--border);
+}
+
+.xo-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--xiaoone-bg-soft);
+}
+
+.xo-tabs__trigger {
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  border-radius: 6px;
+  min-height: 30px;
+  padding: 0 11px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.xo-tabs__trigger.is-active {
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  box-shadow: var(--xiaoone-shadow);
+}

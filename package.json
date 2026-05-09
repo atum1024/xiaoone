@@ -1,0 +1,26 @@
+{
+  "name": "xiaoone-user-frontend",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @xiaoone/merchant-react run dev",
+    "build": "pnpm --filter @xiaoone/merchant-react run build",
+    "typecheck:merchant": "pnpm --filter @xiaoone/merchant-react run typecheck",
+    "typecheck": "pnpm --recursive --filter './...' run --if-present typecheck",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@unocss/core": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "^6.0.2",
+    "unbuild": "catalog:",
+    "unocss": "catalog:",
+    "unocss-preset-animations": "catalog:"
+  }
+}

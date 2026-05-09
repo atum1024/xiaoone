@@ -1,0 +1,91 @@
+/**
+ * Xiaoone 共享语义色与间距 token —— 用户端 / 官网共用。
+ * 主题切换：在 html 或根节点设置 data-theme="dark" | "light"。
+ */
+:root,
+[data-theme='dark'] {
+  --xiaoone-font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+  --xiaoone-font-mono: 'SF Mono', ui-monospace, Menlo, Monaco, 'PingFang SC', monospace;
+
+  --xiaoone-r-sm: 8px;
+  --xiaoone-r-md: 12px;
+  --xiaoone-r-lg: 16px;
+  --xiaoone-r-xl: 20px;
+  --xiaoone-r-pill: 999px;
+
+  --xiaoone-bg: #0a0c10;
+  --xiaoone-bg-soft: #11141b;
+  --xiaoone-bg-elev: #161a22;
+  --xiaoone-bg-hover: rgba(255, 255, 255, 0.045);
+  --xiaoone-bg-active: rgba(56, 146, 255, 0.16);
+  --xiaoone-border: rgba(255, 255, 255, 0.085);
+  --xiaoone-border-soft: rgba(255, 255, 255, 0.055);
+  --xiaoone-border-strong: rgba(148, 163, 184, 0.35);
+  --xiaoone-fg: #f1f4f8;
+  --xiaoone-fg-soft: #d1d9e4;
+  --xiaoone-fg-mute: #94a3b8;
+  --xiaoone-fg-faint: #64748b;
+  --xiaoone-accent: #3d94ff;
+  --xiaoone-accent-2: #8b6bff;
+  --xiaoone-accent-3: #f0b429;
+  --xiaoone-accent-rose: #ff6b6b;
+  --xiaoone-accent-soft: rgba(61, 148, 255, 0.5);
+  --xiaoone-accent-bg: rgba(61, 148, 255, 0.14);
+  --xiaoone-warning: #e8b14a;
+  --xiaoone-warning-bg: rgba(240, 180, 41, 0.1);
+  --xiaoone-warning-border: rgba(240, 180, 41, 0.28);
+  --xiaoone-danger: #f87171;
+  --xiaoone-success: #34d399;
+  --xiaoone-info: #38bdf8;
+  --xiaoone-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 28px rgba(0, 0, 0, 0.42);
+  --xiaoone-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
+  --xiaoone-shadow-composer: 0 12px 40px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --xiaoone-header-h: 56px;
+  --xiaoone-page-pad-x: 28px;
+  --xiaoone-page-pad-y: 20px;
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --xiaoone-font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+  --xiaoone-font-mono: 'SF Mono', ui-monospace, Menlo, Monaco, 'PingFang SC', monospace;
+  --xiaoone-r-sm: 8px;
+  --xiaoone-r-md: 12px;
+  --xiaoone-r-lg: 16px;
+  --xiaoone-r-xl: 20px;
+  --xiaoone-r-pill: 999px;
+
+  --xiaoone-bg: #fafafa;
+  --xiaoone-bg-soft: #f4f5f7;
+  --xiaoone-bg-elev: #ffffff;
+  --xiaoone-bg-hover: rgba(15, 23, 42, 0.04);
+  --xiaoone-bg-active: rgba(0, 122, 255, 0.1);
+  --xiaoone-border: rgba(15, 23, 42, 0.08);
+  --xiaoone-border-soft: rgba(15, 23, 42, 0.05);
+  --xiaoone-border-strong: rgba(100, 116, 139, 0.35);
+  --xiaoone-fg: #0f172a;
+  --xiaoone-fg-soft: #334155;
+  --xiaoone-fg-mute: #64748b;
+  --xiaoone-fg-faint: #94a3b8;
+  --xiaoone-accent: #0071e3;
+  --xiaoone-accent-2: #5856d6;
+  --xiaoone-accent-3: #c48a00;
+  --xiaoone-accent-rose: #e11d48;
+  --xiaoone-accent-soft: rgba(0, 113, 227, 0.38);
+  --xiaoone-accent-bg: rgba(0, 113, 227, 0.1);
+  --xiaoone-warning: #b45309;
+  --xiaoone-warning-bg: rgba(245, 158, 11, 0.12);
+  --xiaoone-warning-border: rgba(217, 119, 6, 0.28);
+  --xiaoone-danger: #dc2626;
+  --xiaoone-success: #059669;
+  --xiaoone-info: #0284c7;
+  --xiaoone-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px rgba(15, 23, 42, 0.05);
+  --xiaoone-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.06);
+  --xiaoone-shadow-composer: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04),
+    0 8px 28px rgba(15, 23, 42, 0.06);
+  --xiaoone-page-pad-x: 28px;
+  --xiaoone-page-pad-y: 20px;
+  color-scheme: light;
+}

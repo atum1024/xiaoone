@@ -1,0 +1,84 @@
+/**
+ * Visitor-aligned portal tokens (Phase 0).
+ *
+ * Source of truth: frontends/DESIGN.md.
+ * Scoped to `.x1-portal` so they don't fight with the existing dark `mr-*`
+ * workbench shell. Used for /login, /register and any "auth shell" surfaces
+ * that should look 1:1 with the public site (官网).
+ */
+
+.x1-portal {
+  /* ---- 配色：portal 玻璃拟态 ---- */
+  --x1-portal-bg-deep: #0f172a;          /* slate-900 portal background */
+  --x1-portal-bg-soft: #f8fafc;          /* slate-50 light surface */
+  --x1-portal-glass-bg-on-dark: rgba(255, 255, 255, 0.10);
+  --x1-portal-glass-bg-on-light: rgba(255, 255, 255, 0.60);
+  --x1-portal-glass-border: rgba(255, 255, 255, 0.20);
+  --x1-portal-glass-border-soft: rgba(255, 255, 255, 0.10);
+
+  /* ---- 主色：indigo / purple / blue 渐变族（与官网 Login.tsx 一致） ---- */
+  --x1-portal-accent: #4f46e5;           /* indigo-600 primary CTA */
+  --x1-portal-accent-2: #6366f1;         /* indigo-500 hover */
+  --x1-portal-accent-3: #7c3aed;         /* purple-600 portal glow shift */
+  --x1-portal-accent-4: #2563eb;         /* blue-600 portal glow shift */
+  --x1-portal-link: #4338ca;             /* indigo-700 secondary link */
+  --x1-portal-success: #10b981;          /* emerald-500 ：完成态 */
+
+  /* ---- 半径 ---- */
+  --x1-portal-radius-sm: 0.75rem;        /* 12px */
+  --x1-portal-radius-md: 1rem;           /* 16px */
+  --x1-portal-radius-lg: 1.5rem;         /* 24px */
+  --x1-portal-radius-xl: 2rem;           /* 32px */
+  --x1-portal-radius-2xl: 2.5rem;        /* 40px */
+  --x1-portal-radius-pill: 9999px;
+
+  /* ---- 阴影 ---- */
+  --x1-portal-shadow-card: 0 20px 60px -15px rgba(0, 0, 0, 0.10);
+  --x1-portal-shadow-elevated: 0 0 50px rgba(0, 0, 0, 0.30);
+  --x1-portal-shadow-cta: 0 10px 20px -5px rgba(79, 70, 229, 0.40);
+
+  /* ---- 模糊 ---- */
+  --x1-portal-blur-card: 24px;           /* backdrop-blur-2xl */
+  --x1-portal-blur-glow: 100px;          /* portal radial glow */
+
+  /* ---- 字重（官网风格偏 bold） ---- */
+  --x1-portal-fw-cta: 700;
+  --x1-portal-fw-label: 700;
+  --x1-portal-fw-body: 500;
+}
+
+/* ----  portal 入场动效（与 motion/react initial→animate 时长保持一致） ---- */
+@keyframes x1-portal-enter {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes x1-portal-glow-shift {
+  0%, 100% { background: radial-gradient(circle, var(--x1-portal-accent)   0%, transparent 70%); }
+  33%      { background: radial-gradient(circle, var(--x1-portal-accent-3) 0%, transparent 70%); }
+  66%      { background: radial-gradient(circle, var(--x1-portal-accent-4) 0%, transparent 70%); }
+}
+
+.x1-portal__bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--x1-portal-bg-deep);
+  overflow: hidden;
+}
+
+.x1-portal__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(80vw, 800px);
+  height: min(80vw, 800px);
+  margin-top: calc(min(80vw, 800px) / -2);
+  margin-left: calc(min(80vw, 800px) / -2);
+  border-radius: 9999px;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  filter: blur(var(--x1-portal-blur-glow));
+  background: radial-gradient(circle, var(--x1-portal-accent) 0%, transparent 70%);
+  animation: x1-portal-glow-shift 10s ease-in-out infinite;
+}

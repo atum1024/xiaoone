@@ -1,0 +1,11 @@
+{
+  "name": "@xiaoone/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./app-shell.css": "./app-shell.css",
+    "./ui-states.css": "./ui-states.css"
+  }
+}

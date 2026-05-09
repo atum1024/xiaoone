@@ -1,0 +1,104 @@
+.mr-card {
+  background: var(--xiaoone-bg-soft);
+  border: 1px solid var(--xiaoone-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.identity {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.10), rgba(34, 211, 238, 0.06));
+  border-color: rgba(124, 92, 255, 0.25);
+}
+
+.ident-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.ident-meta {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--xiaoone-fg-mute);
+  display: flex;
+  gap: 8px;
+}
+.ident-meta code { background: var(--xiaoone-bg-hover); padding: 1px 6px; border-radius: 4px; }
+.ident-meta .dot { color: var(--xiaoone-fg-faint); }
+
+.ident-right { display: flex; gap: 32px; flex-wrap: wrap; }
+.metric { display: flex; flex-direction: column; gap: 2px; min-width: 90px; }
+.metric small { color: var(--xiaoone-fg-mute); font-size: 11.5px; }
+.metric strong { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
+.metric strong.low { color: #ef4444; }
+
+.subscription {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.sub-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sub-left small { color: var(--xiaoone-fg-mute); font-size: 11.5px; }
+.sub-left strong { font-size: 18px; display: inline-flex; align-items: center; gap: 8px; }
+.sub-desc { margin: 4px 0 0; font-size: 12.5px; color: var(--xiaoone-fg-mute); line-height: 1.5; }
+.sub-right { display: flex; gap: 32px; flex-wrap: wrap; }
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  font-size: 13px;
+}
+.alert-box > svg { flex-shrink: 0; }
+.alert-box > span { flex: 1; color: var(--xiaoone-fg); }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.link-card {
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.12s, background 0.12s;
+}
+.link-card:hover {
+  border-color: var(--xiaoone-accent-soft);
+  transform: translateY(-1px);
+}
+
+.lc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.link-card p {
+  margin: 0;
+  color: var(--xiaoone-fg-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.link-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 11.5px;
+}

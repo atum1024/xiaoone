@@ -1,0 +1,46 @@
+/**
+ * 空态 / 加载 / 错误的轻量模式 —— 各 Panel 可选用 class，避免重复写一行提示样式。
+ */
+.xiaoone-state-muted {
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.xiaoone-state-error {
+  color: var(--xiaoone-danger);
+  font-size: 13px;
+}
+
+.xiaoone-state-loading {
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.xiaoone-empty-panel {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  padding: 24px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 14px;
+  text-align: center;
+}
+
+.xiaoone-inline-retry {
+  margin-top: 8px;
+}
+
+.xiaoone-inline-retry button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  padding: 6px 12px;
+  border-radius: var(--xiaoone-r-sm);
+}
+
+.xiaoone-inline-retry button:hover {
+  background: var(--xiaoone-bg-hover);
+}

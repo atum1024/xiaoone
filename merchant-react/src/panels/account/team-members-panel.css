@@ -1,0 +1,85 @@
+.tm-embed-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--xiaoone-border);
+  flex-shrink: 0;
+}
+.apage--embedded .apage-body { padding-top: 14px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  background: var(--xiaoone-bg-soft);
+  border: 1px solid var(--xiaoone-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-card small { color: var(--xiaoone-fg-mute); font-size: 11.5px; }
+.stat-card strong { font-size: 22px; font-weight: 600; letter-spacing: -0.2px; }
+.stat-card.self strong { font-size: 14px; }
+
+.hint-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--xiaoone-border);
+  background: var(--xiaoone-bg-hover);
+  color: var(--xiaoone-fg-mute);
+  border-radius: 10px;
+  font-size: 12.5px;
+}
+
+.toolbar { display: flex; align-items: center; gap: 10px; }
+.toolbar-info { color: var(--xiaoone-fg-mute); font-size: 12px; }
+
+.cell-member { display: flex; align-items: center; gap: 10px; }
+.ava {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #7c5cff, #22d3ee);
+  flex-shrink: 0;
+}
+.cell-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cell-line { display: flex; align-items: center; gap: 6px; }
+.cell-email { font-size: 11.5px; color: var(--xiaoone-fg-mute); }
+.muted { color: var(--xiaoone-fg-mute); }
+
+.cell-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+.invite-done { display: grid; gap: 10px; text-align: center; padding: 8px 0; }
+.invite-done .ok {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+.invite-done code {
+  background: var(--xiaoone-bg-hover);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.hint { color: var(--xiaoone-fg-mute); font-size: 12px; }

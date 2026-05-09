@@ -1,0 +1,15 @@
+{
+  "name": "@xiaoone/chat-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "axios": "^1.15.0"
+  },
+  "devDependencies": {
+    "axios": "catalog:"
+  }
+}

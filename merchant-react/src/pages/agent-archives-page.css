@@ -1,0 +1,77 @@
+.arch-panel {
+  padding: var(--xiaoone-page-pad-y, 20px) var(--xiaoone-page-pad-x, 28px) 40px;
+  max-width: 880px;
+  margin: 0 auto;
+  color: var(--xiaoone-fg);
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+.arch-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 16px;
+  margin-bottom: 24px;
+}
+.arch-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.arch-desc {
+  margin: 0;
+  flex: 1 1 100%;
+  font-size: 13px;
+  color: var(--xiaoone-fg-mute);
+  line-height: 1.5;
+}
+.arch-empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--xiaoone-fg-mute);
+  font-size: 14px;
+}
+.arch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.arch-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-md);
+  background: var(--xiaoone-bg-elev);
+}
+.arch-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.arch-row-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.arch-row-preview {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arch-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
