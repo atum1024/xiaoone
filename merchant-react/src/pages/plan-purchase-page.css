@@ -1,0 +1,451 @@
+.plan-purchase-page {
+  min-height: 100%;
+  padding: 22px 28px 40px;
+  color: var(--xiaoone-fg);
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--xiaoone-bg-soft) 56%, transparent), transparent 320px),
+    var(--xiaoone-bg);
+}
+
+.plan-purchase-hero {
+  max-width: 1180px;
+  margin: 0 auto 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.plan-purchase-back {
+  margin: 0 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.plan-purchase-back:hover {
+  color: var(--xiaoone-accent);
+}
+
+.plan-purchase-hero h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.plan-purchase-hero p {
+  max-width: 680px;
+  margin: 8px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.plan-upgrade-banner {
+  max-width: 1180px;
+  margin: 0 auto 16px;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-accent) 22%, var(--xiaoone-border));
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: color-mix(in oklch, var(--xiaoone-accent-bg) 54%, var(--xiaoone-bg-elev));
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.plan-upgrade-banner div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.plan-upgrade-banner span {
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plan-upgrade-banner strong {
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.plan-term-switch {
+  max-width: 1180px;
+  margin: 0 auto 16px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 3px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-soft);
+  width: fit-content;
+}
+
+.plan-term-switch button {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--xiaoone-motion-ease),
+    border-color 150ms var(--xiaoone-motion-ease),
+    color 150ms var(--xiaoone-motion-ease);
+}
+
+.plan-term-switch button:hover {
+  border-color: color-mix(in oklch, var(--xiaoone-accent) 40%, var(--xiaoone-border));
+  color: var(--xiaoone-fg);
+}
+
+.plan-term-switch button.is-active {
+  border-color: color-mix(in oklch, var(--xiaoone-accent) 28%, var(--xiaoone-border));
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-accent);
+  box-shadow: 0 1px 2px color-mix(in oklch, var(--xiaoone-fg) 8%, transparent);
+}
+
+.plan-purchase-grid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.plan-card {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-bg-elev);
+  box-shadow: none;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.plan-card.is-popular,
+.plan-card.is-highlighted {
+  border-color: color-mix(in oklch, oklch(68% 0.18 153) 48%, var(--xiaoone-border));
+  background: color-mix(in oklch, oklch(68% 0.18 153) 5%, var(--xiaoone-bg-elev));
+}
+
+.plan-card-ribbon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--xiaoone-r-pill);
+  background: oklch(62% 0.18 165);
+  color: oklch(99% 0.004 165);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.plan-card-head {
+  min-height: 30px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.plan-card.is-popular .plan-card-head {
+  padding-right: 88px;
+}
+
+.plan-card h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.plan-card > p {
+  min-height: 42px;
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.plan-card-price {
+  border-bottom: 1px solid var(--xiaoone-border-soft);
+  padding-bottom: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.plan-card-list-price {
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  text-decoration: line-through;
+}
+
+.plan-card-price div {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.plan-card-price strong {
+  color: oklch(70% 0.19 50);
+  font-size: 38px;
+  line-height: 0.96;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.plan-card-price div span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.plan-card-price em {
+  border: 1px solid color-mix(in oklch, oklch(66% 0.16 178) 18%, var(--xiaoone-border));
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in oklch, oklch(66% 0.16 178) 8%, var(--xiaoone-bg-soft));
+  color: color-mix(in oklch, oklch(44% 0.13 178) 88%, var(--xiaoone-fg));
+  padding: 8px 10px;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.plan-feature-groups {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.plan-feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+  flex: 1;
+}
+
+.plan-feature-list--marketing {
+  gap: 7px;
+  flex: 0;
+  margin-top: 0;
+}
+
+.plan-feature-section-label {
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px dashed color-mix(in oklch, var(--xiaoone-border) 88%, transparent);
+  color: var(--xiaoone-fg-mute);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.plan-feature-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.plan-feature-list li > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.plan-feature-list svg {
+  color: oklch(62% 0.18 165);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.plan-feature--locked {
+  opacity: 0.58;
+}
+
+.plan-feature--locked > span {
+  text-decoration: line-through;
+  color: var(--xiaoone-fg-mute);
+}
+
+.plan-feature--locked svg {
+  color: var(--xiaoone-fg-mute);
+}
+
+.plan-feature--upgrade > span {
+  font-weight: 650;
+  color: color-mix(in oklch, oklch(52% 0.16 250) 78%, var(--xiaoone-fg));
+}
+
+.plan-feature--upgrade svg {
+  color: oklch(52% 0.17 250);
+}
+
+.plan-feature-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--xiaoone-fg-mute);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.plan-feature-hint:hover {
+  color: var(--xiaoone-accent);
+}
+
+.plan-feature-hint-pop {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.plan-feature-hint-pop strong {
+  font-size: 13px;
+  color: var(--xiaoone-fg);
+}
+
+.plan-feature-hint-pop p {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+}
+
+.plan-card-cta {
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.plan-faq {
+  max-width: 960px;
+  margin: 24px auto 0;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-bg-elev);
+  padding: 18px;
+}
+
+.plan-faq h2 {
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 17px;
+  letter-spacing: 0;
+}
+
+.plan-faq > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+.plan-faq article {
+  border-top: 1px solid var(--xiaoone-border-soft);
+  padding: 13px 0 0;
+}
+
+.plan-faq h3 {
+  margin: 0 0 7px;
+  font-size: 14px;
+}
+
+.plan-faq p {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .plan-purchase-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .plan-purchase-page {
+    padding: 18px 14px 34px;
+  }
+
+  .plan-purchase-back,
+  .plan-term-switch button {
+    min-height: 44px;
+  }
+
+  .plan-purchase-back {
+    padding: 0 12px;
+  }
+
+  .plan-purchase-hero,
+  .plan-upgrade-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plan-purchase-hero > .xo-button,
+  .plan-upgrade-banner > .xo-badge {
+    max-width: 100%;
+  }
+
+  .plan-purchase-hero h1 {
+    font-size: 26px;
+  }
+
+  .plan-card.is-popular .plan-card-head {
+    padding-right: 0;
+    padding-top: 22px;
+  }
+
+  .plan-card-price strong {
+    font-size: 34px;
+  }
+
+  .plan-faq > div {
+    grid-template-columns: 1fr;
+  }
+}

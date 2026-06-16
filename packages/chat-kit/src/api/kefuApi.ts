@@ -13,6 +13,8 @@ interface OkEnvelope<T> {
   data: T
 }
 
+const CORPUS_GENERATION_TIMEOUT_MS = 120_000
+
 // ============= 模型类型 =============
 
 export interface Store {
@@ -24,7 +26,6 @@ export interface Store {
   welcome_message: string
   timezone: string
   is_active: boolean
-  is_demo: boolean
   merchant_id: number
   products_count: number
   has_sdk: boolean
@@ -49,11 +50,11 @@ export interface StoreSDKConfig {
   allowed_origins: string
   auto_reply_enabled: boolean
   auto_reply_model_key: string
-  auto_reply_knowledge_mode: 'relaxed' | 'balanced' | 'strict'
+  /** Legacy field; runtime auto-reply is always AI + corpus (balanced). */
+  auto_reply_knowledge_mode?: 'relaxed' | 'balanced' | 'strict'
   status_waiting_label: string
   status_active_label: string
   status_closed_label: string
-  is_demo: boolean
   merchant_id: number
 }
 
@@ -71,7 +72,8 @@ export interface Product {
   image_url: string
   description: string
   is_active: boolean
-  is_demo: boolean
+  created_at?: string
+  updated_at?: string
 }
 
 export interface QuickReply {
@@ -82,7 +84,6 @@ export interface QuickReply {
   content: string
   tags: string
   sort_order: number
-  is_demo: boolean
 }
 
 export interface Skill {
@@ -94,11 +95,12 @@ export interface Skill {
   work_hours: string
   is_active: boolean
   agents_count: number
-  is_demo: boolean
 }
 
 export type CorpusEntryType = 'project_source' | 'project_doc' | 'product_info' | 'memory' | 'faq' | 'policy' | 'manual'
 export type CorpusChannel = 'all' | 'web' | 'official_site' | 'telegram' | 'whatsapp' | 'wecom'
+
+export type CorpusMediaKind = 'text' | 'image' | 'video'
 
 export interface CorpusSource {
   id: number
@@ -106,6 +108,7 @@ export interface CorpusSource {
   store_name: string
   name: string
   source_type: 'manual' | 'upload' | 'product' | 'quick_reply' | 'skill'
+  media_kind?: CorpusMediaKind
   file?: string
   original_filename: string
   content_text: string
@@ -114,8 +117,11 @@ export interface CorpusSource {
   error_message: string
   chunks_count: number
   entries_count: number
+  used_at?: string | null
+  estimated_units?: number
+  is_used?: boolean
+  preview_url?: string
   metadata?: Record<string, any>
-  is_demo: boolean
   created_at: string
   updated_at: string
 }
@@ -136,7 +142,7 @@ export interface CorpusEntry {
   confidence: number
   sort_order: number
   is_active: boolean
-  is_demo: boolean
+  is_visitor_quick_question: boolean
   created_at: string
   updated_at: string
 }
@@ -145,6 +151,26 @@ export interface CorpusMatch {
   score: number
   matched_terms: string[]
   entry: CorpusEntry
+}
+
+export interface CorpusSyncResult {
+  created: number
+  created_entries: number
+  updated_entries: number
+  generation_method?: string
+  total_products?: number
+  sources_created?: number
+  products?: CorpusSyncResult
+  quick_replies?: {
+    created_entries: number
+    updated_entries: number
+    total_quick_replies: number
+  }
+  skills?: {
+    created_entries: number
+    updated_entries: number
+    total_skills: number
+  }
 }
 
 export function createKefuApi(api: AxiosInstance) {
@@ -215,6 +241,13 @@ export function createKefuApi(api: AxiosInstance) {
   create: createFactory<Product>('/products/'),
   update: updateFactory<Product>('/products/'),
   destroy: destroyFactory('/products/'),
+  uploadImage: async (file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return unwrap(api.post<OkEnvelope<{ url: string; name: string; size: number }>>(`${BASE}/products/upload-image/`, fd))
+  },
+  reuseImageUrl: async (payload: { url: string; name?: string }) =>
+    unwrap(api.post<OkEnvelope<{ url: string; name: string; size: number }>>(`${BASE}/products/reuse-image/`, payload)),
 }
 
   const QuickReplyAPI = {
@@ -238,8 +271,6 @@ export function createKefuApi(api: AxiosInstance) {
   destroy: destroyFactory('/corpus/'),
   search: async (payload: { query: string; store_id?: string | number; channel?: CorpusChannel; limit?: number }) =>
     unwrap(api.post<OkEnvelope<{ query: string; items: CorpusMatch[]; suggestion: string }>>(`${BASE}/corpus/search/`, payload)),
-  importLegacy: async () =>
-    unwrap(api.post<OkEnvelope<{ created: number }>>(`${BASE}/corpus/import-legacy/`, {})),
 }
 
   const CorpusSourceAPI = {
@@ -257,10 +288,15 @@ export function createKefuApi(api: AxiosInstance) {
   paste: async (payload: { name?: string; content_text: string; store?: number | null }) =>
     unwrap(api.post<OkEnvelope<{ source: CorpusSource; created_entries: number; generation_method?: string }>>(`${BASE}/corpus-sources/paste/`, payload)),
   generate: async (id: number, payload: { use_ai?: boolean; store?: number | null; channel?: CorpusChannel } = { use_ai: true }) =>
-    unwrap(api.post<OkEnvelope<{ source: CorpusSource; created_entries: number; generation_method?: string }>>(`${BASE}/corpus-sources/${id}/generate/`, payload)),
+    unwrap(api.post<OkEnvelope<{ source: CorpusSource; created_entries: number; generation_method?: string }>>(`${BASE}/corpus-sources/${id}/generate/`, payload, { timeout: CORPUS_GENERATION_TIMEOUT_MS })),
   generateSelected: async (payload: { source_ids: number[]; use_ai?: boolean; store?: number | null; channel?: CorpusChannel }) =>
-    unwrap(api.post<OkEnvelope<{ created_entries: number; processed_sources: number; failed: Array<{ id: number; name: string; error: string }>; generation_method?: string }>>(`${BASE}/corpus-sources/generate-selected/`, payload)),
+    unwrap(api.post<OkEnvelope<{ status: string; enqueued_sources: number; skipped: Array<{ id: number; name: string; error: string }> }>>(`${BASE}/corpus-sources/generate-selected/`, payload)),
+  syncProducts: async (payload: { product_ids?: Array<number | string>; store?: number | null; store_id?: number | null } = {}) =>
+    unwrap(api.post<OkEnvelope<CorpusSyncResult>>(`${BASE}/corpus-sources/sync-products/`, payload)),
+  syncBuiltIns: async () =>
+    unwrap(api.post<OkEnvelope<CorpusSyncResult>>(`${BASE}/corpus-sources/sync-built-ins/`, {})),
 }
+
 
   const KefuChannelsOverviewAPI = {
     fetch: async () => unwrap(api.get<OkEnvelope<any>>(`${BASE}/channels-overview/`)),

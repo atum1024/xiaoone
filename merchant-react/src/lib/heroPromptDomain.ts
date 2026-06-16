@@ -14,7 +14,6 @@ export const HERO_SUGGESTED_DOMAIN: Record<BusinessKey, string> = {
   marketing: 'marketing',
   support: 'support',
   agency: 'agency',
-  'team-chat': 'team_chat',
   feedback: 'feedback',
 }
 

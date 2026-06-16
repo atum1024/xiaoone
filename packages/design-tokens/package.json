@@ -6,6 +6,7 @@
   "exports": {
     "./tokens.css": "./tokens.css",
     "./app-shell.css": "./app-shell.css",
-    "./ui-states.css": "./ui-states.css"
+    "./ui-states.css": "./ui-states.css",
+    "./product-surfaces.css": "./product-surfaces.css"
   }
 }

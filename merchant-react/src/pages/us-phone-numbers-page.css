@@ -1,0 +1,751 @@
+.uspn-page {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--xiaoone-fg);
+}
+
+.uspn-page:not(.uspn-page--embedded) {
+  min-height: 100%;
+  padding: var(--xiaoone-page-pad-y, 20px) var(--xiaoone-page-pad-x, 28px);
+  background: var(--xiaoone-bg);
+}
+
+.uspn-page--embedded {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  gap: 0;
+}
+
+.uspn-shell {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  box-shadow: var(--xiaoone-shadow);
+}
+
+.uspn-page--embedded .uspn-shell {
+  max-width: none;
+  height: 100%;
+}
+
+.uspn-shell .uspn-banner,
+.uspn-shell .uspn-number-list,
+.uspn-shell .uspn-sms-panel {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.uspn-shell .uspn-banner {
+  flex-shrink: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 80%, transparent);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "title summary actions";
+  align-items: center;
+  gap: 18px;
+  padding: 12px 14px;
+  min-height: 58px;
+}
+
+.uspn-banner__title {
+  grid-area: title;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.uspn-banner__title h1 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.uspn-banner__summary {
+  grid-area: summary;
+  min-width: 0;
+}
+
+.uspn-banner__summary p {
+  margin: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-shell .uspn-banner__actions {
+  grid-area: actions;
+}
+
+.uspn-shell .uspn-workbench {
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  max-width: none;
+  margin: 0;
+  height: auto;
+}
+
+.uspn-shell .uspn-number-list {
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 24%, var(--xiaoone-bg-elev));
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+}
+
+.uspn-shell .uspn-sms-panel {
+  background: var(--xiaoone-bg-elev);
+}
+
+.uspn-shell .uspn-sms-head {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  margin: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 80%, transparent);
+}
+
+.uspn-shell .uspn-message-list {
+  padding: 14px 20px 20px;
+}
+
+.uspn-shell .uspn-section-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.uspn-shell .uspn-empty--center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 24px;
+}
+
+.uspn-page--embedded .uspn-workbench {
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+}
+
+.uspn-banner,
+.uspn-hero,
+.uspn-packages,
+.uspn-number-list,
+.uspn-sms-panel {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  box-shadow: var(--xiaoone-shadow);
+}
+
+.uspn-banner,
+.uspn-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+}
+
+.uspn-hero,
+.uspn-packages,
+.uspn-workbench {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.uspn-banner h1,
+.uspn-hero h1,
+.uspn-sms-head h2,
+.uspn-section-head h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.uspn-hero h1 {
+  margin-top: 5px;
+  font-size: 24px;
+}
+
+.uspn-banner p,
+.uspn-hero p,
+.uspn-package p,
+.uspn-sms-head p,
+.uspn-confirm-plan p {
+  margin: 5px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.uspn-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.uspn-banner__actions,
+.uspn-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.uspn-packages {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.uspn-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.uspn-section-head span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.uspn-package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.uspn-package {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 86%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 72%, var(--xiaoone-bg-elev) 28%);
+}
+
+.uspn-package b {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  font-size: 13px;
+}
+
+.uspn-package h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-package p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-package strong {
+  color: var(--xiaoone-fg-soft);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.uspn-workbench {
+  display: grid;
+  grid-template-columns: clamp(280px, 22vw, 360px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+}
+
+.uspn-number-list,
+.uspn-sms-panel {
+  min-width: 0;
+  min-height: 0;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.uspn-number-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uspn-number-scroll {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 2px 4px 4px 2px;
+  margin: 0 -4px -4px -2px;
+  scrollbar-gutter: auto;
+}
+
+.uspn-number {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 76%, transparent);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.uspn-number:hover {
+  border-color: var(--xiaoone-border-strong);
+  background: var(--xiaoone-bg-hover);
+}
+
+.uspn-number.is-active {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 54%, var(--xiaoone-border));
+  background: var(--xiaoone-accent-bg);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--xiaoone-accent) 14%, transparent);
+}
+
+.uspn-number strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-number em {
+  flex-shrink: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.uspn-sms-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uspn-sms-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--xiaoone-border);
+}
+
+.uspn-sms-head h2 {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.uspn-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.uspn-meta div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 68%, transparent);
+}
+
+.uspn-meta dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.uspn-meta dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.uspn-message-list {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 2px 4px 4px 0;
+  scrollbar-gutter: auto;
+}
+
+.uspn-message {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 82%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 88%, var(--xiaoone-bg-soft) 12%);
+}
+
+.uspn-message header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.uspn-message p {
+  margin: 10px 0;
+  color: var(--xiaoone-fg);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.uspn-message button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uspn-empty,
+.uspn-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--xiaoone-panel-radius);
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.uspn-empty {
+  border: 1px dashed var(--xiaoone-border);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 62%, transparent);
+}
+
+.uspn-error {
+  border: 1px solid color-mix(in srgb, var(--xiaoone-danger) 34%, transparent);
+  background: color-mix(in srgb, var(--xiaoone-danger) 10%, transparent);
+  color: color-mix(in srgb, var(--xiaoone-danger) 86%, var(--xiaoone-fg));
+}
+
+.uspn-empty--center {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+}
+
+.uspn-confirm-dialog {
+  color: var(--xiaoone-fg);
+}
+
+.uspn-confirm-body {
+  display: grid;
+  gap: 12px;
+}
+
+.uspn-confirm-plan {
+  padding: 12px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 70%, transparent);
+}
+
+.uspn-confirm-plan h3 {
+  margin: 8px 0 0;
+  font-size: 15px;
+}
+
+.uspn-confirm-fees {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.uspn-confirm-fees div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-elev);
+}
+
+.uspn-confirm-fees dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.uspn-confirm-fees dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.uspn-confirm-note {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-accent) 24%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.uspn-confirm-actions {
+  gap: 8px;
+}
+
+.uspn-transactions-dialog {
+  width: min(1080px, calc(100vw - 48px));
+  max-width: none;
+  max-height: min(820px, calc(100dvh - 48px));
+  color: var(--xiaoone-fg);
+}
+
+.uspn-transaction-list {
+  max-height: min(600px, 62dvh);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 84%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  scrollbar-gutter: auto;
+}
+
+.uspn-transaction-list__head,
+.uspn-transaction-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.5fr) minmax(74px, 0.45fr) minmax(150px, 0.8fr) minmax(92px, 0.5fr) minmax(92px, 0.5fr) minmax(108px, 0.6fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.uspn-transaction-list__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 11px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 84%, transparent);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 82%, var(--xiaoone-bg-elev) 18%);
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.uspn-transaction-row {
+  padding: 15px 16px;
+  background: var(--xiaoone-bg-elev);
+}
+
+.uspn-transaction-row + .uspn-transaction-row {
+  border-top: 1px solid color-mix(in srgb, var(--xiaoone-border) 76%, transparent);
+}
+
+.uspn-transaction-row__identity {
+  min-width: 0;
+}
+
+.uspn-transaction-row__identity strong {
+  display: block;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-transaction-row__identity p,
+.uspn-transaction-row__identity small {
+  display: block;
+  margin: 5px 0 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uspn-transaction-row__status,
+.uspn-transaction-row__cell {
+  min-width: 0;
+}
+
+.uspn-transaction-row__status > span,
+.uspn-transaction-row__cell span {
+  display: none;
+}
+
+.uspn-transaction-row__cell strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .uspn-workbench,
+  .uspn-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .uspn-shell .uspn-number-list {
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  }
+
+  .uspn-page--embedded {
+    height: auto;
+    overflow: visible;
+  }
+
+  .uspn-page--embedded .uspn-shell,
+  .uspn-page--embedded .uspn-workbench {
+    height: auto;
+  }
+
+  .uspn-page--embedded .uspn-number-list,
+  .uspn-page--embedded .uspn-sms-panel {
+    max-height: min(620px, 72dvh);
+  }
+}
+
+@media (max-width: 640px) {
+  .uspn-page:not(.uspn-page--embedded) {
+    padding: 14px;
+  }
+
+  .uspn-shell .uspn-banner {
+    grid-template-areas:
+      "title actions"
+      "summary summary";
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 12px;
+  }
+
+  .uspn-banner,
+  .uspn-hero,
+  .uspn-sms-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .uspn-banner__actions,
+  .uspn-actions {
+    width: auto;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .uspn-package {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .uspn-package strong,
+  .uspn-package button {
+    grid-column: 1 / -1;
+  }
+
+  .uspn-confirm-fees {
+    grid-template-columns: 1fr;
+  }
+
+  .uspn-transactions-dialog {
+    width: calc(100vw - 28px);
+  }
+
+  .uspn-transaction-list__head {
+    display: none;
+  }
+
+  .uspn-transaction-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .uspn-transaction-row__status,
+  .uspn-transaction-row__cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .uspn-transaction-row__status > span,
+  .uspn-transaction-row__cell span {
+    display: block;
+    color: var(--xiaoone-fg-mute);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .uspn-transaction-row__cell strong {
+    text-align: right;
+  }
+}
+
+.uspn-detail-dialog {
+  max-width: 480px;
+  color: var(--xiaoone-fg);
+}
+
+.uspn-meta--dialog {
+  margin-top: 4px;
+}

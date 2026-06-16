@@ -1,0 +1,136 @@
+.composer-bind-rail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  max-width: 100%;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg-elev);
+  padding: 4px 6px 4px 10px;
+  box-sizing: border-box;
+}
+
+.composer-bind-rail__head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--xiaoone-fg-soft);
+  font-size: 11px;
+  font-weight: 650;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.composer-bind-rail__head em {
+  font-style: normal;
+  color: var(--xiaoone-fg-mute);
+  font-size: 10px;
+}
+
+.composer-bind-rail__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.composer-bind-rail__btn,
+.composer-bind-rail__refresh {
+  --channel-brand-color: var(--partner-brand-color, var(--xiaoone-accent));
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg-soft);
+  font: inherit;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.composer-bind-rail__btn.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.composer-bind-rail__btn {
+  padding: 0 9px;
+  min-width: 0;
+}
+
+.composer-bind-rail__btn:hover,
+.composer-bind-rail__refresh:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--channel-brand-color) 34%, var(--xiaoone-border-soft));
+  background: color-mix(in srgb, var(--channel-brand-color) 8%, var(--xiaoone-bg));
+}
+
+.composer-bind-rail__btn span {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.composer-bind-rail__btn small {
+  color: var(--xiaoone-fg-mute);
+  font-size: 10px;
+}
+
+.composer-bind-rail__btn.is-bound {
+  border-color: color-mix(in srgb, var(--channel-brand-color) 38%, var(--xiaoone-border-soft));
+  background: color-mix(in srgb, var(--channel-brand-color) 8%, var(--xiaoone-bg));
+}
+
+.composer-bind-rail__btn.is-bound small {
+  color: var(--channel-brand-color);
+}
+
+.composer-bind-rail__refresh {
+  width: 28px;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.composer-bind-rail__refresh:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.composer-bind-rail__refresh .is-spinning {
+  animation: composer-bind-spin 0.9s linear infinite;
+}
+
+@keyframes composer-bind-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .composer-bind-rail {
+    flex-wrap: wrap;
+    border-radius: var(--xiaoone-panel-radius);
+    padding: 8px;
+    width: 100%;
+  }
+
+  .composer-bind-rail__actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .composer-bind-rail__btn,
+  .composer-bind-rail__refresh {
+    min-height: 44px;
+  }
+
+  .composer-bind-rail__refresh {
+    width: 44px;
+  }
+}

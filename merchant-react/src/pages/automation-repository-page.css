@@ -1,0 +1,318 @@
+.repo-page {
+  --repo-page-bg: oklch(99% 0.004 260);
+  --repo-surface: oklch(99.6% 0.003 260);
+  --repo-surface-soft: oklch(97.5% 0.005 260);
+  --repo-border: oklch(89% 0.018 260);
+  --repo-border-soft: oklch(91% 0.012 260);
+  --repo-fg: oklch(23% 0.02 260);
+  --repo-fg-soft: oklch(35% 0.026 260);
+  --repo-fg-mute: oklch(49% 0.028 260);
+  --repo-hover: oklch(96.5% 0.01 260);
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 0;
+  color: var(--repo-fg);
+  background: var(--repo-page-bg);
+}
+
+.repo-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 12px;
+  scrollbar-gutter: auto;
+  border-bottom: 1px solid var(--repo-border-soft);
+  background: var(--repo-surface);
+}
+
+.repo-tabs button {
+  flex: 0 0 auto;
+  height: 42px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--repo-fg-mute);
+  padding: 0 16px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.repo-tabs button:hover {
+  color: var(--repo-fg-soft);
+  background: var(--repo-hover);
+}
+
+.repo-tabs button.is-active {
+  color: var(--xiaoone-accent);
+  border-bottom-color: var(--xiaoone-accent);
+  font-weight: 650;
+}
+
+.repo-block {
+  flex: 1 1 auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  padding: 18px 24px 24px;
+}
+
+.shared-network-dialog {
+  --repo-surface: oklch(99.6% 0.003 260);
+  --repo-surface-soft: oklch(97.5% 0.005 260);
+  --repo-border: oklch(89% 0.018 260);
+  --repo-border-soft: oklch(91% 0.012 260);
+  --repo-fg: oklch(23% 0.02 260);
+  --repo-fg-soft: oklch(35% 0.026 260);
+  --repo-fg-mute: oklch(49% 0.028 260);
+  width: min(720px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(86vh, 760px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  gap: 0;
+  border-color: var(--repo-border-soft);
+}
+
+.shared-network-dialog__header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--repo-border-soft);
+  text-align: left;
+}
+
+.shared-network-dialog__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--repo-fg);
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.shared-network-dialog__scope {
+  margin-top: 6px;
+  color: var(--repo-fg-mute);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.shared-network-dialog__faq {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--repo-border-soft);
+  background: var(--repo-surface-soft);
+}
+
+.shared-network-dialog__faq button {
+  min-height: 32px;
+  border: 1px solid var(--repo-border);
+  border-radius: var(--xiaoone-r-sm);
+  background: var(--repo-surface);
+  color: var(--repo-fg-soft);
+  padding: 0 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.shared-network-dialog__faq button:hover:not(:disabled) {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.shared-network-dialog__faq button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.shared-network-dialog__messages {
+  min-height: 260px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--repo-surface);
+}
+
+.shared-network-dialog__message {
+  display: flex;
+}
+
+.shared-network-dialog__message span {
+  max-width: min(560px, 88%);
+  border: 1px solid var(--repo-border-soft);
+  border-radius: var(--xiaoone-r-sm);
+  padding: 10px 12px;
+  color: var(--repo-fg-soft);
+  background: var(--repo-surface-soft);
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.shared-network-dialog__message.is-user {
+  justify-content: flex-end;
+}
+
+.shared-network-dialog__message.is-user span {
+  border-color: color-mix(in oklch, var(--xiaoone-accent) 32%, var(--repo-border-soft));
+  color: oklch(99% 0.006 260);
+  background: var(--xiaoone-accent);
+}
+
+.shared-network-dialog__composer {
+  border-top: 1px solid var(--repo-border-soft);
+  padding: 14px 20px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 10px;
+  background: var(--repo-surface-soft);
+}
+
+.shared-network-dialog__composer textarea {
+  width: 100%;
+  min-height: 74px;
+  resize: vertical;
+  border: 1px solid var(--repo-border);
+  border-radius: var(--xiaoone-r-sm);
+  padding: 10px 12px;
+  color: var(--repo-fg);
+  background: var(--repo-surface);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.shared-network-dialog__composer textarea:focus {
+  outline: 2px solid color-mix(in oklch, var(--xiaoone-accent) 28%, transparent);
+  border-color: var(--xiaoone-accent);
+}
+
+.shared-network-dialog__composer button {
+  width: 42px;
+  height: 42px;
+  align-self: end;
+  border: 1px solid var(--xiaoone-accent);
+  border-radius: var(--xiaoone-r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: oklch(99% 0.006 260);
+  background: var(--xiaoone-accent);
+  cursor: pointer;
+}
+
+.shared-network-dialog__composer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.accelerator-config-dialog {
+  width: min(760px, calc(100vw - 32px));
+  max-width: none;
+}
+
+.accelerator-config-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.accelerator-config-card {
+  border: 1px solid var(--repo-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--repo-surface);
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.accelerator-config-card header {
+  display: grid;
+  gap: 6px;
+}
+
+.accelerator-config-card strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.accelerator-config-card p {
+  margin: 0;
+  color: var(--repo-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.accelerator-config-card em {
+  color: #b45309;
+  font-style: normal;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .repo-tabs {
+    padding: 0 14px;
+    scrollbar-gutter: auto;
+  }
+
+  .repo-tabs button {
+    padding: 0 12px;
+  }
+
+  .repo-block {
+    padding: 16px 14px 20px;
+  }
+
+  .shared-network-dialog {
+    width: calc(100vw - 20px);
+  }
+
+  .shared-network-dialog__faq,
+  .shared-network-dialog__messages,
+  .shared-network-dialog__composer,
+  .shared-network-dialog__header {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .shared-network-dialog__composer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shared-network-dialog__composer button {
+    width: 100%;
+  }
+
+  .accelerator-config-grid {
+    grid-template-columns: 1fr;
+  }
+}

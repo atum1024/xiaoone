@@ -1,10 +1,12 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { useNavigate } from 'react-router'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@xiaoone/react-ui'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, toast } from '@xiaoone/react-ui'
 import { getChatKit, type AgentThread } from '@xiaoone/chat-kit'
 import { ApiError } from '../lib/apiErrors'
+import { sanitizeAgentAssistantText } from '../lib/agentProtocolText'
 import { usePreferences } from '../app/preferences'
+import { routeForThread as routeForWorkbenchThread } from '../app/workbenchRouteModel'
 
 interface AgentThreadSearchDialogProps {
   open: boolean
@@ -13,6 +15,7 @@ interface AgentThreadSearchDialogProps {
 
 const AUTOMATION_AGENT_PLUGIN_KEYS = new Set([
   'industry',
+  'hot-product',
   'competitor',
   'ai',
   'product',
@@ -24,29 +27,25 @@ const AUTOMATION_AGENT_PLUGIN_KEYS = new Set([
   'notify-feishu',
   'notify-wecom',
 ])
+const XIAOWAN_ASSISTANT_PLUGIN_KEY = 'xiaowan-asst'
 
-function routeForThread(row: AgentThread) {
+function routeForThread(row: AgentThread): string | null {
   const domain = row.domain || 'general'
   const plugin = row.plugin_key || ''
-  if (domain === 'marketing')
-    return `/workbench/marketing?thread=${row.id}`
-  if (domain === 'support')
-    return `/workbench/support?thread=${row.id}`
-  if (domain === 'agency')
-    return `/workbench/agency?thread=${row.id}`
-  if (domain === 'feedback')
-    return `/workbench/feedback?thread=${row.id}`
-  if (plugin === 'consultant')
-    return `/workbench/consultant?thread=${row.id}`
-  if (AUTOMATION_AGENT_PLUGIN_KEYS.has(plugin))
-    return `/workbench/automation?thread=${row.id}`
-  return `/workbench/system?thread=${row.id}`
+  if (domain === 'general' && plugin === 'ppt')
+    return null
+  return routeForWorkbenchThread(row)
 }
 
 function categoryLabel(row: AgentThread, t: (key: string, fallback?: string) => string) {
   if ((row as any).category_label)
     return (row as any).category_label
-  if (row.domain === 'marketing') return t('biz.marketing')
+  if (row.domain === 'general' && row.plugin_key === XIAOWAN_ASSISTANT_PLUGIN_KEY) return t('biz.xiaoone', 'xiaoone')
+  if (row.domain === 'marketing') {
+    if (row.mode_key === 'image') return t('biz.marketing.image')
+    if (row.mode_key === 'video') return t('biz.marketing.video')
+    return t('biz.marketing.text')
+  }
   if (row.domain === 'support') return t('biz.support')
   if (row.domain === 'agency') return t('biz.agency')
   if (row.domain === 'feedback') return t('biz.feedback')
@@ -78,8 +77,8 @@ export function AgentThreadSearchDialog({ open, onClose }: AgentThreadSearchDial
       setLoading(true)
       setError('')
       try {
-        const payload = await getChatKit().AgentThreadAPI.list({ search: query.trim(), page_size: 10 } as any)
-        if (!cancelled) setRows(payload.items)
+        const payload = await getChatKit().AgentThreadAPI.list({ search: query.trim(), archived: 'false', page_size: 10 })
+        if (!cancelled) setRows(payload.items.filter(row => routeForThread(row)))
       } catch (err) {
         if (!cancelled) {
           setRows([])
@@ -103,8 +102,15 @@ export function AgentThreadSearchDialog({ open, onClose }: AgentThreadSearchDial
   }
 
   function openThread(row: AgentThread) {
-    navigate(routeForThread(row))
+    const route = routeForThread(row)
+    if (!route) {
+      toast({ title: t('search.unavailableTitle'), description: t('search.unavailableBody') })
+      return
+    }
     onClose()
+    window.requestAnimationFrame(() => {
+      navigate(route)
+    })
   }
 
   return (
@@ -175,13 +181,13 @@ export function AgentThreadSearchDialog({ open, onClose }: AgentThreadSearchDial
 
           <ul className="flex list-none flex-col gap-0 p-0 m-0">
             {rows.map(row => {
-              const snippet = row.preview || row.summary
+              const snippet = sanitizeAgentAssistantText(row.preview || row.summary || '')
               const showPlaceholder = !snippet
               return (
                 <li key={row.id}>
                   <button
                     type="button"
-                    className="flex w-full items-start justify-between gap-4 rounded-[var(--xiaoone-r-md)] border border-transparent px-3 py-3 text-left transition-colors hover:bg-[var(--xiaoone-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--xiaoone-accent-soft)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--xiaoone-bg-elev)]"
+                    className="flex w-full min-w-0 flex-col gap-2 rounded-[var(--xiaoone-r-md)] border border-transparent px-3 py-3 text-left transition-colors hover:bg-[var(--xiaoone-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--xiaoone-accent-soft)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--xiaoone-bg-elev)] sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                     onClick={() => openThread(row)}
                   >
                     <div className="min-w-0 flex-1">
@@ -194,8 +200,8 @@ export function AgentThreadSearchDialog({ open, onClose }: AgentThreadSearchDial
                         {snippet || t('agent.noSummary')}
                       </span>
                     </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
-                      <span className="max-w-[7.5rem] truncate text-right text-[11px] font-medium text-[var(--xiaoone-fg-soft)]">
+                    <div className="flex min-w-0 shrink-0 flex-col items-start gap-1 pt-0.5 sm:items-end">
+                      <span className="max-w-full truncate text-left text-[11px] font-medium text-[var(--xiaoone-fg-soft)] sm:max-w-[7.5rem] sm:text-right">
                         {categoryLabel(row, t)}
                       </span>
                       <time className="tabular-nums text-[11px] text-[var(--xiaoone-fg-faint)]">

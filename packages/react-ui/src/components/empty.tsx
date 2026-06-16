@@ -8,13 +8,10 @@ export interface EmptyProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Empty({ className, description = "暂无数据", children, ...props }: EmptyProps) {
   return (
     <div
-      className={cn(
-        "flex flex-col items-center justify-center p-8 text-center",
-        className
-      )}
+      className={cn("xo-empty", className)}
       {...props}
     >
-      <div className="mb-4 text-[var(--xiaoone-fg-mute)]">
+      <div className="xo-empty__icon">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="64"
@@ -32,8 +29,8 @@ export function Empty({ className, description = "暂无数据", children, ...pr
           </g>
         </svg>
       </div>
-      <div className="text-sm text-[var(--xiaoone-fg-mute)]">{description}</div>
-      {children && <div className="mt-4">{children}</div>}
+      <div className="xo-empty__description">{description}</div>
+      {children && <div className="xo-empty__actions">{children}</div>}
     </div>
   )
 }

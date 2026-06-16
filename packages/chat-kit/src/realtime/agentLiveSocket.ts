@@ -1,5 +1,6 @@
 import type { LiveConversation, LiveMessage } from '../types/live'
 import { RealtimeSocket } from './RealtimeSocket'
+import { buildChatWsUrl } from './wsUrl'
 
 /** 商户客服 WebSocket 客户端（接管会话用） */
 export class AgentLiveSocket {
@@ -7,7 +8,7 @@ export class AgentLiveSocket {
   constructor(private tokenSource: string | (() => string | null), private listeners: {
     onReady?: () => void
     /** 传输层状态（含自动重连）；与协议层 `ready` 不同。 */
-    onTransportStatus?: (status: 'connecting' | 'open' | 'closed') => void
+    onTransportStatus?: (status: 'connecting' | 'open' | 'closed' | 'auth-failed') => void
     onMessage?: (env: { conversation: LiveConversation; message: LiveMessage }) => void
     onMessageUpdated?: (env: { conversation: LiveConversation; message: LiveMessage }) => void
     onState?: (env: { conversation: LiveConversation }) => void
@@ -72,10 +73,14 @@ export class AgentLiveSocket {
     const loc = window.location
     const proto = loc.protocol === 'https:' ? 'wss:' : 'ws:'
     const explicit = (import.meta as unknown as { env?: { VITE_AGENT_WS_URL?: string } }).env?.VITE_AGENT_WS_URL
-    const base = explicit?.trim()
-      ? explicit.trim().replace(/\/$/, '')
-      : `${proto}//${loc.host}`
-    const presence = this.options.trackPresence === false ? '&presence=0' : ''
-    return `${base}/ws/agent/?token=${encodeURIComponent(token)}${presence}`
+    return buildChatWsUrl({
+      explicit,
+      fallbackOrigin: `${proto}//${loc.host}`,
+      path: '/ws/agent/',
+      params: {
+        token,
+        presence: this.options.trackPresence === false ? '0' : undefined,
+      },
+    })
   }
 }

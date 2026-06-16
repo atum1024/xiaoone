@@ -1,3 +1,9 @@
+.arch-panel--embedded {
+  max-width: none;
+  margin: 0;
+  padding: 14px var(--xiaoone-page-pad-x, 28px) 36px;
+}
+
 .arch-panel {
   padding: var(--xiaoone-page-pad-y, 20px) var(--xiaoone-page-pad-x, 28px) 40px;
   max-width: 880px;
@@ -9,20 +15,14 @@
 }
 .arch-head {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px 16px;
-  margin-bottom: 24px;
-}
-.arch-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  margin-bottom: 14px;
 }
 .arch-desc {
   margin: 0;
-  flex: 1 1 100%;
+  min-width: 0;
   font-size: 13px;
   color: var(--xiaoone-fg-mute);
   line-height: 1.5;

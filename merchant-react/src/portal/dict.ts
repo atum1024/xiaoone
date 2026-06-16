@@ -46,9 +46,17 @@ export const portalDict = {
     zh: '验证您的身份以继续使用工作站',
     en: 'Verify your identity to continue',
   } as LocalizedCopy,
-  loginDemoTitle: {
-    zh: '演示账号 · 一键填入',
-    en: 'Demo accounts · one-click fill',
+  loginLocalAccountTitle: {
+    zh: '本地测试账号',
+    en: 'Local test account',
+  } as LocalizedCopy,
+  loginLocalAccountDesc: {
+    zh: '已确认可登录本地商户端，含有效会员与平台点余额。',
+    en: 'Verified for the local user portal, with active membership and points.',
+  } as LocalizedCopy,
+  loginLocalAccountFill: {
+    zh: '填入账号',
+    en: 'Fill account',
   } as LocalizedCopy,
   loginIdentifierTabPhone: {
     zh: '手机号',
@@ -62,18 +70,27 @@ export const portalDict = {
   loginPhonePlaceholder: { zh: '请输入 11 位手机号', en: 'Enter an 11-digit phone number' } as LocalizedCopy,
   loginEmailLabel: { zh: '邮箱', en: 'Email address' } as LocalizedCopy,
   loginEmailPlaceholder: { zh: '请输入邮箱', en: 'you@company.com' } as LocalizedCopy,
-  loginModeSms: { zh: '验证码登录', en: 'SMS code' } as LocalizedCopy,
+  loginModeSms: { zh: '验证码登录', en: 'Verification code' } as LocalizedCopy,
   loginModePassword: { zh: '密码登录', en: 'Password' } as LocalizedCopy,
   loginSmsCodeLabel: { zh: '短信验证码', en: 'SMS verification code' } as LocalizedCopy,
   loginSmsCodeHint: {
-    zh: '腾讯云短信发送，5 分钟内有效',
-    en: 'Sent by Tencent Cloud SMS; valid for 5 minutes',
+    zh: '短信验证码5分钟内有效',
+    en: 'SMS code is valid for 5 minutes',
+  } as LocalizedCopy,
+  loginEmailCodeLabel: { zh: '邮箱验证码', en: 'Email verification code' } as LocalizedCopy,
+  loginEmailCodeHint: {
+    zh: '邮箱验证码5分钟内有效',
+    en: 'Email code is valid for 5 minutes',
   } as LocalizedCopy,
   loginSmsCodePlaceholder: { zh: '6 位验证码', en: '6-digit code' } as LocalizedCopy,
   loginPasswordLabel: { zh: '密码', en: 'Password' } as LocalizedCopy,
   loginPasswordHint: {
-    zh: '忘记密码？请联系管理员',
-    en: 'Forgot? Contact admin',
+    zh: '忘记密码？',
+    en: 'Forgot password?',
+  } as LocalizedCopy,
+  loginForgotPasswordLink: {
+    zh: '点此重置',
+    en: 'Reset it',
   } as LocalizedCopy,
   loginSubmitting: { zh: '安全验证中...', en: 'Authenticating…' } as LocalizedCopy,
   loginSubmit: { zh: '验证并登录', en: 'Verify & sign in' } as LocalizedCopy,
@@ -97,104 +114,20 @@ export const portalDict = {
     zh: '请输入有效的 11 位手机号',
     en: 'Please enter a valid 11-digit phone number',
   } as LocalizedCopy,
+  loginErrorEmailInvalid: {
+    zh: '请输入有效的邮箱地址',
+    en: 'Please enter a valid email address',
+  } as LocalizedCopy,
   loginErrorSmsFallback: {
     zh: '验证码发送失败，请稍后重试',
     en: 'Failed to send code, please retry shortly',
   } as LocalizedCopy,
+  loginErrorEmailFallback: {
+    zh: '邮箱验证码发送失败，请稍后重试',
+    en: 'Failed to send email code, please retry shortly',
+  } as LocalizedCopy,
 
   // ---- Register ----
-  registerStep: {
-    industry: { zh: '选择行业', en: 'Industry' } as LocalizedCopy,
-    goal: { zh: '输入目标', en: 'Goal' } as LocalizedCopy,
-    workspace: { zh: '工作站设置', en: 'Workspace' } as LocalizedCopy,
-    plan: { zh: '选择套餐', en: 'Plan' } as LocalizedCopy,
-    verify: { zh: '安全验证', en: 'Verify' } as LocalizedCopy,
-    emailVerify: { zh: '邮箱验证', en: 'Email verify' } as LocalizedCopy,
-    done: { zh: '完成', en: 'Done' } as LocalizedCopy,
-  },
-  registerIndustry: {
-    ecommerce: { zh: '跨境电商', en: 'Cross-border e-commerce' } as LocalizedCopy,
-    saas: { zh: 'SaaS / 软件', en: 'SaaS / software' } as LocalizedCopy,
-    game: { zh: '游戏出海', en: 'Gaming (overseas)' } as LocalizedCopy,
-    edu: { zh: '在线教育', en: 'Online education' } as LocalizedCopy,
-    other: { zh: '其他行业', en: 'Other industry' } as LocalizedCopy,
-  },
-  registerGoal: {
-    support: { zh: '提升客服效率 ⚡️', en: 'Support efficiency ⚡️' } as LocalizedCopy,
-    sales: { zh: '增加销售转化 💰', en: 'Sales conversion 💰' } as LocalizedCopy,
-    collab: { zh: '跨部门协同 🤝', en: 'Cross-team collaboration 🤝' } as LocalizedCopy,
-    insights: { zh: '数据分析与洞察 📊', en: 'Analytics & insights 📊' } as LocalizedCopy,
-  },
-  registerStep1Title: {
-    zh: '您所在的行业是？',
-    en: 'Which industry are you in?',
-  } as LocalizedCopy,
-  registerStep1Sub: {
-    zh: '帮助 xiaoone 为您匹配最合适的初始配置和语料模型。',
-    en: 'Helps xiaoone tailor the initial setup and language model.',
-  } as LocalizedCopy,
-  registerStep2Bot: {
-    zh: '太棒了！接下来，能告诉我您主要想用 xiaoone 解决什么问题吗？我会为您推荐专属模块。',
-    en: "Awesome! What's the main problem you want xiaoone to solve? I'll recommend tailored modules.",
-  } as LocalizedCopy,
-  registerStep2InputPlaceholder: {
-    zh: '或者直接告诉我您的其他想法...',
-    en: 'Or tell me your own idea...',
-  } as LocalizedCopy,
-  registerStep3Title: {
-    zh: '给您的工作站起个名字',
-    en: 'Name your workspace',
-  } as LocalizedCopy,
-  registerStep3Sub: {
-    zh: '这将作为您团队协作的唯一入口。',
-    en: 'This will be your team’s single entry point.',
-  } as LocalizedCopy,
-  registerStep3WsLabel: { zh: '工作站名称', en: 'Workspace name' } as LocalizedCopy,
-  registerStep3WsPlaceholder: {
-    zh: '例如：Acme Corp 智能客服中心',
-    en: 'e.g. Acme Corp Support Center',
-  } as LocalizedCopy,
-  registerStep3NickLabel: { zh: '您的称呼', en: 'How shall we call you' } as LocalizedCopy,
-  registerStep3NickPlaceholder: {
-    zh: '例如：王总 / 运营负责人',
-    en: 'e.g. Director / Ops lead',
-  } as LocalizedCopy,
-  registerNext: { zh: '下一步', en: 'Next' } as LocalizedCopy,
-  registerStep4Title: { zh: '选择初始版本', en: 'Pick your starter plan' } as LocalizedCopy,
-  registerStep4Sub: {
-    zh: '您可以先从免费版开始，随时升级。',
-    en: 'Start free; upgrade any time.',
-  } as LocalizedCopy,
-  registerPlanFreeName: { zh: '免费体验版', en: 'Free' } as LocalizedCopy,
-  registerPlanFreeDesc: {
-    zh: '包含 1 个工作台席位，每月 500 条基础 AI 额度。',
-    en: '1 workbench seat, 500 basic AI messages / month.',
-  } as LocalizedCopy,
-  registerPlanProName: { zh: 'Pro 专业版', en: 'Pro' } as LocalizedCopy,
-  registerPlanProDesc: {
-    zh: '10 个账号，无限制对话，全渠道接入及高级自动化。',
-    en: '10 seats, unlimited chats, omni-channel & advanced automation.',
-  } as LocalizedCopy,
-  registerPlanProPriceUnit: { zh: '/月', en: '/mo' } as LocalizedCopy,
-  registerConfirmPlan: { zh: '确认选择', en: 'Confirm plan' } as LocalizedCopy,
-  registerStep5Title: { zh: '创建超级管理员账号', en: 'Create the owner account' } as LocalizedCopy,
-  registerStep5EmailTitle: { zh: '验证 Owner 邮箱', en: 'Verify the owner email' } as LocalizedCopy,
-  registerStep5SubPrefix: {
-    zh: '作为工作站的最高权限拥有者。短信验证码',
-    en: 'Top-level workspace owner. The SMS verification code',
-  } as LocalizedCopy,
-  registerStep5SubSuffix: {
-    zh: '5 分钟内有效。',
-    en: 'is valid for 5 minutes.',
-  } as LocalizedCopy,
-  registerStep5EmailSubPrefix: {
-    zh: '海外版将使用邮箱作为登录账号。邮箱验证码',
-    en: 'The overseas version uses email as the sign-in account. The email verification code',
-  } as LocalizedCopy,
-  registerStep5EmailSubSuffix: {
-    zh: '5 分钟内有效。',
-    en: 'is valid for 5 minutes.',
-  } as LocalizedCopy,
   registerEmailLabel: { zh: '邮箱', en: 'Email address' } as LocalizedCopy,
   registerEmailPlaceholder: {
     zh: '输入您的邮箱',
@@ -215,23 +148,33 @@ export const portalDict = {
   registerCodeSend: { zh: '获取验证码', en: 'Send code' } as LocalizedCopy,
   registerPasswordLabel: { zh: '设置密码', en: 'Set password' } as LocalizedCopy,
   registerPasswordPlaceholder: { zh: '不少于 6 位字符', en: 'At least 6 characters' } as LocalizedCopy,
+  registerPasswordConfirmLabel: { zh: '确认密码', en: 'Confirm password' } as LocalizedCopy,
+  registerPasswordConfirmPlaceholder: { zh: '请再次输入密码', en: 'Enter the password again' } as LocalizedCopy,
   registerSubmitting: { zh: '创建中...', en: 'Creating…' } as LocalizedCopy,
   registerSubmit: { zh: '创建账号', en: 'Create account' } as LocalizedCopy,
-  registerStep6Title: { zh: '工作站创建成功！', en: 'Workspace ready!' } as LocalizedCopy,
-  registerStep6DescPrefix: {
-    zh: '我们已为您初始化了',
-    en: 'We have initialized',
+  registerProvisioningKicker: { zh: '正在开通专属空间', en: 'Provisioning your space' } as LocalizedCopy,
+  registerProvisioningTitle: { zh: '正在把工作站点亮', en: 'Lighting up your workspace' } as LocalizedCopy,
+  registerProvisioningDescPrefix: {
+    zh: '请稍等，',
+    en: 'Please wait while ',
   } as LocalizedCopy,
-  registerStep6DescDefaultName: {
-    zh: '专属工作站',
-    en: 'your dedicated workspace',
+  registerProvisioningDescSuffix: {
+    zh: ' 的空间、通道和初始设置正在同步。',
+    en: ' is getting its space, channel, and starter settings.',
   } as LocalizedCopy,
-  registerStep6DescSuffix: {
-    zh: '的基础设置，正在跳转到工作台。',
-    en: '. Heading to the workbench now.',
+  registerProvisioningStepAccount: { zh: '账号身份已确认', en: 'Owner identity confirmed' } as LocalizedCopy,
+  registerProvisioningStepWorkspace: { zh: '创建团队工作空间', en: 'Creating team workspace' } as LocalizedCopy,
+  registerProvisioningStepChannel: { zh: '连接xiaoone 通道', en: 'Connecting xiaoone channel' } as LocalizedCopy,
+  registerProvisioningStepWorkbench: { zh: '准备进入工作台', en: 'Preparing workbench' } as LocalizedCopy,
+  registerProvisioningBlockedTitle: { zh: '账号已创建，空间仍在处理', en: 'Account created, space still needs attention' } as LocalizedCopy,
+  registerProvisioningBlockedDesc: {
+    zh: '我们没有把后台开通任务误判为完成。请稍后登录，或联系平台处理。',
+    en: 'We did not mark the background setup as complete. Sign in later or contact support.',
   } as LocalizedCopy,
+  registerProvisioningBlockedFallback: { zh: '空间开通受阻，请稍后登录或联系平台处理。', en: 'Workspace provisioning is blocked. Sign in later or contact support.' } as LocalizedCopy,
+  registerProvisioningTimeout: { zh: '空间仍在开通中，请稍后登录。', en: 'Workspace provisioning is still running. Sign in later.' } as LocalizedCopy,
+  registerProvisioningLoginRequired: { zh: '账号已创建，但自动登录未完成。请返回登录页后查看工作台状态。', en: 'Account created, but automatic sign-in did not complete. Sign in to check workspace status.' } as LocalizedCopy,
   registerEnterWorkbench: { zh: '进入工作台', en: 'Enter workbench' } as LocalizedCopy,
-  registerStepBack: { zh: '返回上一步', en: 'Back' } as LocalizedCopy,
   registerErrorPhoneInvalid: {
     zh: '请输入有效的 11 位手机号',
     en: 'Please enter a valid 11-digit phone number',
@@ -248,6 +191,14 @@ export const portalDict = {
     zh: '密码至少 6 位',
     en: 'Password must be at least 6 characters',
   } as LocalizedCopy,
+  registerErrorPasswordMismatch: {
+    zh: '两次输入的密码不一致',
+    en: 'Passwords do not match',
+  } as LocalizedCopy,
+  registerErrorTerms: {
+    zh: '请先阅读并勾选同意用户协议与隐私政策',
+    en: 'Please read and agree to the User Agreement and Privacy Policy first',
+  } as LocalizedCopy,
   registerErrorSmsFallback: {
     zh: '验证码发送失败，请稍后重试',
     en: 'Failed to send code, please retry shortly',
@@ -260,15 +211,426 @@ export const portalDict = {
     zh: '创建工作站失败，请稍后再试',
     en: 'Failed to create workspace, please try again',
   } as LocalizedCopy,
-} as const
 
-export const demoAccountHints = {
-  fusesim: {
-    zh: '海外版示例：跨境电商工作站',
-    en: 'Overseas demo: cross-border e-commerce',
+  // ---- Register（精简单页版补充） ----
+  registerSimpleHeroTitle: {
+    zh: '加入 xiaoone 智能工作站',
+    en: 'Join xiaoone intelligent workstation',
   } as LocalizedCopy,
-  mall: {
-    zh: '国内版示例：智能客服商城',
-    en: 'Domestic demo: smart support mall',
+  registerSimpleHeroDesc: {
+    zh: '注册后立即进入工作台，智能空间在后台自动开通，约 3 分钟完成。',
+    en: 'Sign up to enter the workbench immediately. Your smart space provisions in about 3 minutes.',
   } as LocalizedCopy,
-}
+  registerSimpleFeatureSpace: {
+    zh: '专属智能工作空间，开箱即用',
+    en: 'Dedicated smart workspace out of the box',
+  } as LocalizedCopy,
+  registerSimpleFeatureChannel: {
+    zh: '内置 xiaoone 通道，渠道数据互通',
+    en: 'Built-in xiaoone channel, unified data flow',
+  } as LocalizedCopy,
+  registerSimpleFeatureFree: {
+    zh: '免费版即可体验全套核心能力',
+    en: 'Free tier covers all core capabilities',
+  } as LocalizedCopy,
+  registerSimpleFormTitle: {
+    zh: '创建您的工作站',
+    en: 'Create your workstation',
+  } as LocalizedCopy,
+  registerSimpleFormSub: {
+    zh: '完成下方信息即可立即使用',
+    en: 'Fill in the form to get started instantly',
+  } as LocalizedCopy,
+  registerNicknameLabel: {
+    zh: '您的称呼（选填）',
+    en: 'How shall we call you (optional)',
+  } as LocalizedCopy,
+  registerNicknamePlaceholder: {
+    zh: '例如：小一',
+    en: 'e.g. Alex',
+  } as LocalizedCopy,
+  registerWorkspaceNameLabel: {
+    zh: '工作站名称（选填）',
+    en: 'Workspace name (optional)',
+  } as LocalizedCopy,
+  registerWorkspaceNamePlaceholder: {
+    zh: '例如：Acme 智能客服中心',
+    en: 'e.g. Acme Support Center',
+  } as LocalizedCopy,
+  registerSubdomainLabel: {
+    zh: '二级域名',
+    en: 'Workspace subdomain',
+  } as LocalizedCopy,
+  registerSubdomainPlaceholder: {
+    zh: '例如：acme2026',
+    en: 'e.g. acme2026',
+  } as LocalizedCopy,
+  registerSubdomainSuffix: {
+    zh: '.xiaoone.cn',
+    en: '.xiaoone.cn',
+  } as LocalizedCopy,
+  registerSubdomainTip: {
+    zh: '仅支持小写字母、数字和短横线，长度 3-20。',
+    en: 'Use lowercase letters, numbers, and dashes, 3-20 chars.',
+  } as LocalizedCopy,
+  registerSubdomainTaken: {
+    zh: '该二级域名已被占用，请更换。',
+    en: 'This subdomain is already taken.',
+  } as LocalizedCopy,
+  registerSubdomainInvalid: {
+    zh: '二级域名格式不合法（3-20 位，不能以 - 开头或结尾）。',
+    en: 'Invalid subdomain format (3-20 chars, cannot start/end with -).',
+  } as LocalizedCopy,
+  registerLocalAdvancedToggle: {
+    zh: '本地高级选项',
+    en: 'Local advanced options',
+  } as LocalizedCopy,
+  registerLocalAdvancedHint: {
+    zh: '仅在本地开发环境可见，预览/正式环境由平台统一配置。',
+    en: 'Visible in local dev only. Preview/Prod use the platform-managed default.',
+  } as LocalizedCopy,
+  registerWorkspaceModeLabel: {
+    zh: '智能工作站 provider',
+    en: 'Smart workstation provider',
+  } as LocalizedCopy,
+  registerWorkspaceModeTm: {
+    zh: '智能工作站 · tm',
+    en: 'Smart Workstation · tm',
+  } as LocalizedCopy,
+  registerWorkspaceModeTmDesc: {
+    zh: '链接到 106 模板机的共享 Hermes 工作区，所有本地用户共用，调试结果可打成 CVM 自定义镜像。',
+    en: 'Connects to the shared Hermes template machine on 106 for local users; debug output can become a CVM custom image.',
+  } as LocalizedCopy,
+  registerWorkspaceModeCvm: {
+    zh: '智能工作站 · cvm',
+    en: 'Smart Workstation · cvm',
+  } as LocalizedCopy,
+  registerWorkspaceModeCvmDesc: {
+    zh: '腾讯云 CVM Hermes 镜像，与预览/正式注册路径一致。',
+    en: 'Tencent Cloud CVM Hermes image, matching preview/prod registration.',
+  } as LocalizedCopy,
+  registerLoginInsteadLink: {
+    zh: '已有账号？去登录',
+    en: 'Already have an account? Sign in',
+  } as LocalizedCopy,
+  registerToLogin: {
+    zh: '直接登录',
+    en: 'Sign in instead',
+  } as LocalizedCopy,
+  registerSuccessNotice: {
+    zh: '注册成功，正在进入工作台。智能空间将在 3 分钟内准备就绪。',
+    en: 'Sign up complete. Heading to the workbench. Smart space ready in ~3 min.',
+  } as LocalizedCopy,
+  registerTermsPrefix: {
+    zh: '我已阅读并同意',
+    en: 'I have read and agree to the ',
+  } as LocalizedCopy,
+  registerTermsAgreement: {
+    zh: '《用户协议》',
+    en: 'User Agreement',
+  } as LocalizedCopy,
+  registerTermsJoin: {
+    zh: '和',
+    en: ' and ',
+  } as LocalizedCopy,
+  registerTermsPrivacy: {
+    zh: '《隐私政策》',
+    en: 'Privacy Policy',
+  } as LocalizedCopy,
+
+  // ---- Forgot password ----
+  forgotHeroTitle: {
+    zh: '重置您的登录密码',
+    en: 'Reset your password',
+  } as LocalizedCopy,
+  forgotHeroDesc: {
+    zh: '通过已绑定的手机号或邮箱获取验证码，3 步完成重置。',
+    en: 'Use your bound phone or email. Three steps and you’re back in.',
+  } as LocalizedCopy,
+  forgotFeatureChannel: {
+    zh: '按已绑定身份自动选择验证渠道',
+    en: 'Automatic channel based on your bound identity',
+  } as LocalizedCopy,
+  forgotFeatureSecure: {
+    zh: '5 分钟有效，超时自动失效',
+    en: '5-minute validity with auto-expire',
+  } as LocalizedCopy,
+  forgotFormTitle: {
+    zh: '忘记密码',
+    en: 'Forgot password',
+  } as LocalizedCopy,
+  forgotFormSub: {
+    zh: '输入注册时使用的手机号或邮箱',
+    en: 'Enter the phone or email used at signup',
+  } as LocalizedCopy,
+  forgotIdentifierLabel: {
+    zh: '手机号 / 邮箱',
+    en: 'Phone or email',
+  } as LocalizedCopy,
+  forgotIdentifierPlaceholder: {
+    zh: '请输入手机号或邮箱',
+    en: 'Enter your phone or email',
+  } as LocalizedCopy,
+  forgotIdentifierInvalid: {
+    zh: '请输入有效的手机号或邮箱',
+    en: 'Please enter a valid phone or email',
+  } as LocalizedCopy,
+  forgotAccountNotFound: {
+    zh: '未查询到与该信息匹配的账号',
+    en: 'No account matches this identifier',
+  } as LocalizedCopy,
+  forgotSendCode: {
+    zh: '获取验证码',
+    en: 'Send code',
+  } as LocalizedCopy,
+  forgotCodeLabel: {
+    zh: '验证码',
+    en: 'Verification code',
+  } as LocalizedCopy,
+  forgotCodePlaceholder: {
+    zh: '请输入 6 位验证码',
+    en: '6-digit code',
+  } as LocalizedCopy,
+  forgotNoticeSentSms: {
+    zh: '短信验证码已发送至手机。',
+    en: 'SMS verification code sent.',
+  } as LocalizedCopy,
+  forgotNoticeSentEmail: {
+    zh: '邮箱验证码已发送至邮箱。',
+    en: 'Email verification code sent.',
+  } as LocalizedCopy,
+  forgotNewPasswordLabel: {
+    zh: '设置新密码',
+    en: 'New password',
+  } as LocalizedCopy,
+  forgotNewPasswordPlaceholder: {
+    zh: '不少于 6 位字符',
+    en: 'At least 6 characters',
+  } as LocalizedCopy,
+  forgotConfirmPasswordLabel: {
+    zh: '再次输入新密码',
+    en: 'Confirm new password',
+  } as LocalizedCopy,
+  forgotPasswordMismatch: {
+    zh: '两次输入的密码不一致',
+    en: 'Passwords do not match',
+  } as LocalizedCopy,
+  forgotSubmitting: {
+    zh: '正在重置...',
+    en: 'Resetting…',
+  } as LocalizedCopy,
+  forgotSubmit: {
+    zh: '完成密码重置',
+    en: 'Reset password',
+  } as LocalizedCopy,
+  forgotSuccessTitle: {
+    zh: '密码重置成功',
+    en: 'Password reset',
+  } as LocalizedCopy,
+  forgotSuccessDesc: {
+    zh: '请使用新密码重新登录',
+    en: 'Sign in again with your new password',
+  } as LocalizedCopy,
+  forgotBackToLogin: {
+    zh: '返回登录',
+    en: 'Back to sign in',
+  } as LocalizedCopy,
+  forgotErrorFallback: {
+    zh: '重置密码失败，请稍后重试',
+    en: 'Reset failed, please retry shortly',
+  } as LocalizedCopy,
+  forgotErrorSendFallback: {
+    zh: '验证码发送失败，请稍后重试',
+    en: 'Failed to send code, please retry shortly',
+  } as LocalizedCopy,
+
+  // ---- Auth chat portal ----
+  chatStyleSwitchClassic: {
+    zh: '切换到传统登录',
+    en: 'Switch to classic form',
+  } as LocalizedCopy,
+  chatStyleSwitchChat: {
+    zh: '切换到 AI 对话',
+    en: 'Switch to AI chat',
+  } as LocalizedCopy,
+  chatChipSmsLogin: {
+    zh: '验证码登录',
+    en: 'Code sign-in',
+  } as LocalizedCopy,
+  chatChipPasswordLogin: {
+    zh: '密码登录',
+    en: 'Password sign-in',
+  } as LocalizedCopy,
+  chatChipResetPassword: {
+    zh: '重置密码',
+    en: 'Reset password',
+  } as LocalizedCopy,
+  chatChipRegister: {
+    zh: '注册智能空间站',
+    en: 'Create smart workspace',
+  } as LocalizedCopy,
+  chatComposerPlaceholder: {
+    zh: '输入消息…',
+    en: 'Type a message…',
+  } as LocalizedCopy,
+  chatComposerSend: {
+    zh: '发送',
+    en: 'Send',
+  } as LocalizedCopy,
+  chatComposerSkip: {
+    zh: '跳过',
+    en: 'Skip',
+  } as LocalizedCopy,
+  chatComposerAcceptTerms: {
+    zh: '我已阅读并同意',
+    en: 'I agree',
+  } as LocalizedCopy,
+  chatWelcome: {
+    zh: '你好，我是 xiaoone 登录助手。请选择下方快捷入口，或直接告诉我你的手机号/邮箱。',
+    en: 'Hi, I am the xiaoone sign-in assistant. Pick a shortcut below, or tell me your phone or email.',
+  } as LocalizedCopy,
+  chatAskIdentifierPhone: {
+    zh: '请输入你的 11 位手机号。',
+    en: 'Please enter your 11-digit phone number.',
+  } as LocalizedCopy,
+  chatAskIdentifierEmail: {
+    zh: '请输入你的邮箱地址。',
+    en: 'Please enter your email address.',
+  } as LocalizedCopy,
+  chatAskPassword: {
+    zh: '请输入登录密码。',
+    en: 'Please enter your password.',
+  } as LocalizedCopy,
+  chatAskCode: {
+    zh: '验证码已发送，请输入 6 位验证码。',
+    en: 'Code sent. Enter the 6-digit verification code.',
+  } as LocalizedCopy,
+  chatSendingCode: {
+    zh: '正在发送验证码…',
+    en: 'Sending verification code…',
+  } as LocalizedCopy,
+  chatCodeSentPhone: {
+    zh: '短信验证码已发送。',
+    en: 'SMS code sent.',
+  } as LocalizedCopy,
+  chatCodeSentEmail: {
+    zh: '邮箱验证码已发送。',
+    en: 'Email code sent.',
+  } as LocalizedCopy,
+  chatLoggingIn: {
+    zh: '正在验证并登录…',
+    en: 'Signing you in…',
+  } as LocalizedCopy,
+  chatLoginSuccess: {
+    zh: '登录成功，正在进入工作台…',
+    en: 'Signed in. Opening your workbench…',
+  } as LocalizedCopy,
+  chatAskNewPassword: {
+    zh: '请设置新密码（不少于 6 位）。',
+    en: 'Set a new password (at least 6 characters).',
+  } as LocalizedCopy,
+  chatAskConfirmPassword: {
+    zh: '请再次输入新密码以确认。',
+    en: 'Enter the new password again to confirm.',
+  } as LocalizedCopy,
+  chatResetting: {
+    zh: '正在重置密码…',
+    en: 'Resetting password…',
+  } as LocalizedCopy,
+  chatResetSuccess: {
+    zh: '密码已重置。你可以点击「密码登录」用新密码登录。',
+    en: 'Password reset complete. Tap Password sign-in to continue.',
+  } as LocalizedCopy,
+  chatAskRegisterPassword: {
+    zh: '请设置账号密码（不少于 6 位）。',
+    en: 'Set your account password (at least 6 characters).',
+  } as LocalizedCopy,
+  chatAskTerms: {
+    zh: '注册前请阅读并同意《用户协议》和《隐私政策》。',
+    en: 'Before registering, please read and agree to the User Agreement and Privacy Policy.',
+  } as LocalizedCopy,
+  chatAskNickname: {
+    zh: '请填写你的用户名（显示名称）。',
+    en: 'Choose a display name for your account.',
+  } as LocalizedCopy,
+  chatAskAvatar: {
+    zh: '可选择上传头像，或点击「跳过」使用默认 logo。',
+    en: 'Upload an avatar, or tap Skip to use the default logo.',
+  } as LocalizedCopy,
+  chatAskWorkspace: {
+    zh: '请填写智能空间站名称（至少 2 个字符）。',
+    en: 'Name your smart workspace (at least 2 characters).',
+  } as LocalizedCopy,
+  chatSubdomainChecking: {
+    zh: '正在校验二级域名…',
+    en: 'Checking subdomain availability…',
+  } as LocalizedCopy,
+  chatSubdomainAvailable: {
+    zh: '二级域名可用，正在开通空间站…',
+    en: 'Subdomain available. Creating your workspace…',
+  } as LocalizedCopy,
+  chatRegisterSuccess: {
+    zh: '空间站已创建。接下来选择套餐即可解除功能限制。',
+    en: 'Workspace created. Choose a plan to unlock full access.',
+  } as LocalizedCopy,
+  chatSwitchIdentifierHint: {
+    zh: '你也可以切换验证方式：',
+    en: 'You can also switch identity type:',
+  } as LocalizedCopy,
+  chatFlowPasswordIntro: {
+    zh: '好的，我们使用密码登录。请先告诉我你的手机号或邮箱。',
+    en: 'Password sign-in it is. Start with your phone or email.',
+  } as LocalizedCopy,
+  chatFlowSmsIntro: {
+    zh: '好的，我们使用验证码登录。请先告诉我你的手机号或邮箱。',
+    en: 'Code sign-in it is. Start with your phone or email.',
+  } as LocalizedCopy,
+  chatFlowResetIntro: {
+    zh: '好的，我来帮你重置密码。请输入注册时使用的手机号或邮箱。',
+    en: 'Let me help reset your password. Enter the phone or email used at signup.',
+  } as LocalizedCopy,
+  chatFlowRegisterIntro: {
+    zh: '欢迎注册 xiaoone 智能空间站。请先告诉我你的手机号或邮箱。',
+    en: 'Welcome to xiaoone. Start with your phone or email to register.',
+  } as LocalizedCopy,
+  chatInvalidIdentifier: {
+    zh: '格式不正确，请重新输入。',
+    en: 'Invalid format. Please try again.',
+  } as LocalizedCopy,
+  chatInvalidCode: {
+    zh: '请输入 6 位验证码。',
+    en: 'Please enter a 6-digit code.',
+  } as LocalizedCopy,
+  chatInvalidPassword: {
+    zh: '密码至少 6 位。',
+    en: 'Password must be at least 6 characters.',
+  } as LocalizedCopy,
+  chatPasswordMismatch: {
+    zh: '两次输入的密码不一致，请重新确认。',
+    en: 'Passwords do not match. Please try again.',
+  } as LocalizedCopy,
+  chatTermsRequired: {
+    zh: '请先同意用户协议与隐私政策。',
+    en: 'Please agree to the terms first.',
+  } as LocalizedCopy,
+  chatSubdomainInvalid: {
+    zh: '二级域名不可用，请更换空间站名称。',
+    en: 'Subdomain unavailable. Try a different workspace name.',
+  } as LocalizedCopy,
+  chatSubdomainTaken: {
+    zh: '该二级域名已被占用，请更换名称。',
+    en: 'This subdomain is taken. Try another name.',
+  } as LocalizedCopy,
+  chatGenericError: {
+    zh: '操作失败，请稍后重试。',
+    en: 'Something went wrong. Please try again.',
+  } as LocalizedCopy,
+  chatResendCode: {
+    zh: '重新发送验证码',
+    en: 'Resend code',
+  } as LocalizedCopy,
+  chatResendCooldown: {
+    zh: '秒后重发',
+    en: 's until resend',
+  } as LocalizedCopy,
+} as const

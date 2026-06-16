@@ -9,7 +9,7 @@ export interface RealtimeSocketOptions {
   onClose?: (code: number) => void
   onError?: (ev: Event) => void
   onMessage?: (payload: RealtimePayload) => void
-  onStatus?: (status: 'connecting' | 'open' | 'closed') => void
+  onStatus?: (status: 'connecting' | 'open' | 'closed' | 'auth-failed') => void
 }
 
 export class RealtimeSocket {
@@ -17,6 +17,7 @@ export class RealtimeSocket {
   private heartbeatTimer: number | null = null
   private pongTimer: number | null = null
   private reconnectTimer: number | null = null
+  private reconnectAttempt = 0
   private closed = true
   /** 后台标签页会节流 setInterval，心跳发不出去 → 反代空闲断连；用可见性 / 在线事件补救。 */
   private lifecycleWakeBound = false
@@ -72,6 +73,7 @@ export class RealtimeSocket {
     const ws = new WebSocket(url)
     this.socket = ws
     ws.onopen = () => {
+      this.reconnectAttempt = 0
       this.bindLifecycleWake()
       this.opts.onStatus?.('open')
       this.startHeartbeat()
@@ -80,6 +82,15 @@ export class RealtimeSocket {
     ws.onmessage = (ev) => {
       try {
         const payload = JSON.parse(ev.data as string)
+        if (payload?.type === 'error' && payload?.code === 'agent_auth_failed') {
+          this.closed = true
+          this.clearReconnect()
+          this.stopHeartbeat()
+          this.opts.onStatus?.('auth-failed')
+          this.opts.onMessage?.(payload)
+          this.cleanupSocket(true)
+          return
+        }
         if (payload?.type === 'pong') {
           this.clearPongTimer()
           return
@@ -150,13 +161,17 @@ export class RealtimeSocket {
     }, this.opts.pongTimeoutMs ?? 15000)
   }
 
-  private scheduleReconnect(delayMs = this.opts.reconnectDelayMs ?? 2500) {
+  private scheduleReconnect(delayMs?: number) {
     if (this.reconnectTimer != null) return
+    const baseDelay = this.opts.reconnectDelayMs ?? 2500
+    const backoffDelay = Math.min(baseDelay * (2 ** this.reconnectAttempt), 20000)
+    const effectiveDelay = delayMs ?? backoffDelay
+    this.reconnectAttempt += 1
     this.reconnectTimer = window.setTimeout(() => {
       this.reconnectTimer = null
       if (!this.closed)
         this.connect()
-    }, delayMs)
+    }, effectiveDelay)
   }
 
   private cleanupSocket(closeSocket: boolean) {

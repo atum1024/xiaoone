@@ -5,6 +5,7 @@ import { assignDefined, createChatApiClient } from './api/chatApi'
 import { createKefuApi } from './api/kefuApi'
 import { createTeamChatApi } from './api/teamChatApi'
 import { AgentLiveSocket } from './realtime/agentLiveSocket'
+import { ServiceCaseLiveSocket, type ServiceCaseSocketHandlers } from './realtime/serviceCaseLiveSocket'
 
 export interface ChatKitContext {
   readAccessToken: () => string | null
@@ -13,7 +14,7 @@ export interface ChatKitContext {
 }
 
 export function createChatKit(ctx: ChatKitContext) {
-  const { ChatAPI, ChannelsAPI } = createChatApiClient(ctx.apiClient)
+  const { ChatAPI } = createChatApiClient(ctx.apiClient)
   const { TeamChatAPI } = createTeamChatApi(ctx.apiClient)
   const kefu = createKefuApi(ctx.apiClient)
   const agent = createAgentApi(ctx.apiClient, ctx.authFetch)
@@ -26,13 +27,18 @@ export function createChatKit(ctx: ChatKitContext) {
     return new AgentLiveSocket(ctx.readAccessToken, listeners, options)
   }
 
+  function createServiceCaseLiveSocket(caseId: string, handlers: ServiceCaseSocketHandlers = {}) {
+    return new ServiceCaseLiveSocket(ctx.readAccessToken, caseId, handlers)
+  }
+
   return {
     apiClient: ctx.apiClient,
     ChatAPI,
-    ChannelsAPI,
     TeamChatAPI,
     createAgentLiveSocket,
+    createServiceCaseLiveSocket,
     AgentLiveSocket,
+    ServiceCaseLiveSocket,
     assignDefined,
     ...kefu,
     ...agent,

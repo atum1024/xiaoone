@@ -1,0 +1,42 @@
+.xo-default-avatar {
+  width: var(--xo-avatar-size, 32px);
+  height: var(--xo-avatar-size, 32px);
+  border-radius: var(--xiaoone-r-pill);
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--xiaoone-bg-elev);
+  border: 1px solid var(--xiaoone-border);
+}
+
+.xo-default-avatar--square {
+  border-radius: var(--xiaoone-panel-radius);
+}
+
+.xo-default-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.xo-default-avatar--fallback {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--xiaoone-accent) 14%, transparent), transparent),
+    var(--xiaoone-bg-elev);
+  color: var(--xiaoone-accent);
+}
+
+.xo-default-avatar__fallback {
+  font-size: calc(var(--xo-avatar-size, 32px) * .34);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+[data-theme='dark'] .xo-default-avatar--brand {
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 78%, transparent);
+  border-color: color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+}

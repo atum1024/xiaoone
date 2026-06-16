@@ -17,7 +17,7 @@
 .stat-card {
   background: var(--xiaoone-bg-soft);
   border: 1px solid var(--xiaoone-border);
-  border-radius: 12px;
+  border-radius: var(--xiaoone-panel-radius);
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
@@ -35,24 +35,31 @@
   border: 1px solid var(--xiaoone-border);
   background: var(--xiaoone-bg-hover);
   color: var(--xiaoone-fg-mute);
-  border-radius: 10px;
+  border-radius: var(--xiaoone-panel-radius);
   font-size: 12.5px;
 }
 
 .toolbar { display: flex; align-items: center; gap: 10px; }
+.tm-search-field {
+  position: relative;
+  width: 260px;
+  flex: 0 0 260px;
+}
+.tm-search-field__icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--xiaoone-fg-mute);
+  pointer-events: none;
+  display: inline-flex;
+  z-index: 1;
+}
+.tm-search-field__input { padding-left: 34px; }
 .toolbar-info { color: var(--xiaoone-fg-mute); font-size: 12px; }
 
 .cell-member { display: flex; align-items: center; gap: 10px; }
 .ava {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg, #7c5cff, #22d3ee);
   flex-shrink: 0;
 }
 .cell-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -67,8 +74,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(34, 197, 94, 0.12);
-  color: #16a34a;
+  background: var(--xiaoone-success-bg);
+  color: var(--xiaoone-success);
   display: grid;
   place-items: center;
   margin: 0 auto;
@@ -76,10 +83,35 @@
 .invite-done code {
   background: var(--xiaoone-bg-hover);
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--xiaoone-control-radius);
   font-size: 14px;
   display: inline-block;
   margin-top: 6px;
+}
+
+.tm-permission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-soft);
+}
+
+.tm-permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--xiaoone-fg);
+}
+
+.tm-permission-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hint { color: var(--xiaoone-fg-mute); font-size: 12px; }

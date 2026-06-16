@@ -1,0 +1,96 @@
+/**
+ * Product-layer surface utilities — glass panels, glow shells, cards.
+ * Scoped class names; import after tokens.css in each app main.tsx.
+ */
+
+.xiaoone-glass-panel {
+  background: var(--xiaoone-glass-bg);
+  border: 1px solid var(--xiaoone-glass-border);
+  border-radius: var(--xiaoone-r-lg);
+  box-shadow: var(--xiaoone-glass-shadow);
+  backdrop-filter: blur(var(--xiaoone-glass-blur));
+  -webkit-backdrop-filter: blur(var(--xiaoone-glass-blur));
+}
+
+.xiaoone-glow-shell {
+  background:
+    radial-gradient(1200px 380px at 12% -8%, var(--xiaoone-glow-indigo), transparent 56%),
+    radial-gradient(920px 320px at 88% -12%, var(--xiaoone-glow-cyan), transparent 52%),
+    radial-gradient(800px 280px at 50% 100%, var(--xiaoone-glow-teal), transparent 58%),
+    var(--xiaoone-bg);
+}
+
+/* Workbench default: calm bordered panel (no glass, no hover lift). */
+.xiaoone-work-panel {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-elev);
+  box-shadow: none;
+}
+
+/* Glass: composer, dialogs, hero/membership purchase only. */
+.xiaoone-glass-panel--allowed {
+  background: var(--xiaoone-glass-bg);
+  border: 1px solid var(--xiaoone-glass-border);
+  border-radius: var(--xiaoone-dialog-radius);
+  box-shadow: var(--xiaoone-glass-shadow);
+  backdrop-filter: blur(var(--xiaoone-glass-blur));
+  -webkit-backdrop-filter: blur(var(--xiaoone-glass-blur));
+}
+
+.xiaoone-surface-card {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-elev);
+  box-shadow: none;
+  transition:
+    border-color var(--xiaoone-motion-fast) var(--xiaoone-motion-ease),
+    background-color var(--xiaoone-motion-fast) var(--xiaoone-motion-ease);
+}
+
+.xiaoone-surface-card:hover {
+  border-color: color-mix(in srgb, var(--xiaoone-accent-soft) 28%, var(--xiaoone-border));
+}
+
+.xiaoone-focus-ring:focus-visible {
+  outline: none;
+  border-color: var(--xiaoone-accent-soft);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--xiaoone-accent-soft) 42%, transparent);
+}
+
+.xiaoone-glow-band {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--xiaoone-info) 14%, var(--xiaoone-bg-elev)) 0%,
+    color-mix(in srgb, var(--xiaoone-support) 15%, var(--xiaoone-bg-elev)) 100%
+  );
+}
+
+@keyframes xiaoone-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.xiaoone-enter {
+  animation: xiaoone-fade-up var(--xiaoone-motion-enter) var(--xiaoone-motion-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xiaoone-surface-card {
+    transition: none;
+  }
+
+  .xiaoone-surface-card:hover {
+    transform: none;
+  }
+
+  .xiaoone-enter {
+    animation: none;
+  }
+}

@@ -1,0 +1,179 @@
+.assistant-runtime-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.assistant-runtime-pill {
+  min-height: 32px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 88%, transparent);
+  color: var(--xiaoone-fg-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 9px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+  white-space: nowrap;
+}
+
+.assistant-runtime-pill-main,
+.assistant-runtime-pill-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.assistant-runtime-pill-main svg {
+  color: var(--xiaoone-fg-mute);
+  flex-shrink: 0;
+}
+
+.assistant-runtime-pill strong {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--xiaoone-fg);
+}
+
+.assistant-runtime-pill-state {
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--assistant-runtime-state-bg, var(--xiaoone-bg-soft));
+  padding: 3px 7px;
+  color: var(--assistant-runtime-state-color, var(--xiaoone-fg-mute));
+  border: 1px solid var(--assistant-runtime-state-border, transparent);
+}
+
+.assistant-runtime-pill-state svg {
+  flex-shrink: 0;
+}
+
+.assistant-runtime-pill-state em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.assistant-runtime-pill.is-ok .assistant-runtime-pill-state {
+  --assistant-runtime-state-color: var(--xiaoone-success);
+  --assistant-runtime-state-bg: color-mix(in srgb, var(--xiaoone-success) 12%, transparent);
+  --assistant-runtime-state-border: color-mix(in srgb, var(--xiaoone-success) 28%, transparent);
+}
+
+.assistant-runtime-pill.is-pending .assistant-runtime-pill-state,
+.assistant-runtime-pill.is-off .assistant-runtime-pill-state {
+  --assistant-runtime-state-color: var(--xiaoone-warning);
+  --assistant-runtime-state-bg: var(--xiaoone-warning-bg);
+  --assistant-runtime-state-border: var(--xiaoone-warning-border);
+}
+
+.assistant-runtime-pill.is-blocked .assistant-runtime-pill-state,
+.assistant-runtime-pill.is-error .assistant-runtime-pill-state {
+  --assistant-runtime-state-color: var(--xiaoone-danger);
+  --assistant-runtime-state-bg: color-mix(in srgb, var(--xiaoone-danger) 11%, transparent);
+  --assistant-runtime-state-border: color-mix(in srgb, var(--xiaoone-danger) 26%, transparent);
+}
+
+.assistant-runtime-status.is-floating {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  z-index: 12;
+  max-width: calc(100% - 44px);
+}
+
+.mr-agent-thread-left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mr-agent-thread-left.is-assistant {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.mr-agent-thread-heading {
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mr-agent-thread-heading.has-session {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: start;
+  row-gap: 2px;
+}
+
+.mr-agent-thread-heading-icon {
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-agent-thread-heading-icon svg {
+  display: block;
+}
+
+.mr-agent-thread-heading-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mr-agent-thread-session {
+  margin: 0;
+  padding: 0;
+  max-width: min(520px, 56vw);
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mr-agent-thread-runtime {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .assistant-runtime-status.is-floating {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin: 12px 16px 0;
+  }
+
+  .assistant-runtime-pill {
+    min-height: 30px;
+    padding-inline: 8px;
+  }
+
+  .assistant-runtime-pill strong {
+    max-width: 7em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

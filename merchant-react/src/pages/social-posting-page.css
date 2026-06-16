@@ -1,0 +1,1691 @@
+.social-posting-page {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  grid-auto-rows: max-content;
+  min-height: 100%;
+  padding: 16px 28px calc(72px + env(safe-area-inset-bottom));
+  scroll-padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  color: var(--xiaoone-fg);
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--xiaoone-bg-soft) 56%, transparent), transparent 320px),
+    var(--xiaoone-bg);
+}
+
+.social-posting-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.social-posting-head > div {
+  min-width: 0;
+}
+
+.social-posting-head h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.social-posting-head p {
+  max-width: 820px;
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.social-posting-metrics,
+.social-platform-chip-row,
+.social-pack-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.social-posting-metrics {
+  margin-top: 12px;
+}
+
+.social-posting-metrics span,
+.social-platform-chip,
+.social-pack-meta span {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  gap: 5px;
+  min-height: 28px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 76%, transparent);
+  color: var(--xiaoone-fg-mute);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.social-posting-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.social-posting-head-actions > * {
+  min-width: 0;
+}
+
+/* ---- Page platform bar ---- */
+.social-platform-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.social-platform-scroll-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.social-platform-scroll-window {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 1px;
+}
+
+.social-platform-scroll-window::-webkit-scrollbar {
+  display: none;
+}
+
+.social-platform-scroll-btn {
+  display: none;
+  place-items: center;
+  width: 32px;
+  height: 34px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 88%, transparent);
+  color: var(--xiaoone-fg-mute);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.social-platform-scroll-btn:hover:not(:disabled),
+.social-platform-scroll-btn:focus-visible:not(:disabled) {
+  border-color: var(--xiaoone-accent);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+}
+
+.social-platform-scroll-btn:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.social-platform-bar > .social-add-platform-btn,
+.social-platform-bar > .social-quick-post-btn {
+  align-self: center;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+/* ---- Platform tabs ---- */
+.social-platform-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.social-platform-tabs button {
+  --brand-color: var(--xiaoone-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-soft);
+  padding: 0 12px 0 8px;
+  font-size: 12px;
+  font-weight: 650;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.social-platform-tab-logo {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: filter 160ms ease, opacity 160ms ease;
+}
+
+.social-platform-tab-logo svg {
+  display: block;
+}
+
+.social-platform-tab-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  line-height: 1.12;
+}
+
+.social-platform-tab-copy > span,
+.social-platform-tab-copy small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-platform-tab-copy small {
+  max-width: 150px;
+  color: var(--xiaoone-fg-faint);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.social-platform-tabs button.is-linked {
+  min-height: 40px;
+}
+
+.social-platform-tabs button.is-linked.is-active .social-platform-tab-copy small {
+  color: color-mix(in oklch, var(--xiaoone-fg-mute) 74%, var(--brand-color));
+}
+
+.social-platform-tabs button:not([data-platform]).is-active {
+  border-color: var(--xiaoone-accent);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+}
+
+.social-platform-tabs button[data-platform].is-linked {
+  border-color: color-mix(in srgb, var(--brand-color) 42%, var(--xiaoone-border-soft));
+}
+
+.social-platform-tabs button[data-platform].is-linked.is-active {
+  border-color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 10%, var(--xiaoone-bg-elev));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand-color) 16%, transparent);
+  color: var(--xiaoone-fg);
+}
+
+.social-platform-tabs button[data-platform].is-linked:hover:not(.is-active) {
+  border-color: color-mix(in srgb, var(--brand-color) 58%, var(--xiaoone-border));
+}
+
+.social-platform-tabs button.is-unlinked {
+  border-style: dashed;
+  border-color: var(--xiaoone-border);
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 88%, transparent);
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-platform-tabs button.is-unlinked .social-platform-tab-logo {
+  filter: grayscale(1);
+  opacity: 0.72;
+}
+
+.social-platform-tabs button.is-unlinked:hover .social-platform-tab-logo,
+.social-platform-tabs button.is-unlinked:focus-visible .social-platform-tab-logo {
+  filter: none;
+  opacity: 1;
+}
+
+.social-platform-tabs button.is-unlinked:hover:not(.is-active) {
+  border-color: color-mix(in srgb, var(--brand-color) 52%, var(--xiaoone-border));
+  color: var(--xiaoone-fg-soft);
+}
+
+.social-platform-tabs button[data-platform="bluesky"] { --brand-color: #1185FE; }
+.social-platform-tabs button[data-platform="facebook"] { --brand-color: #0866FF; }
+.social-platform-tabs button[data-platform="gmb"] { --brand-color: #4285F4; }
+.social-platform-tabs button[data-platform="instagram"] { --brand-color: #E1306C; }
+.social-platform-tabs button[data-platform="linkedin"] { --brand-color: #0A66C2; }
+.social-platform-tabs button[data-platform="pinterest"] { --brand-color: #BD081C; }
+.social-platform-tabs button[data-platform="reddit"] { --brand-color: #FF4500; }
+.social-platform-tabs button[data-platform="snapchat"] { --brand-color: #D4CE00; }
+.social-platform-tabs button[data-platform="telegram"] { --brand-color: #26A5E4; }
+.social-platform-tabs button[data-platform="threads"],
+.social-platform-tabs button[data-platform="tiktok"],
+.social-platform-tabs button[data-platform="twitter"] {
+  --brand-color: #000000;
+}
+
+.social-platform-tabs button[data-platform="youtube"] { --brand-color: #FF0000; }
+
+[data-theme="dark"] .social-platform-tabs button[data-platform="threads"],
+[data-theme="dark"] .social-platform-tabs button[data-platform="twitter"] {
+  --brand-color: #FFFFFF;
+}
+
+[data-theme="dark"] .social-platform-tabs button.is-unlinked .social-platform-tab-logo[data-logo-tone="dark"] {
+  filter: invert(1) grayscale(1);
+  opacity: 0.55;
+}
+
+[data-theme="dark"] .social-platform-tabs button.is-linked .social-platform-tab-logo[data-logo-tone="dark"],
+[data-theme="dark"] .social-platform-tabs button.is-unlinked:hover .social-platform-tab-logo[data-logo-tone="dark"],
+[data-theme="dark"] .social-platform-tabs button.is-unlinked:focus-visible .social-platform-tab-logo[data-logo-tone="dark"] {
+  filter: invert(1);
+  opacity: 1;
+}
+
+@media (max-width: 1280px) {
+  .social-platform-bar {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .social-platform-bar > .social-quick-post-btn {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 640px) {
+  .social-platform-scroll-shell {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 6px;
+  }
+
+  .social-platform-scroll-window {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .social-platform-scroll-btn {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+  }
+
+  .social-platform-tabs {
+    flex-wrap: nowrap;
+    width: max-content;
+    min-width: max-content;
+  }
+
+  .social-platform-tabs button {
+    min-height: 44px;
+  }
+}
+
+/* ---- Pack cards ---- */
+.social-pack-card {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-bg-elev);
+  box-shadow: none;
+  min-width: 0;
+  height: fit-content;
+  align-self: start;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 16px 16px 14px;
+}
+
+.social-pack-card.is-expanded {
+  padding-bottom: 24px;
+}
+
+.social-pack-card > * {
+  min-width: 0;
+  align-self: start;
+}
+
+.social-pack-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.social-pack-card-head div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.social-pack-card-head strong {
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-pack-card-head div span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.social-pack-card-head-actions {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.social-pack-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg-faint);
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+
+.social-pack-delete-button:hover {
+  border-color: color-mix(in oklch, var(--xiaoone-danger) 38%, var(--xiaoone-border));
+  background: color-mix(in oklch, var(--xiaoone-danger) 8%, var(--xiaoone-bg));
+  color: var(--xiaoone-danger);
+}
+
+.social-pack-delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.social-pack-delete-button svg {
+  pointer-events: none;
+}
+
+.social-pack-title {
+  margin: 0;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-status {
+  flex-shrink: 0;
+  border-radius: var(--xiaoone-r-pill);
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 760;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.social-status--draft {
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-status--pending {
+  background: color-mix(in oklch, var(--xiaoone-warning) 13%, transparent);
+  color: var(--xiaoone-warning);
+}
+
+.social-status--sent {
+  background: color-mix(in oklch, var(--xiaoone-success) 13%, transparent);
+  color: var(--xiaoone-success);
+}
+
+.social-pack-text {
+  display: -webkit-box;
+  min-height: 44px;
+  margin: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.social-pack-card .social-platform-chip-row {
+  margin-top: 2px;
+}
+
+.social-platform-chip {
+  min-height: 26px;
+  background: var(--xiaoone-bg-soft);
+}
+
+.social-platform-chip-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  line-height: 1.14;
+}
+
+.social-platform-chip-copy > span,
+.social-platform-chip-copy small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-platform-chip-copy small {
+  max-width: 180px;
+  color: var(--xiaoone-fg-faint);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.social-pack-assets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.social-pack-asset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 58px;
+  height: auto;
+  min-height: 34px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: color-mix(in oklch, var(--xiaoone-accent-bg) 44%, var(--xiaoone-bg-soft));
+  color: var(--xiaoone-accent);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 760;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: nowrap;
+}
+
+.social-pack-asset--video {
+  background: color-mix(in oklch, oklch(66% 0.16 178) 12%, var(--xiaoone-bg-soft));
+  color: oklch(39% 0.1 178);
+}
+
+.social-pack-asset--text,
+.social-pack-asset.is-empty {
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-pack-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.social-pack-meta span {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.social-pack-error {
+  border: 1px solid var(--xiaoone-danger-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-danger-bg);
+  color: var(--xiaoone-danger);
+  padding: 9px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.social-pack-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.social-pack-actions button,
+.social-items-head button {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.social-pack-actions button:hover:not(:disabled),
+.social-items-head button:hover {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.social-pack-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---- Expand area (analytics + comments) ---- */
+.social-pack-expand-area {
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+  align-content: start;
+  width: 100%;
+}
+
+.social-pack-expand-btn {
+  width: 100%;
+  min-height: 36px;
+  height: auto;
+  align-self: stretch;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  padding: 0 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.social-pack-expand-btn:hover {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.social-pack-expand-btn.is-expanded {
+  border-color: var(--xiaoone-accent);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+}
+
+.social-pack-analytics-area {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--xiaoone-border-soft);
+  padding-top: 14px;
+}
+
+.social-pack-card.is-expanded .social-pack-analytics-area {
+  padding-bottom: 8px;
+}
+
+.social-post-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.social-post-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-accent) 28%, var(--xiaoone-border-soft));
+  border-radius: var(--xiaoone-r-pill);
+  background: color-mix(in oklch, var(--xiaoone-accent) 8%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.social-post-link:hover {
+  border-color: var(--xiaoone-accent);
+  background: color-mix(in oklch, var(--xiaoone-accent) 14%, var(--xiaoone-bg-elev));
+}
+
+.social-post-link-arrow {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.social-analytics-header,
+.social-comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.social-analytics-header strong,
+.social-comments-header strong {
+  font-size: 13px;
+  color: var(--xiaoone-fg);
+}
+
+.social-refresh-btn {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.social-refresh-btn:hover:not(:disabled) {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.social-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.social-analytics-platform-card {
+  --brand-color: var(--xiaoone-fg-mute);
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: color-mix(in srgb, var(--brand-color) 5%, var(--xiaoone-bg-soft));
+  padding: 12px;
+}
+
+.social-analytics-platform-card[data-platform="bluesky"] { --brand-color: #0285FF; }
+.social-analytics-platform-card[data-platform="facebook"] { --brand-color: #1877F2; }
+.social-analytics-platform-card[data-platform="instagram"] { --brand-color: #E4405F; }
+.social-analytics-platform-card[data-platform="linkedin"] { --brand-color: #0A66C2; }
+.social-analytics-platform-card[data-platform="pinterest"] { --brand-color: #E60023; }
+.social-analytics-platform-card[data-platform="reddit"] { --brand-color: #FF4500; }
+.social-analytics-platform-card[data-platform="threads"],
+.social-analytics-platform-card[data-platform="tiktok"],
+.social-analytics-platform-card[data-platform="twitter"] { --brand-color: var(--xiaoone-fg); }
+.social-analytics-platform-card[data-platform="youtube"] { --brand-color: #FF0000; }
+.social-analytics-platform-card[data-platform="snapchat"] { --brand-color: #FFFC00; }
+.social-analytics-platform-card[data-platform="telegram"] { --brand-color: #26A5E4; }
+
+.social-analytics-platform-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-color);
+}
+
+.social-analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px 12px;
+}
+
+.social-analytics-metric {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--xiaoone-fg);
+}
+
+.social-analytics-metric-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.social-analytics-metric-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.social-analytics-metric-label {
+  color: var(--xiaoone-fg-mute);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.social-analytics-no-data {
+  color: var(--xiaoone-fg-faint);
+  font-size: 12px;
+}
+
+/* ---- Comments ---- */
+.social-comments-header {
+  margin-top: 4px;
+}
+
+.social-comments-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.social-comments-sync-hint {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.social-comment-item[data-depth='1'] {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--xiaoone-border-soft);
+}
+
+.social-comment-item[data-depth='2'] {
+  margin-left: 24px;
+  padding-left: 12px;
+  border-left: 2px solid var(--xiaoone-border-soft);
+}
+
+.social-expand-comments-btn {
+  border: none;
+  background: none;
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.social-comments-list {
+  display: grid;
+  gap: 8px;
+}
+
+.social-comment-item {
+  display: grid;
+  gap: 4px;
+}
+
+.social-comment-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.social-comment-username {
+  font-weight: 700;
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+}
+
+.social-comment-text {
+  color: var(--xiaoone-fg);
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.social-comment-time {
+  color: var(--xiaoone-fg-faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.social-comment-likes {
+  color: var(--xiaoone-fg-mute);
+  font-size: 11px;
+}
+
+.social-reply-btn {
+  border: none;
+  background: none;
+  color: var(--xiaoone-accent);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.social-reply-btn:disabled {
+  color: var(--xiaoone-fg-faint);
+  cursor: not-allowed;
+}
+
+.social-comment-replies {
+  padding-left: 20px;
+  border-left: 2px solid var(--xiaoone-border-soft);
+  margin-left: 8px;
+}
+
+.social-reply-input-area,
+.social-comment-input-area {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding-top: 4px;
+}
+
+.social-reply-input,
+.social-comment-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.social-reply-input:focus,
+.social-comment-input:focus {
+  border-color: var(--xiaoone-accent);
+}
+
+.social-reply-send-btn,
+.social-reply-cancel-btn,
+.social-comment-send-btn {
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 36px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  padding: 0 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.social-comment-send-btn:not(:disabled) {
+  border-color: var(--xiaoone-accent);
+  background: var(--xiaoone-accent);
+  color: var(--xiaoone-accent-fg, oklch(99% 0.004 264));
+}
+
+.social-comment-send-btn:not(:disabled):hover {
+  background: var(--xiaoone-accent-hover, var(--xiaoone-accent));
+}
+
+.social-comment-send-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.social-no-comments {
+  color: var(--xiaoone-fg-faint);
+  font-size: 12px;
+  margin: 0;
+}
+
+/* ---- Bind ---- */
+.social-bind-accounts {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social-bind-account {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  border-bottom: 1px solid var(--xiaoone-border-soft);
+  padding: 0 0 10px;
+}
+
+.social-bind-account-meta {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.social-bind-account-meta strong {
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-bind-account-meta span {
+  overflow: hidden;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-bind-account-unlink,
+.social-platform-picker label {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.social-bind-account-unlink {
+  min-height: 30px;
+  padding: 0 11px;
+  flex-shrink: 0;
+}
+
+.social-bind-account-unlink:hover,
+.social-platform-picker label:hover {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.social-bind-empty,
+.social-bind-summary {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.social-platform-chip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.social-bind-dialog-empty {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.social-bind-dialog-empty p {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.social-account-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--xiaoone-danger-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-danger-bg);
+  color: var(--xiaoone-danger);
+  font-size: 13px;
+}
+
+.social-account-error button {
+  border: 1px solid var(--xiaoone-danger-border);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-danger);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.social-items-empty {
+  color: var(--xiaoone-fg-faint);
+}
+
+.social-pack-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-items: start;
+  min-height: 144px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  padding: 22px;
+}
+
+.social-pack-empty strong {
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.social-pack-empty span {
+  max-width: 520px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.social-pack-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.social-bind-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 8px;
+}
+
+.social-bind-card {
+  --brand-color: var(--xiaoone-fg-mute);
+  --brand-color-text: var(--brand-color);
+  --brand-color-bg: color-mix(in srgb, var(--brand-color) 10%, transparent);
+  --brand-color-border: color-mix(in srgb, var(--brand-color) 32%, var(--xiaoone-border));
+  min-width: 0;
+  border-radius: var(--xiaoone-panel-radius, 12px);
+}
+
+.social-bind-card[data-platform="bluesky"] { --brand-color: #0285FF; }
+.social-bind-card[data-platform="facebook"] { --brand-color: #1877F2; }
+.social-bind-card[data-platform="gmb"] { --brand-color: #4285F4; }
+.social-bind-card[data-platform="instagram"] { --brand-color: #E4405F; }
+.social-bind-card[data-platform="linkedin"] { --brand-color: #0A66C2; }
+.social-bind-card[data-platform="pinterest"] { --brand-color: #E60023; }
+.social-bind-card[data-platform="reddit"] { --brand-color: #FF4500; }
+.social-bind-card[data-platform="snapchat"] {
+  --brand-color: #FFFC00;
+  --brand-color-text: #8a8700;
+  --brand-color-border: #d8d500;
+}
+.social-bind-card[data-platform="telegram"] { --brand-color: #26A5E4; }
+.social-bind-card[data-platform="threads"],
+.social-bind-card[data-platform="tiktok"],
+.social-bind-card[data-platform="twitter"] {
+  --brand-color: var(--xiaoone-fg);
+  --brand-color-text: var(--xiaoone-fg);
+  --brand-color-border: color-mix(in oklch, var(--xiaoone-fg) 28%, var(--xiaoone-border));
+}
+.social-bind-card[data-platform="youtube"] { --brand-color: #FF0000; }
+
+.social-bind-card-hit {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 104px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  background: var(--xiaoone-bg-soft);
+  padding: 10px 8px;
+  text-align: center;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.social-bind-card.is-linked .social-bind-card-hit {
+  border-color: var(--brand-color-border);
+  background: color-mix(in srgb, var(--brand-color) 6%, var(--xiaoone-bg-elev));
+  cursor: default;
+}
+
+.social-bind-card.is-unlinked .social-bind-card-hit {
+  border-color: var(--xiaoone-border-soft);
+  background: color-mix(in oklch, var(--xiaoone-bg-soft) 88%, var(--xiaoone-fg-faint));
+}
+
+.social-bind-card.is-unlinked .social-bind-card-hit:not(:disabled):hover {
+  border-color: var(--xiaoone-border);
+  background: var(--xiaoone-bg-elev);
+  box-shadow: 0 8px 20px -16px color-mix(in oklch, var(--xiaoone-fg) 28%, transparent);
+}
+
+.social-bind-card-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--brand-color-bg);
+  color: var(--brand-color-text);
+}
+
+.social-bind-card.is-unlinked .social-bind-card-logo {
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 72%, var(--xiaoone-fg-faint));
+  color: var(--xiaoone-fg-faint);
+  filter: grayscale(1);
+  opacity: 0.72;
+}
+
+.social-bind-card-label {
+  min-height: 30px;
+  display: grid;
+  align-items: center;
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.social-bind-card.is-unlinked .social-bind-card-label {
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-bind-card-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  border-radius: var(--xiaoone-r-pill);
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.social-bind-card-status.is-linked {
+  background: color-mix(in srgb, var(--brand-color) 12%, transparent);
+  color: var(--brand-color-text);
+}
+
+.social-bind-card-status.is-unlinked {
+  border: 1px solid var(--xiaoone-border-soft);
+  background: transparent;
+  color: var(--xiaoone-fg-faint);
+}
+
+.social-bind-card.is-unlinked .social-bind-card-hit:not(:disabled):hover .social-bind-card-status.is-unlinked {
+  border-color: var(--xiaoone-border);
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-pack-grid {
+  display: grid;
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+  padding-bottom: 24px;
+}
+
+.social-pack-column {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---- Quick Post Dialog ---- */
+.social-quickpost-dialog {
+  width: min(640px, 94vw);
+  max-width: min(640px, 94vw);
+  max-height: 86dvh;
+  overflow: auto;
+}
+
+.social-field {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.social-field > span {
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.social-field-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-field-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.social-field-hint {
+  color: var(--xiaoone-fg-faint);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.social-field input[type="text"],
+.social-field input:not([type]),
+.social-field textarea,
+.social-field select {
+  width: 100%;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.social-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.social-field input:focus,
+.social-field textarea:focus,
+.social-field select:focus {
+  border-color: var(--xiaoone-accent);
+  box-shadow: 0 0 0 3px var(--xiaoone-accent-bg);
+}
+
+.social-media-mode-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  overflow: hidden;
+}
+
+.social-media-mode-toggle button {
+  border: none;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.social-media-mode-toggle button.is-active {
+  background: var(--xiaoone-accent);
+  color: var(--xiaoone-accent-fg, #fff);
+}
+
+.social-field--platforms {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--xiaoone-border-soft);
+}
+
+.social-media-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.social-media-item {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-soft);
+  overflow: hidden;
+}
+
+.social-media-item img,
+.social-media-item video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.social-media-item-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  color: var(--xiaoone-fg-faint);
+}
+
+.social-media-item-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: var(--xiaoone-r-pill);
+  background: rgb(0 0 0 / 58%);
+  color: var(--xiaoone-accent-fg);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.social-media-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.social-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius, 8px);
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.social-upload-btn:hover {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-accent);
+}
+
+.social-platform-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.social-platform-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.social-platform-picker label.social-platform-unlinked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.social-platform-max-img {
+  color: var(--xiaoone-fg-faint);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.social-platform-reason {
+  color: var(--xiaoone-danger);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.social-schedule-preview {
+  display: inline-flex;
+  align-items: center;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.social-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ---- Dialog sizing ---- */
+.social-bind-guide-dialog,
+.social-bind-choice-dialog,
+.social-bind-dialog,
+.social-asset-dialog {
+  width: min(920px, 94vw);
+  max-width: min(920px, 94vw);
+  max-height: 86dvh;
+  overflow: auto;
+}
+
+.social-bind-dialog {
+  display: grid;
+  gap: 14px;
+}
+
+.social-bind-dialog .social-bind-accounts {
+  margin-bottom: 2px;
+}
+
+.social-bind-dialog .social-bind-grid {
+  margin-top: 2px;
+}
+
+.social-bind-choice-dialog {
+  width: min(520px, 94vw);
+  max-width: min(520px, 94vw);
+}
+
+
+.social-bind-guide-dialog {
+  width: min(620px, 94vw);
+  max-width: min(620px, 94vw);
+}
+
+.social-bind-guide-body {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-md);
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.social-bind-guide-body p {
+  margin: 0;
+}
+
+.social-bind-choice-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.social-asset-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.social-asset-tabs button {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: 999px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+
+.social-asset-tabs button:hover {
+  border-color: var(--xiaoone-accent);
+  color: var(--xiaoone-fg);
+}
+
+.social-asset-tabs button.is-active {
+  border-color: var(--xiaoone-accent);
+  background: color-mix(in oklch, var(--xiaoone-accent) 12%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg);
+  font-weight: 600;
+}
+
+.social-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.social-asset-item {
+  display: grid;
+  grid-template-rows: 118px auto;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius, 12px);
+  padding: 8px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  cursor: pointer;
+}
+
+.social-asset-item:hover {
+  border-color: var(--xiaoone-accent);
+}
+
+.social-asset-item small {
+  color: var(--xiaoone-fg-mute);
+}
+
+.social-asset-thumb {
+  width: 100%;
+  height: 118px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--xiaoone-bg) 82%, var(--xiaoone-fg) 18%);
+}
+
+.social-asset-thumb img,
+.social-asset-thumb video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.social-asset-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--xiaoone-fg-soft);
+  background: color-mix(in oklch, var(--xiaoone-accent) 7%, var(--xiaoone-bg-soft));
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.social-asset-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.social-asset-copy strong,
+.social-asset-copy small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 840px) {
+  .social-posting-page {
+    padding: 18px 16px calc(64px + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  .social-posting-head {
+    flex-direction: column;
+  }
+
+  .social-posting-head-actions {
+    width: 100%;
+  }
+
+  .social-posting-head-actions > * {
+    flex: 1;
+  }
+
+  .social-bind-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .social-pack-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-posting-head-actions,
+  .social-pack-actions,
+  .social-editor-actions,
+  .social-pack-empty-actions {
+    align-items: stretch;
+  }
+
+  .social-posting-head-actions > *,
+  .social-pack-actions button,
+  .social-editor-actions > *,
+  .social-pack-empty-actions > * {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .social-quick-post-btn,
+  .social-pack-actions button,
+  .social-pack-expand-btn,
+  .social-items-head button {
+    min-height: 44px;
+  }
+}

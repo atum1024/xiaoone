@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import { applyLocalIpRegionHeaders, withLocalIpRegionHeaders } from '@xiaoone/region'
 
 import {
   clearPlatformTokens,
@@ -10,8 +11,8 @@ import {
 /**
  * 平台 token 专用 axios 实例。
  *
- * - 请求拦截器读 ``xiaoone.platform_access_token``（与商户 axios 完全隔离）。
- * - 401 时单次刷新：用 ``xiaoone.platform_refresh_token`` 调 ``/oauth2/token/``，
+ * - 请求拦截器读平台内存 token（与商户 axios 完全隔离）。
+ * - 401 时单次刷新：优先用内存 refresh token，缺失时仍允许后端 refresh cookie，
  *   失败仅清平台 token 槽 + 抛错；不踢登录页（商户 session 仍然可用）。
  *
  * 所有 ``/api/v1/iam/platform/*``、``/api/v1/iam/auth/platform/elevate/`` 之外
@@ -24,9 +25,10 @@ export const platformApi = axios.create({
 })
 
 platformApi.interceptors.request.use((config) => {
+  config.headers = config.headers || {}
+  applyLocalIpRegionHeaders(config.headers)
   const token = readPlatformAccessToken()
   if (token) {
-    config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
@@ -36,13 +38,16 @@ let refreshing: Promise<string | null> | null = null
 
 async function refreshPlatformToken(): Promise<string | null> {
   const rt = readPlatformRefreshToken()
-  if (!rt) return null
   try {
-    const resp = await fetch('/oauth2/token/', {
+    const payload: { grant_type: 'refresh_token'; refresh_token?: string } = { grant_type: 'refresh_token' }
+    if (rt)
+      payload.refresh_token = rt
+    const resp = await fetch('/oauth2/token/', withLocalIpRegionHeaders({
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: rt }),
-    })
+      body: JSON.stringify(payload),
+    }))
     if (!resp.ok) return null
     const data = await resp.json()
     if (!data.access_token) return null

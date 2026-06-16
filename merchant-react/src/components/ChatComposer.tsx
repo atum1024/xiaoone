@@ -9,7 +9,7 @@ interface Props {
   onSend: (text: string) => void
 }
 
-export function ChatComposer({ placeholder = '问问 Xiaoone…', loading = false, autofocus = false, onSend }: Props) {
+export function ChatComposer({ placeholder = '输入要处理的消息…', loading = false, autofocus = false, onSend }: Props) {
   const [text, setText] = useState('')
   const taRef = useRef<HTMLTextAreaElement>(null)
 

@@ -1,44 +1,33 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { getChatKit, type AgentDomain, type AgentThread } from '@xiaoone/chat-kit'
-import { useWorkspaceStore } from '../store/workspace'
-import { useAgentStore } from '../store/agent'
-import { AUTOMATION_AGENT_PLUGIN_KEYS, CONSULTANT_AGENT_PLUGIN_KEY } from '../lib/composer'
 import { Button, Badge, toast } from '@xiaoone/react-ui'
-import type { NavCategory } from '../lib/nav'
+import { queryClient } from '../app/queryClient'
+import { AGENT_QUERY_KEYS } from '../hooks/agentQueries'
+import { sanitizeAgentAssistantText } from '../lib/agentProtocolText'
+import { usePreferences } from '../app/preferences'
+import { CONSULTANT_PLUGIN_KEY, routeForThread, XIAOWAN_ASSISTANT_PLUGIN_KEY } from '../app/workbenchRouteModel'
 import './agent-archives-page.css'
 
-const ARCHIVE_DOMAINS: AgentDomain[] = ['general', 'marketing', 'support', 'agency']
-
+const ARCHIVE_DOMAINS: AgentDomain[] = ['general', 'marketing', 'support', 'agency', 'feedback']
 type Row = AgentThread & { domain: AgentDomain }
 
-export function AgentArchivesPage() {
+export function AgentArchivesPanel({ embedded = false }: { embedded?: boolean }) {
+  const { t } = usePreferences()
   const { AgentThreadAPI } = getChatKit()
-  const ws = useWorkspaceStore()
-  const agentStore = useAgentStore()
-  const AUTO_ARCH_PLUGIN = useMemo(() => new Set<string>(AUTOMATION_AGENT_PLUGIN_KEYS), [])
-
+  const navigate = useNavigate()
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
 
-  const navCategoryForDomain = (d: AgentDomain, t?: AgentThread): NavCategory => {
-    if (d === 'general') {
-      if (t && t.plugin_key && AUTO_ARCH_PLUGIN.has(t.plugin_key)) return 'automation'
-      if (t?.plugin_key === CONSULTANT_AGENT_PLUGIN_KEY) return 'consultant'
-      return 'system'
-    }
-    if (d === 'marketing') return 'marketing'
-    if (d === 'support') return 'support'
-    if (d === 'agency') return 'agency'
-    return 'consultant'
-  }
-
-  const domainLabel = (d: AgentDomain, t?: AgentThread): string => {
-    if (d === 'general' && t?.plugin_key === CONSULTANT_AGENT_PLUGIN_KEY) return '顾问'
+  const domainLabel = (d: AgentDomain, thread?: AgentThread): string => {
+    if (d === 'general' && thread?.plugin_key === XIAOWAN_ASSISTANT_PLUGIN_KEY) return 'xiaoone'
+    if (d === 'general' && thread?.plugin_key === CONSULTANT_PLUGIN_KEY) return 'xiaoone'
     switch (d) {
-      case 'general': return '程序员'
-      case 'marketing': return '推广大师'
-      case 'support': return '渠道专员'
-      case 'agency': return '商务经理'
+      case 'general': return t('automation.archives.domain.system')
+      case 'marketing': return t('automation.archives.domain.marketing')
+      case 'support': return t('automation.archives.domain.support')
+      case 'agency': return t('automation.archives.domain.agency')
+      case 'feedback': return t('automation.archives.domain.feedback')
       default: return d
     }
   }
@@ -63,19 +52,21 @@ export function AgentArchivesPage() {
     }
   }
 
-  const unarchive = async (t: Row) => {
+  const unarchive = async (row: Row) => {
     try {
-      await AgentThreadAPI.update(t.id, { archived: false } as any)
-      toast({ title: '已取消归档' })
-      await agentStore.fetchDomain(t.domain, true)
+      await AgentThreadAPI.update(row.id, { archived: false } as any)
+      toast({ title: t('automation.archives.unarchived') })
+      await queryClient.invalidateQueries({ queryKey: AGENT_QUERY_KEYS.threads(row.domain) })
+      await queryClient.invalidateQueries({ queryKey: AGENT_QUERY_KEYS.overview() })
+      await queryClient.invalidateQueries({ queryKey: AGENT_QUERY_KEYS.sidebarThreads() })
       load()
     } catch (e: any) {
-      toast({ title: '操作失败', description: e?.message || '未知错误' })
+      toast({ title: t('automation.archives.actionFailed'), description: e?.message || t('automation.archives.unknownError') })
     }
   }
 
-  const openThread = (t: Row) => {
-    ws.showAgentThread(navCategoryForDomain(t.domain, t), t.domain, t.id)
+  const openThread = (row: Row) => {
+    navigate(routeForThread(row))
   }
 
   useEffect(() => {
@@ -83,35 +74,34 @@ export function AgentArchivesPage() {
   }, [])
 
   return (
-    <section className="arch-panel">
+    <section className={`arch-panel${embedded ? ' arch-panel--embedded' : ''}`}>
       <header className="arch-head">
-        <h1 className="arch-title">档案管理</h1>
-        <p className="arch-desc">已归档的业务对话可在此恢复至侧栏列表。</p>
-        <Button size="sm" variant="outline" onClick={load} disabled={loading}>刷新</Button>
+        <p className="arch-desc">{t('automation.archives.desc')}</p>
+        <Button size="sm" variant="outline" onClick={load} disabled={loading}>{t('automation.archives.refresh')}</Button>
       </header>
 
       {loading && !rows.length ? (
-        <div className="arch-empty">加载中…</div>
+        <div className="arch-empty">{t('automation.archives.loading')}</div>
       ) : !rows.length ? (
-        <div className="arch-empty">暂无归档对话</div>
+        <div className="arch-empty">{t('automation.archives.empty')}</div>
       ) : (
         <ul className="arch-list">
-          {rows.map(t => (
-            <li key={t.id} className="arch-row">
+          {rows.map(row => (
+            <li key={row.id} className="arch-row">
               <div className="arch-row-main">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="rounded-full font-normal">
-                    {domainLabel(t.domain, t)}
+                    {domainLabel(row.domain, row)}
                   </Badge>
-                  <strong className="arch-row-title">{t.title || '对话'}</strong>
+                  <strong className="arch-row-title">{row.title || t('automation.archives.thread')}</strong>
                 </div>
-                {t.preview && <span className="arch-row-preview">{t.preview}</span>}
+                {row.preview && <span className="arch-row-preview">{sanitizeAgentAssistantText(row.preview)}</span>}
               </div>
               <div className="arch-row-actions">
-                <Button size="sm" variant="outline" className="text-[var(--xiaoone-accent)] border-[var(--xiaoone-accent-soft)] hover:bg-[var(--xiaoone-accent-bg)]" onClick={() => unarchive(t)}>
-                  取消归档
+                <Button size="sm" variant="outline" className="text-[var(--xiaoone-accent)] border-[var(--xiaoone-accent-soft)] hover:bg-[var(--xiaoone-accent-bg)]" onClick={() => unarchive(row)}>
+                  {t('automation.archives.unarchive')}
                 </Button>
-                <Button size="sm" onClick={() => openThread(t)}>打开</Button>
+                <Button size="sm" onClick={() => openThread(row)}>{t('automation.archives.open')}</Button>
               </div>
             </li>
           ))}
@@ -119,4 +109,8 @@ export function AgentArchivesPage() {
       )}
     </section>
   )
+}
+
+export function AgentArchivesPage() {
+  return <AgentArchivesPanel />
 }

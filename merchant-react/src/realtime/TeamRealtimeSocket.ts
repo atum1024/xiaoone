@@ -1,4 +1,5 @@
 import { RealtimeSocket, type RealtimePayload, type RealtimeStatus } from './RealtimeSocket'
+import { buildChatWsUrl } from './wsUrl'
 
 interface TeamRealtimeEvents {
   onStatus?: (status: RealtimeStatus) => void
@@ -36,8 +37,11 @@ export class TeamRealtimeSocket {
     const location = window.location
     const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const env = import.meta as unknown as { env?: Record<string, string | undefined> }
-    const explicit = (env.env?.VITE_TEAM_WS_URL || '').trim().replace(/\/$/, '')
-    const base = explicit || `${wsProto}//${location.host}`
-    return `${base}/ws/team/?token=${encodeURIComponent(token)}`
+    return buildChatWsUrl({
+      explicit: env.env?.VITE_TEAM_WS_URL,
+      fallbackOrigin: `${wsProto}//${location.host}`,
+      path: '/ws/team/',
+      params: { token },
+    })
   }
 }

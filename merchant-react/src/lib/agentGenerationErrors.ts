@@ -9,6 +9,9 @@ export type GenerationErrorCode =
   | 'concurrency_limit'
   | 'insufficient_balance'
   | 'bad_api_key'
+  | 'model_unavailable'
+  | 'invalid_parameters'
+  | 'reference_download_failed'
   | 'upstream_timeout'
   | 'content_policy'
   | 'network_error'
@@ -19,6 +22,9 @@ const KNOWN: GenerationErrorCode[] = [
   'concurrency_limit',
   'insufficient_balance',
   'bad_api_key',
+  'model_unavailable',
+  'invalid_parameters',
+  'reference_download_failed',
   'upstream_timeout',
   'content_policy',
   'network_error',
@@ -48,9 +54,12 @@ export function actionsForErrorCode(code: string | null | undefined, task: Agent
     case 'insufficient_balance':
       return ['recharge', 'copyPrompt']
     case 'bad_api_key':
+    case 'model_unavailable':
       return ['copyPrompt']
     case 'content_policy':
       return ['copyPrompt']
+    case 'reference_download_failed':
+      return ['retry', 'copyPrompt']
     case 'upstream_timeout':
       return isVideoWithUpstream ? ['refresh', 'retry', 'copyPrompt'] : ['retry', 'copyPrompt']
     case 'network_error':

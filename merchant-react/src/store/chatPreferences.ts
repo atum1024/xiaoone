@@ -1,10 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AgentThread, TeamConversation } from '@xiaoone/chat-kit'
+import type { AgentThread } from '@xiaoone/chat-kit'
 
 interface ChatPreferencesState {
   mutedAgentThreadIds: string[]
-  mutedTeamConvIds: string[]
   agentThreadReadBaseline: Record<string, number>
   agentGenerationSeenAt: Record<string, string>
 }
@@ -17,10 +16,6 @@ interface ChatPreferencesActions {
   agentGenerationNeedsAttention: (thread: AgentThread) => boolean
   markAgentGenerationSeen: (threadId: string, seenAt?: string | null) => void
   toggleMuteAgentThread: (threadId: string) => void
-  toggleMuteTeamConv: (convId: string) => void
-  teamConvIsMuted: (convId: string) => boolean
-  teamConvUnread: (conversation: TeamConversation) => number
-  teamUnreadSumExcludingMuted: (conversations: TeamConversation[]) => number
   reset: () => void
 }
 
@@ -28,7 +23,6 @@ export const useChatPreferencesStore = create<ChatPreferencesState & ChatPrefere
   persist(
     (set, get) => ({
       mutedAgentThreadIds: [],
-      mutedTeamConvIds: [],
       agentThreadReadBaseline: {},
       agentGenerationSeenAt: {},
 
@@ -47,15 +41,16 @@ export const useChatPreferencesStore = create<ChatPreferencesState & ChatPrefere
         const state = get()
         if (state.mutedAgentThreadIds.includes(thread.id))
           return 0
-        state.ensureAgentBaseline(thread.id, thread.message_count)
-        const base = get().agentThreadReadBaseline[thread.id] ?? thread.message_count
+        const base = state.agentThreadReadBaseline[thread.id]
+        if (base === undefined)
+          return 0
         return Math.max(0, thread.message_count - base)
       },
       markAgentThreadRead: (threadId, messageCount) => {
         set(state => ({
           agentThreadReadBaseline: {
             ...state.agentThreadReadBaseline,
-            [threadId]: messageCount,
+            [threadId]: Math.max(state.agentThreadReadBaseline[threadId] ?? 0, messageCount),
           },
         }))
       },
@@ -88,19 +83,8 @@ export const useChatPreferencesStore = create<ChatPreferencesState & ChatPrefere
             : [...state.mutedAgentThreadIds, threadId],
         }))
       },
-      toggleMuteTeamConv: (convId) => {
-        set(state => ({
-          mutedTeamConvIds: state.mutedTeamConvIds.includes(convId)
-            ? state.mutedTeamConvIds.filter(id => id !== convId)
-            : [...state.mutedTeamConvIds, convId],
-        }))
-      },
-      teamConvIsMuted: convId => get().mutedTeamConvIds.includes(convId),
-      teamConvUnread: conversation => get().mutedTeamConvIds.includes(conversation.id) ? 0 : (conversation.unread || 0),
-      teamUnreadSumExcludingMuted: conversations => conversations.reduce((sum, conversation) => sum + get().teamConvUnread(conversation), 0),
       reset: () => set({
         mutedAgentThreadIds: [],
-        mutedTeamConvIds: [],
         agentThreadReadBaseline: {},
         agentGenerationSeenAt: {},
       }),
@@ -109,7 +93,6 @@ export const useChatPreferencesStore = create<ChatPreferencesState & ChatPrefere
       name: 'xiaoone-merchant-chat-prefs',
       partialize: state => ({
         mutedAgentThreadIds: state.mutedAgentThreadIds,
-        mutedTeamConvIds: state.mutedTeamConvIds,
         agentThreadReadBaseline: state.agentThreadReadBaseline,
         agentGenerationSeenAt: state.agentGenerationSeenAt,
       }),

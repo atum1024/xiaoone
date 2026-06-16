@@ -1,8 +1,14 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
-import { notifyAccessTokenRefreshed } from './authEvents'
+import { applyLocalIpRegionHeaders, withLocalIpRegionHeaders } from '@xiaoone/region'
+import {
+  clearTokens,
+  notifyAccessTokenRefreshed,
+  readAccessToken,
+  readRefreshToken,
+  setTokens,
+} from './authEvents'
 
-const ACCESS_KEY = 'xiaoone.access_token'
-const REFRESH_KEY = 'xiaoone.refresh_token'
+const AUTH_CRITICAL_PATHS = ['/api/v1/iam/me/', '/oauth2/token/']
 
 export const api = axios.create({
   baseURL: '/',
@@ -10,9 +16,10 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(ACCESS_KEY)
+  config.headers = config.headers || {}
+  applyLocalIpRegionHeaders(config.headers)
+  const token = readAccessToken()
   if (token) {
-    config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
@@ -21,32 +28,38 @@ api.interceptors.request.use((config) => {
 // ---- 401 自动刷新（集中托管，避免多个请求并发触发多次刷新）---------------
 let refreshing: Promise<string | null> | null = null
 
-function readRefresh(): string | null {
-  return localStorage.getItem(REFRESH_KEY)
-}
-
 function clearTokensAndBounce() {
-  localStorage.removeItem(ACCESS_KEY)
-  localStorage.removeItem(REFRESH_KEY)
+  clearTokens()
   if (location.pathname !== '/login')
     location.href = '/login'
 }
 
-async function refreshToken(): Promise<string | null> {
-  const rt = readRefresh()
-  if (!rt) return null
+function isAuthCriticalRequest(url?: string): boolean {
+  if (!url) return false
+  return AUTH_CRITICAL_PATHS.some(path => url.includes(path))
+}
+
+export function shouldBounceAfterRefreshFailure(url?: string): boolean {
+  return isAuthCriticalRequest(url)
+}
+
+export async function refreshToken(): Promise<string | null> {
+  const rt = readRefreshToken()
   try {
+    const payload: { grant_type: 'refresh_token'; refresh_token?: string } = { grant_type: 'refresh_token' }
+    if (rt)
+      payload.refresh_token = rt
     // 直接 fetch（不走 axios 实例，避免再被拦截到刷新）
-    const resp = await fetch('/oauth2/token/', {
+    const resp = await fetch('/oauth2/token/', withLocalIpRegionHeaders({
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: rt }),
-    })
+      body: JSON.stringify(payload),
+    }))
     if (!resp.ok) return null
     const data = await resp.json()
     if (!data.access_token) return null
-    localStorage.setItem(ACCESS_KEY, data.access_token)
-    if (data.refresh_token) localStorage.setItem(REFRESH_KEY, data.refresh_token)
+    setTokens(data.access_token, data.refresh_token || rt)
     notifyAccessTokenRefreshed(data.access_token)
     return data.access_token as string
   }
@@ -67,6 +80,7 @@ api.interceptors.response.use(
 
     // 仅对 401 + 还没重试过 + 不是 token 端点本身做刷新
     const isTokenEndpoint = (cfg?.url || '').includes('/oauth2/token')
+    const isAuthCritical = isAuthCriticalRequest(cfg?.url || '')
     if (status === 401 && cfg && !cfg._retried && !isTokenEndpoint) {
       cfg._retried = true
       if (!refreshing) refreshing = refreshToken()
@@ -77,10 +91,11 @@ api.interceptors.response.use(
         ;(cfg.headers as Record<string, string>).Authorization = `Bearer ${next}`
         return api.request(cfg)
       }
-      // 刷新失败 → 跳登录
-      clearTokensAndBounce()
+      if (shouldBounceAfterRefreshFailure(cfg?.url || '')) {
+        clearTokensAndBounce()
+      }
     }
-    else if (status === 401) {
+    else if (status === 401 && isAuthCritical) {
       clearTokensAndBounce()
     }
     return Promise.reject(err)

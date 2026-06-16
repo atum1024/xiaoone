@@ -1,7 +1,10 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { withLocalIpRegionHeaders } from '@xiaoone/region'
 import { api } from '../lib/httpClient' // Wait, I'll copy the api file to lib/httpClient or just keep using api.ts. I'll just change api/http to the new location later if I move it. Actually, I can just use `../api/http` for now since the axios setup there is fine or I'll copy it.
-import { notifyAccessTokenRefreshed } from '../lib/authEvents'
+import { isUserBlockedMenu } from '../app/blockedMenus'
+import { featureRequiredForMenu } from '../app/menuPermissions'
+import { clearTokens, hasAccessToken, setTokens } from '../auth/token'
+import { refreshToken } from '../lib/httpClient'
 import {
   clearPlatformTokens,
   hasPlatformAccessToken,
@@ -9,7 +12,8 @@ import {
 } from '../lib/platformAuthEvents'
 import { useAgentStore } from './agent'
 import { useLiveChatStore } from './liveChat'
-import { disposeTeamChatStore, useTeamChatStore } from './teamChat'
+import { queryClient } from '../app/queryClient'
+import { syncWorkspaceAfterLogin } from '../lib/workspaceStatusApi'
 
 interface MeResponse {
   code: number
@@ -20,7 +24,9 @@ interface MeResponse {
       email: string
       phone?: string
       name: string
-      is_demo: boolean
+      avatar?: string
+      region?: 'mainland' | 'overseas'
+      locale?: string
       is_platform_admin?: boolean
       email_verified?: boolean
       phone_verified?: boolean
@@ -29,10 +35,21 @@ interface MeResponse {
       id: number
       code: string
       name: string
-      is_demo: boolean
+      default_agent_model_key?: string
+      default_kefu_model_key?: string
+      default_kefu_translation_model_key?: string
       consultant_allowed_model_keys?: string[]
+      workspace_code?: string
+      workspace_provider?: string
+      workspace_runtime?: string
+      workspace_profile?: string
     }>
     current_merchant_id: number | null
+    current_member?: {
+      role: string
+      menu_permissions: string[]
+      effective_menu_permissions: string[]
+    } | null
     is_platform_admin: boolean
     current_scope?: string
     is_platform_scope?: boolean
@@ -52,16 +69,24 @@ interface AuthState {
   merchants: MeResponse['data']['merchants']
   currentMerchantId: number | null
   currentMerchantName: string
-  isDemo: boolean
+  featureFlags: Record<string, boolean>
+  subscriptionPlanCode: string
+  subscriptionPeriodEnd: string | null
+  storesMax: number
+  teamSeatsMax: number
   status: 'idle' | 'loading' | 'authed'
 }
 
 interface AuthActions {
   currentMerchant: () => MeResponse['data']['merchants'][number] | null
+  currentMember: () => MeResponse['data']['current_member'] | null
+  hasFeature: (feature: string) => boolean
+  hasMenuAccess: (menuId: string) => boolean
   persistTokens: (tokens: TokenPair) => void
   afterLoginSync: () => Promise<void>
   loginByCredentials: (payload: { type: LoginIdentityType; identifier: string; password: string }) => Promise<void>
   loginBySms: (phone: string, code: string) => Promise<void>
+  loginByEmailCode: (email: string, code: string) => Promise<void>
   loginByPhone: (phone: string, password: string) => Promise<void>
   loginByEmail: (email: string, password: string) => Promise<void>
   login: (payload: { type: LoginIdentityType; identifier: string; password: string }) => Promise<void>
@@ -74,38 +99,66 @@ interface AuthActions {
   elevatePlatform: (opts?: { password?: string }) => Promise<void>
   hasPlatformSession: () => boolean
   revokePlatform: () => void
-  switchMerchant: (merchantCode: string) => Promise<void>
 }
 
-export const useAuthStore = create<AuthState & AuthActions>()(
-  persist(
-    (set, get) => ({
+let bootstrapInflight: Promise<void> | null = null
+
+export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       user: null,
       me: null,
       merchants: [],
       currentMerchantId: null,
       currentMerchantName: '',
-      isDemo: false,
+      featureFlags: {},
+      subscriptionPlanCode: '',
+      subscriptionPeriodEnd: null,
+      storesMax: 0,
+      teamSeatsMax: 0,
       status: 'idle',
 
       currentMerchant: () => {
+        const merchants = get().merchants
         const id = get().currentMerchantId
-        if (id == null) return null
-        return get().merchants.find(m => m.id === id) ?? null
+        if (id == null) return merchants[0] ?? null
+        return merchants.find(m => m.id === id) ?? merchants[0] ?? null
+      },
+
+      currentMember: () => get().me?.current_member || null,
+
+      hasFeature: (feature: string) => {
+        const key = String(feature || '').trim()
+        if (!key)
+          return true
+        return !!get().featureFlags[key]
+      },
+
+      hasMenuAccess: (menuId: string) => {
+        if (isUserBlockedMenu(menuId))
+          return false
+        const requiredFeature = featureRequiredForMenu(menuId)
+        if (requiredFeature && !get().hasFeature(requiredFeature))
+          return false
+        const member = get().currentMember()
+        if (!member || member.role === 'owner')
+          return true
+        const items = member.effective_menu_permissions || member.menu_permissions || []
+        if (!Array.isArray(items) || items.length === 0)
+          return true
+        const allowed = new Set(items.map(String))
+        if (allowed.has(menuId))
+          return true
+        return false
       },
 
       persistTokens: (tokens) => {
-        localStorage.setItem('xiaoone.access_token', tokens.access_token)
-        localStorage.setItem('xiaoone.refresh_token', tokens.refresh_token)
+        setTokens(tokens.access_token, tokens.refresh_token)
       },
 
       afterLoginSync: async () => {
         await get().fetchMe()
         set({ status: 'authed' })
-        const teamChat = useTeamChatStore.getState()
-        teamChat.reset()
-        await teamChat.fetch().catch(() => {})
-        teamChat.startTeamRealtime()
+        await syncWorkspaceAfterLogin(get().subscriptionPlanCode).catch(() => {})
+        await queryClient.invalidateQueries({ queryKey: ['assistant', 'runtime-status'] }).catch(() => {})
         useLiveChatStore.getState().startRealtime()
       },
 
@@ -130,6 +183,17 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         })
         const tokens = r.data?.data?.tokens || r.data?.tokens || r.data
         if (!tokens?.access_token || !tokens?.refresh_token) throw new Error('sms_login_failed')
+        get().persistTokens({ access_token: tokens.access_token, refresh_token: tokens.refresh_token })
+        await get().afterLoginSync()
+      },
+
+      loginByEmailCode: async (email, code) => {
+        const r = await api.post('/api/v1/iam/public/login/email/', {
+          email: email.trim().toLowerCase(),
+          code: code.trim(),
+        })
+        const tokens = r.data?.data?.tokens || r.data?.tokens || r.data
+        if (!tokens?.access_token || !tokens?.refresh_token) throw new Error('email_code_login_failed')
         get().persistTokens({ access_token: tokens.access_token, refresh_token: tokens.refresh_token })
         await get().afterLoginSync()
       },
@@ -165,56 +229,116 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         const r = await api.get('/api/v1/iam/me/')
         const data = r.data?.data || r.data
         const currentMerchant = data.merchants.find((m: any) => m.id === data.current_merchant_id) || data.merchants[0] || null
+        let featureFlags: Record<string, boolean> = {}
+        let subscriptionPlanCode = ''
+        let subscriptionPeriodEnd: string | null = null
+        let storesMax = 0
+        let teamSeatsMax = 0
+        const merchantId = Number(data.current_merchant_id || currentMerchant?.id || 0)
+        if (merchantId > 0) {
+          try {
+            const subscriptionResp = await api.get('/api/v1/billing/merchant-subscription/', { params: { merchant_id: merchantId } })
+            const subscriptionPayload = subscriptionResp.data?.data || subscriptionResp.data || {}
+            const subscription = subscriptionPayload.subscription || null
+            subscriptionPlanCode = String(subscription?.plan?.code || subscription?.plan_id || '')
+            subscriptionPeriodEnd = subscription?.current_period_end ? String(subscription.current_period_end) : null
+            const plan = subscription?.plan || {}
+            const entitlements = (plan?.entitlements && typeof plan.entitlements === 'object')
+              ? plan.entitlements
+              : (subscription?.entitlements && typeof subscription.entitlements === 'object' ? subscription.entitlements : {})
+            const features = (entitlements?.features && typeof entitlements.features === 'object') ? entitlements.features : {}
+            featureFlags = Object.fromEntries(
+              Object.entries(features).map(([key, value]) => [String(key), Boolean(value)]),
+            )
+            storesMax = Number(entitlements?.stores_max || 0)
+            teamSeatsMax = Number(entitlements?.team_seats_max || 0)
+          } catch {
+            const previous = get()
+            featureFlags = previous.featureFlags
+            subscriptionPlanCode = previous.subscriptionPlanCode
+            subscriptionPeriodEnd = previous.subscriptionPeriodEnd
+            storesMax = previous.storesMax
+            teamSeatsMax = previous.teamSeatsMax
+          }
+        }
         set({
           user: data.user,
           me: data,
           merchants: data.merchants,
           currentMerchantId: data.current_merchant_id,
           currentMerchantName: currentMerchant?.name || currentMerchant?.code || '',
-          isDemo: !!data.user?.is_demo || data.merchants.some((m: any) => m.is_demo)
+          featureFlags,
+          subscriptionPlanCode,
+          subscriptionPeriodEnd,
+          storesMax,
+          teamSeatsMax,
         })
       },
 
       logout: () => {
-        localStorage.removeItem('xiaoone.access_token')
-        localStorage.removeItem('xiaoone.refresh_token')
+        void fetch('/oauth2/logout/', withLocalIpRegionHeaders({
+          method: 'POST',
+          credentials: 'same-origin',
+        })).catch(() => {})
+        clearTokens()
         clearPlatformTokens()
-        set({ user: null, me: null, merchants: [], currentMerchantId: null, currentMerchantName: '', status: 'idle' })
-        useTeamChatStore.getState().reset()
-        disposeTeamChatStore('platform:internal')
+        set({
+          user: null,
+          me: null,
+          merchants: [],
+          currentMerchantId: null,
+          currentMerchantName: '',
+          featureFlags: {},
+          subscriptionPlanCode: '',
+          subscriptionPeriodEnd: null,
+          storesMax: 0,
+          teamSeatsMax: 0,
+          status: 'idle',
+        })
         useLiveChatStore.getState().reset()
         useAgentStore.getState().reset()
       },
 
       bootstrap: async () => {
-        const token = localStorage.getItem('xiaoone.access_token')
-        if (!token) {
-          set({ status: 'idle', user: null, me: null, merchants: [], currentMerchantId: null, currentMerchantName: '' })
-          return
-        }
-        if (get().user) {
-          await get().fetchMe().catch(() => {})
-          set({ status: 'authed' })
-          const teamChat = useTeamChatStore.getState()
-          teamChat.fetch().catch(() => {})
-          teamChat.startTeamRealtime()
-          useLiveChatStore.getState().startRealtime()
-          return
-        }
-        set({ status: 'loading' })
-        try {
-          await get().fetchMe()
-          set({ status: 'authed' })
-          const teamChat = useTeamChatStore.getState()
-          teamChat.fetch().catch(() => {})
-          teamChat.startTeamRealtime()
-          useLiveChatStore.getState().startRealtime()
-        }
-        catch {
-          localStorage.removeItem('xiaoone.access_token')
-          localStorage.removeItem('xiaoone.refresh_token')
-          set({ status: 'idle', user: null, me: null, merchants: [], currentMerchantId: null, currentMerchantName: '' })
-        }
+        if (bootstrapInflight) return bootstrapInflight
+        bootstrapInflight = (async () => {
+          const token = hasAccessToken() || !!(await refreshToken())
+          if (!token) {
+            set({ status: 'idle', user: null, me: null, merchants: [], currentMerchantId: null, currentMerchantName: '' })
+            return
+          }
+          if (get().status === 'authed' && get().user) {
+            useLiveChatStore.getState().startRealtime()
+            return
+          }
+          set({ status: 'loading' })
+          try {
+            await get().fetchMe()
+            set({ status: 'authed' })
+            useLiveChatStore.getState().startRealtime()
+          }
+          catch (err: any) {
+            const status = err?.response?.status
+            if (status === 401 || status === 403) {
+              clearTokens()
+            }
+            set({
+              status: 'idle',
+              user: null,
+              me: null,
+              merchants: [],
+              currentMerchantId: null,
+              currentMerchantName: '',
+              featureFlags: {},
+              subscriptionPlanCode: '',
+              storesMax: 0,
+              teamSeatsMax: 0,
+            })
+          }
+        })().finally(() => {
+          bootstrapInflight = null
+        })
+        return bootstrapInflight
       },
 
       elevatePlatform: async (opts) => {
@@ -230,50 +354,5 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       revokePlatform: () => {
         clearPlatformTokens()
-        disposeTeamChatStore('platform:internal')
-      },
-
-      switchMerchant: async (merchantCode) => {
-        const rt = localStorage.getItem('xiaoone.refresh_token')
-        if (!rt) throw new Error('missing_refresh_token')
-        const oldId = get().currentMerchantId
-        const oldKey = oldId && oldId > 0 ? `merchant:${oldId}` : 'merchant:default'
-        
-        const r = await api.post('/oauth2/switch_merchant/', {
-          refresh_token: rt,
-          merchant_code: String(merchantCode).trim(),
-        })
-        localStorage.setItem('xiaoone.access_token', r.data.access_token)
-        if (r.data.refresh_token) localStorage.setItem('xiaoone.refresh_token', r.data.refresh_token)
-        notifyAccessTokenRefreshed(r.data.access_token)
-        
-        await get().fetchMe()
-        
-        const newId = get().currentMerchantId
-        const newKey = newId && newId > 0 ? `merchant:${newId}` : 'merchant:default'
-        if (oldKey !== newKey) disposeTeamChatStore(oldKey)
-        
-        const ag = useAgentStore.getState()
-        ag.reset()
-        ag.refreshAllAgentDomains().catch(() => {})
-        
-        const teamChat = useTeamChatStore.getState()
-        teamChat.reset()
-        await teamChat.fetch().catch(() => {})
-        teamChat.startTeamRealtime()
-        useLiveChatStore.getState().startRealtime()
       }
-    }),
-    {
-      name: 'auth', // same as Pinia default key
-      partialize: (state) => ({
-        user: state.user,
-        me: state.me,
-        merchants: state.merchants,
-        currentMerchantId: state.currentMerchantId,
-        currentMerchantName: state.currentMerchantName,
-        isDemo: state.isDemo,
-      }),
-    }
-  )
-)
+}))

@@ -1,0 +1,163 @@
+.dcpay-bin-platforms {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 88%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--xiaoone-surface-2) 82%, transparent);
+}
+
+.dcpay-bin-platforms.is-dialog-showcase {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.dcpay-bin-platforms.is-dialog-showcase .dcpay-bin-platforms__head strong {
+  font-size: 13px;
+}
+
+.dcpay-bin-platforms__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dcpay-bin-platforms__head strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.dcpay-bin-platforms__head span {
+  display: block;
+  margin-top: 4px;
+  color: var(--xiaoone-muted-fg);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dcpay-bin-platforms__toggle {
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dcpay-bin-platforms__body {
+  display: grid;
+  gap: 14px;
+}
+
+.dcpay-bin-platforms__category h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xiaoone-muted-fg);
+}
+
+.dcpay-bin-platforms__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dcpay-bin-platforms__item {
+  --brand: var(--xiaoone-accent);
+  display: grid;
+  grid-template-columns: 32px 1fr 12px;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--xiaoone-border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--xiaoone-surface-1));
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.18s ease-out, background-color 0.18s ease-out, transform 0.18s ease-out;
+}
+
+.dcpay-bin-platforms__item:hover {
+  border-color: color-mix(in srgb, var(--brand) 44%, var(--xiaoone-border));
+  background: color-mix(in srgb, var(--brand) 16%, var(--xiaoone-surface-1));
+  transform: translateY(-1px);
+}
+
+.dcpay-bin-platforms__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--brand) 8%, oklch(99% 0.004 264));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 32%, transparent);
+  overflow: hidden;
+}
+
+.dcpay-bin-platforms__logo img,
+.dcpay-bin-platforms__strip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.dcpay-bin-platforms__name {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.dcpay-bin-platforms__link-icon {
+  opacity: 0.45;
+}
+
+.dcpay-bin-platforms__strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dcpay-bin-platforms__strip li {
+  --brand: var(--xiaoone-accent);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--brand) 10%, oklch(99% 0.004 264));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--xiaoone-border));
+}
+
+.dcpay-bin-platforms__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--xiaoone-muted-fg);
+  background: color-mix(in srgb, var(--xiaoone-surface-1) 88%, transparent) !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 720px) {
+  .dcpay-bin-platforms__grid {
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  }
+}
+
+
+.dcpay-bin-platforms.is-hero-secondary {
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--xiaoone-border) 82%, transparent);
+}

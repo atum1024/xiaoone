@@ -1,0 +1,1129 @@
+.dcpay-page {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-page:not(.dcpay-page--embedded) {
+  min-height: 100%;
+  padding: var(--xiaoone-page-pad-y, 20px) var(--xiaoone-page-pad-x, 28px);
+  background: var(--xiaoone-bg);
+}
+
+.dcpay-page--embedded {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+}
+
+.dcpay-shell {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  box-shadow: var(--xiaoone-shadow);
+}
+
+.dcpay-page--embedded .dcpay-shell {
+  max-width: none;
+  height: 100%;
+}
+
+.dcpay-shell .dcpay-toolbar,
+.dcpay-shell .dcpay-card-list,
+.dcpay-shell .dcpay-card-detail {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.dcpay-shell .dcpay-toolbar {
+  flex-shrink: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 80%, transparent);
+}
+
+.dcpay-shell .dcpay-cards {
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  max-width: none;
+  margin: 0;
+  height: auto;
+}
+
+.dcpay-shell .dcpay-card-list {
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 24%, var(--xiaoone-bg-elev));
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+}
+
+.dcpay-shell .dcpay-card-detail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--xiaoone-bg-elev);
+}
+
+.dcpay-shell .dcpay-detail-head {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  margin: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 80%, transparent);
+  background: var(--xiaoone-bg-elev);
+}
+
+.dcpay-shell .dcpay-ledger-panel {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 20px 20px;
+}
+
+.dcpay-shell .dcpay-section-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dcpay-shell .dcpay-empty--center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 24px;
+}
+
+.dcpay-toolbar,
+.dcpay-card-list,
+.dcpay-card-detail {
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  box-shadow: var(--xiaoone-shadow);
+}
+
+.dcpay-toolbar,
+.dcpay-cards {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.dcpay-page--embedded .dcpay-toolbar,
+.dcpay-page--embedded .dcpay-cards {
+  max-width: none;
+}
+
+.dcpay-page--embedded .dcpay-cards {
+  height: 100%;
+}
+
+.dcpay-toolbar {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "title summary actions";
+  align-items: center;
+  gap: 18px;
+  padding: 12px 14px;
+}
+
+.dcpay-toolbar__title {
+  grid-area: title;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.dcpay-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dcpay-toolbar h1,
+.dcpay-section-head h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.dcpay-toolbar h1 {
+  margin-top: 0;
+}
+
+.dcpay-toolbar__summary,
+.dcpay-toolbar__actions,
+.dcpay-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dcpay-toolbar__summary {
+  grid-area: summary;
+  min-width: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.dcpay-toolbar__summary span {
+  min-width: 0;
+}
+
+.dcpay-toolbar__actions {
+  grid-area: actions;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.dcpay-topup-combo {
+  height: 34px;
+  min-width: 200px;
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-elev);
+}
+
+.dcpay-topup-combo__prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  border-right: 1px solid var(--xiaoone-border);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 72%, transparent);
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dcpay-topup-combo__input {
+  width: 86px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-fg);
+  padding: 0 9px;
+  font-size: 13px;
+  outline: none;
+}
+
+.dcpay-topup-combo__btn {
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 1px 0 0 var(--xiaoone-border);
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.dcpay-cards {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: clamp(280px, 22vw, 360px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+}
+
+.dcpay-card-list,
+.dcpay-card-detail {
+  min-width: 0;
+  min-height: 0;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.dcpay-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dcpay-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dcpay-section-head span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-card-scroll {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 2px 4px 4px 2px;
+  margin: 0 -4px -4px -2px;
+  scrollbar-gutter: auto;
+}
+
+.dcpay-card-item {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 76%, transparent);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.dcpay-card-item:hover {
+  border-color: var(--xiaoone-border-strong);
+  background: var(--xiaoone-bg-hover);
+}
+
+.dcpay-card-item.is-active {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 54%, var(--xiaoone-border));
+  background: var(--xiaoone-accent-bg);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--xiaoone-accent) 14%, transparent);
+}
+
+.dcpay-card-item strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dcpay-card-item em {
+  flex-shrink: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.dcpay-card-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dcpay-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--xiaoone-border);
+}
+
+.dcpay-detail-head h3 {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+
+.dcpay-detail-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.dcpay-section-head__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.dcpay-detail-head p {
+  margin: 5px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.dcpay-row-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.dcpay-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.dcpay-meta div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 68%, transparent);
+}
+
+.dcpay-meta dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-meta dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.dcpay-ledger-panel {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dcpay-table-wrap {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-gutter: auto;
+}
+
+.dcpay-table-wrap table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.dcpay-table-wrap th,
+.dcpay-table-wrap td {
+  text-align: left;
+  padding: 9px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dcpay-table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg-mute);
+  font-weight: 700;
+}
+
+.dcpay-tx-order,
+.dcpay-tx-subtext {
+  display: block;
+  min-width: 0;
+}
+
+.dcpay-tx-order {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dcpay-tx-subtext {
+  max-width: 260px;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--xiaoone-fg-mute);
+  font-size: 11px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+}
+
+.dcpay-tx-subtext.is-error {
+  color: color-mix(in srgb, var(--xiaoone-danger) 86%, var(--xiaoone-fg));
+}
+
+.dcpay-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.dcpay-product {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 70%, transparent);
+}
+
+.dcpay-product.is-low-balance {
+  border-color: color-mix(in srgb, var(--xiaoone-warning, #d97706) 30%, var(--xiaoone-border));
+  background: color-mix(in srgb, var(--xiaoone-warning, #d97706) 9%, var(--xiaoone-bg-elev));
+}
+
+.dcpay-product header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dcpay-product h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dcpay-product p {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.dcpay-product dl {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.dcpay-product dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+}
+
+.dcpay-product-balance {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-product-balance.is-low {
+  color: color-mix(in srgb, var(--xiaoone-warning, #d97706) 84%, var(--xiaoone-fg));
+}
+
+.dcpay-empty {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--xiaoone-border);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 62%, transparent);
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dcpay-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-danger) 34%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-danger) 10%, transparent);
+  color: color-mix(in srgb, var(--xiaoone-danger) 86%, var(--xiaoone-fg));
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dcpay-empty--center {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+}
+
+.dcpay-open-dialog {
+  width: min(960px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(86vh, 760px);
+  overflow-y: auto;
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-open-dialog__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dcpay-open-dialog__summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.dcpay-open-dialog__summary span {
+  padding: 6px 10px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 62%, transparent);
+}
+
+.dcpay-product-grid--dialog {
+  margin-top: 12px;
+}
+
+.dcpay-topup-dialog,
+.dcpay-card-recharge-dialog,
+.dcpay-sensitive-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(86dvh, 760px);
+  overflow-y: auto;
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-sensitive-dialog {
+  width: min(680px, calc(100vw - 32px));
+}
+
+.dcpay-topup-dialog__body {
+  display: grid;
+  gap: 12px;
+}
+
+.dcpay-topup-dialog__section {
+  display: grid;
+  gap: 10px;
+}
+
+.dcpay-confirm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.dcpay-confirm-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dcpay-confirm-grid div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 68%, transparent);
+}
+
+.dcpay-confirm-grid dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-confirm-grid dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dcpay-topup-dialog__actions {
+  gap: 8px;
+}
+
+.dcpay-form-field,
+.dcpay-inline-field label {
+  display: grid;
+  gap: 6px;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dcpay-form-field input,
+.dcpay-inline-field input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: 9px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  padding: 0 11px;
+  font-size: 14px;
+  outline: none;
+}
+
+.dcpay-form-field input:focus,
+.dcpay-inline-field input:focus {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 58%, var(--xiaoone-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--xiaoone-accent) 14%, transparent);
+}
+
+.dcpay-inline-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.dcpay-sensitive-callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-warning, #d97706) 28%, var(--xiaoone-border));
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-warning, #d97706) 8%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-sensitive-callout svg {
+  margin-top: 1px;
+  color: color-mix(in srgb, var(--xiaoone-warning, #d97706) 86%, var(--xiaoone-fg));
+}
+
+.dcpay-sensitive-callout strong,
+.dcpay-sensitive-callout span {
+  display: block;
+  line-height: 1.5;
+}
+
+.dcpay-sensitive-callout span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.dcpay-sensitive-auth,
+.dcpay-sensitive-result {
+  display: grid;
+  gap: 12px;
+}
+
+.dcpay-auth-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dcpay-auth-tabs button {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: 9px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dcpay-auth-tabs button:hover:not(:disabled) {
+  border-color: var(--xiaoone-border-strong);
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-auth-tabs button.is-active {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 58%, var(--xiaoone-border));
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+}
+
+.dcpay-auth-tabs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.dcpay-dialog-note {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.dcpay-secret-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(2, minmax(120px, 0.35fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.dcpay-secret-grid div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 68%, transparent);
+}
+
+.dcpay-secret-grid dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-secret-grid dd {
+  margin: 6px 0 0;
+}
+
+.dcpay-secret-value-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 0 0;
+}
+
+.dcpay-secret-value-row .dcpay-secret-value {
+  flex: 1;
+  min-width: 0;
+}
+
+.dcpay-secret-copy-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-top: -2px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg) 88%, transparent);
+  color: var(--xiaoone-fg-mute);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.dcpay-secret-copy-btn:hover {
+  color: var(--xiaoone-fg);
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 42%, var(--xiaoone-border));
+  background: color-mix(in srgb, var(--xiaoone-accent) 10%, var(--xiaoone-bg));
+}
+
+.dcpay-secret-copy-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--xiaoone-accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.dcpay-secret-value {
+  overflow-wrap: anywhere;
+  color: var(--xiaoone-fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .dcpay-toolbar {
+    grid-template-areas:
+      "title actions"
+      "summary summary";
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 78px;
+  }
+
+  .dcpay-toolbar__actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 760px) {
+  .dcpay-toolbar {
+    grid-template-areas:
+      "title"
+      "actions"
+      "summary";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dcpay-toolbar__title {
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .dcpay-toolbar__summary,
+  .dcpay-toolbar__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 980px) {
+  .dcpay-cards,
+  .dcpay-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .dcpay-shell .dcpay-card-list {
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  }
+
+  .dcpay-page--embedded {
+    height: auto;
+    overflow: visible;
+  }
+
+  .dcpay-page--embedded .dcpay-shell,
+  .dcpay-page--embedded .dcpay-cards {
+    height: auto;
+  }
+
+  .dcpay-page--embedded .dcpay-card-list,
+  .dcpay-page--embedded .dcpay-card-detail {
+    max-height: min(620px, 72dvh);
+  }
+}
+
+@media (max-width: 640px) {
+  .dcpay-page:not(.dcpay-page--embedded) {
+    padding: 14px;
+  }
+
+  .dcpay-detail-head,
+  .dcpay-open-dialog__bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dcpay-row-actions,
+  .dcpay-toolbar__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dcpay-confirm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dcpay-inline-field,
+  .dcpay-secret-grid,
+  .dcpay-auth-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .dcpay-topup-combo {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  .dcpay-topup-combo__input {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .dcpay-topup-dialog,
+  .dcpay-card-recharge-dialog,
+  .dcpay-sensitive-dialog {
+    max-height: calc(100dvh - 32px);
+  }
+}
+
+.dcpay-product.is-bin-5378 {
+  cursor: pointer;
+}
+
+.dcpay-product.is-bin-5378:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--xiaoone-accent) 42%, transparent);
+  outline-offset: 2px;
+}
+
+.dcpay-detail-dialog {
+  max-width: 520px;
+  color: var(--xiaoone-fg);
+}
+
+.dcpay-meta--dialog {
+  margin-top: 4px;
+}
+
+.dcpay-open-dialog {
+  width: min(1040px, calc(100vw - 32px));
+}
+
+.dcpay-product-grid--5378-single {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 12px;
+}
+
+.dcpay-product--5378-hero {
+  gap: 16px;
+  padding: 16px;
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 24%, var(--xiaoone-border));
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 78%, transparent);
+}
+
+.dcpay-product-5378__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dcpay-product-5378__identity h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.dcpay-product-5378__identity p {
+  margin: 6px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dcpay-product-5378__primary {
+  display: grid;
+  gap: 12px;
+}
+
+.dcpay-product-5378__fees {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.dcpay-product-5378__fees div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--xiaoone-control-radius);
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 86%, transparent);
+  background: color-mix(in srgb, var(--xiaoone-surface-1) 88%, transparent);
+}
+
+.dcpay-product-5378__fees dt {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+}
+
+.dcpay-product-5378__fees dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dcpay-product-5378__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .dcpay-product-5378__fees {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dcpay-product-5378__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dcpay-product-5378__actions .dcpay-product-balance {
+    order: 2;
+  }
+}
+
+.dcpay-open-dialog__processing {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--xiaoone-bg) 58%, transparent);
+  backdrop-filter: blur(2px);
+  pointer-events: all;
+}
+
+.dcpay-open-dialog__processing-panel {
+  width: min(360px, 100%);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--xiaoone-accent) 24%, var(--xiaoone-border));
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-surface, var(--xiaoone-bg-elev));
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--xiaoone-fg) 18%, transparent);
+}
+
+.dcpay-open-dialog__processing-panel strong,
+.dcpay-open-dialog__processing-panel span {
+  display: block;
+  line-height: 1.45;
+}
+
+.dcpay-open-dialog__processing-panel strong {
+  color: var(--xiaoone-fg);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dcpay-open-dialog__processing-panel span {
+  margin-top: 4px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.dcpay-open-dialog__spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid color-mix(in srgb, var(--xiaoone-accent) 18%, transparent);
+  border-top-color: var(--xiaoone-accent);
+  border-radius: 999px;
+  animation: dcpay-open-spin 0.82s linear infinite;
+}
+
+@keyframes dcpay-open-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,440 @@
+.kefu-qa-dialog {
+  width: min(680px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(86dvh, 720px);
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--xiaoone-bg-elev) 96%, var(--xiaoone-accent) 4%), var(--xiaoone-bg-elev) 42%),
+    var(--xiaoone-bg-elev);
+}
+
+.kefu-qa-dialog__form {
+  display: flex;
+  min-height: 0;
+  max-height: inherit;
+  flex-direction: column;
+}
+
+.kefu-qa-dialog__header {
+  padding: 24px 36px 18px 28px;
+  border-bottom: 1px solid color-mix(in oklch, var(--xiaoone-border) 82%, transparent);
+}
+
+.kefu-qa-dialog__heading {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.kefu-qa-dialog__icon {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-accent) 18%, var(--xiaoone-border));
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in oklch, var(--xiaoone-accent) 9%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-accent);
+}
+
+.kefu-qa-dialog__title {
+  margin: 0;
+  color: var(--xiaoone-fg);
+  font-size: 19px;
+  font-weight: 720;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.kefu-qa-dialog__description {
+  max-width: 58ch;
+  margin-top: 7px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.kefu-qa-dialog__body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  padding: 22px 28px 24px;
+}
+
+.kefu-qa-dialog__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.74fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.kefu-qa-dialog__grid--three {
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.72fr) minmax(150px, 0.72fr);
+}
+
+.kefu-qa-dialog__field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.kefu-qa-dialog__field > label {
+  color: var(--xiaoone-fg-soft);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.kefu-qa-dialog__control {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-border) 92%, transparent);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 94%, var(--xiaoone-bg-soft));
+  color: var(--xiaoone-fg);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  outline: none;
+  padding: 0 13px;
+  transition:
+    border-color var(--xiaoone-motion-fast) var(--xiaoone-motion-ease),
+    background-color var(--xiaoone-motion-fast) var(--xiaoone-motion-ease),
+    box-shadow var(--xiaoone-motion-fast) var(--xiaoone-motion-ease);
+}
+
+.kefu-qa-dialog__control::placeholder {
+  color: var(--xiaoone-fg-faint);
+}
+
+.kefu-qa-dialog__control:hover:not(:disabled) {
+  border-color: var(--xiaoone-border-strong);
+}
+
+.kefu-qa-dialog__control:focus,
+.kefu-qa-dialog__control:focus-visible {
+  border-color: var(--xiaoone-accent-soft);
+  box-shadow: var(--xiaoone-focus-ring);
+}
+
+.kefu-qa-dialog__textarea {
+  height: auto;
+  min-height: 154px;
+  resize: vertical;
+  padding: 12px 13px;
+}
+
+.kefu-qa-dialog__check {
+  display: grid;
+  width: fit-content;
+  max-width: 100%;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-border) 76%, transparent);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in oklch, var(--xiaoone-bg-soft) 46%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg);
+  cursor: pointer;
+  padding: 10px 12px;
+}
+
+.kefu-qa-dialog__check input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--xiaoone-accent);
+}
+
+.kefu-qa-dialog__check strong,
+.kefu-qa-dialog__check small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.kefu-qa-dialog__check strong {
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.kefu-qa-dialog__check small {
+  margin-top: 3px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.kefu-qa-dialog__footer {
+  align-items: center;
+  border-top: 1px solid color-mix(in oklch, var(--xiaoone-border) 82%, transparent);
+  background: color-mix(in oklch, var(--xiaoone-bg-elev) 94%, var(--xiaoone-bg-soft));
+  padding: 16px 28px;
+}
+
+.kefu-qa-dialog__footer .x1-lc-btn {
+  min-width: 104px;
+  justify-content: center;
+}
+
+.kefu-qa-upload-head__title {
+  flex: 1 1 260px;
+}
+
+.kefu-qa-upload-head__actions {
+  align-items: center;
+}
+
+.kefu-qa-upload-batch {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.kefu-qa-upload-batch__hint {
+  max-width: 320px;
+  color: var(--xiaoone-warning);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.kefu-qa-upload-batch__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kefu-qa-upload-batch__meta {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.kefu-qa-library-head {
+  align-items: center;
+}
+
+.kefu-qa-library-title {
+  gap: 9px;
+}
+
+.kefu-qa-auto-reply-toggle {
+  min-height: 32px;
+  margin-left: 2px;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+
+.kefu-qa-auto-reply-toggle__label {
+  color: var(--xiaoone-fg);
+}
+
+.kefu-qa-auto-reply-toggle__state {
+  color: var(--xiaoone-fg-mute);
+  font-weight: 650;
+}
+
+.kefu-qa-auto-reply-toggle.is-on .kefu-qa-auto-reply-toggle__state {
+  color: color-mix(in oklch, var(--xiaoone-success) 82%, var(--xiaoone-fg));
+}
+
+.kefu-quick-replies-head {
+  align-items: flex-start;
+}
+
+.kefu-quick-replies-head__text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kefu-quick-replies-title h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+}
+
+.kefu-quick-replies-head__lede {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.kefu-quick-replies-empty {
+  min-height: 240px;
+  padding: 36px 20px;
+}
+
+.kefu-quick-replies-row {
+  align-items: flex-start;
+}
+
+.kefu-quick-replies-row__body {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kefu-quick-replies-row__title strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--xiaoone-fg);
+}
+
+.kefu-quick-replies-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+}
+
+.kefu-quick-replies-row__content {
+  padding: 12px;
+  border: 1px solid color-mix(in oklch, var(--xiaoone-border) 60%, transparent);
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in oklch, var(--xiaoone-bg-soft) 20%, var(--xiaoone-bg-elev));
+  color: color-mix(in oklch, var(--xiaoone-fg) 82%, var(--xiaoone-bg));
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.kefu-quick-replies-row__actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.kefu-quick-replies-row__delete {
+  color: var(--xiaoone-danger);
+}
+
+@media (max-width: 720px) {
+  .kefu-qa-library-head {
+    align-items: stretch;
+  }
+
+  .kefu-qa-library-title {
+    width: 100%;
+  }
+
+  .kefu-qa-auto-reply-toggle {
+    flex: 0 1 auto;
+    min-height: 36px;
+    margin-left: 0;
+  }
+
+  .kefu-quick-replies-head__lede {
+    max-width: none;
+  }
+
+  .kefu-quick-replies-row {
+    flex-direction: column;
+  }
+
+  .kefu-quick-replies-row__actions {
+    width: 100%;
+  }
+
+  .kefu-quick-replies-row__actions .x1-lc-btn {
+    flex: 1 1 120px;
+    justify-content: center;
+  }
+
+  .kefu-qa-upload-head__title,
+  .kefu-qa-upload-head__actions,
+  .kefu-qa-upload-batch,
+  .kefu-qa-upload-batch__actions,
+  .kefu-qa-upload-batch__hint {
+    width: 100%;
+  }
+
+  .kefu-qa-upload-head__title {
+    flex: 0 1 auto;
+  }
+
+  .kefu-qa-upload-head__actions,
+  .kefu-qa-upload-batch,
+  .kefu-qa-upload-batch__actions {
+    align-items: stretch;
+  }
+
+  .kefu-qa-upload-batch__hint {
+    max-width: none;
+    text-align: left;
+  }
+
+  .kefu-qa-upload-batch__meta {
+    white-space: normal;
+  }
+
+  .kefu-qa-dialog {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .kefu-qa-dialog__header {
+    padding: 20px 34px 16px 18px;
+  }
+
+  .kefu-qa-dialog__heading {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .kefu-qa-dialog__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .kefu-qa-dialog__title {
+    font-size: 17px;
+  }
+
+  .kefu-qa-dialog__body {
+    gap: 15px;
+    padding: 18px;
+  }
+
+  .kefu-qa-dialog__grid,
+  .kefu-qa-dialog__grid--three {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kefu-qa-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 14px 18px 16px;
+  }
+
+  .kefu-qa-dialog__footer .x1-lc-btn {
+    width: 100%;
+    min-height: 42px;
+  }
+}

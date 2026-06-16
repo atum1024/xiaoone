@@ -3,19 +3,39 @@ import * as React from "react"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
-export const Toaster = ({ ...props }: ToasterProps) => {
+const toastClassNames = {
+  toast: "xo-toast",
+  default: "xo-toast--default",
+  success: "xo-toast--success",
+  error: "xo-toast--error",
+  info: "xo-toast--info",
+  warning: "xo-toast--warning",
+  title: "xo-toast__title",
+  description: "xo-toast__description",
+  content: "xo-toast__content",
+  icon: "xo-toast__icon",
+  closeButton: "xo-toast__close",
+  actionButton: "xo-toast__action",
+  cancelButton: "xo-toast__cancel",
+}
+
+export const Toaster = ({ position = "top-right", toastOptions, ...props }: ToasterProps) => {
   return (
     <Sonner
-      className="toaster group"
+      className="toaster group xo-toaster"
+      position={position}
+      closeButton
+      gap={10}
+      offset={20}
+      mobileOffset={14}
+      visibleToasts={4}
       toastOptions={{
+        duration: 3600,
+        closeButton: true,
+        ...toastOptions,
         classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-[var(--xiaoone-bg-elev)] group-[.toaster]:text-[var(--xiaoone-fg)] group-[.toaster]:border-[var(--xiaoone-border)] group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-[var(--xiaoone-fg-mute)]",
-          actionButton:
-            "group-[.toast]:bg-[var(--xiaoone-accent)] group-[.toast]:text-[oklch(98.5%_0.006_265)]",
-          cancelButton:
-            "group-[.toast]:bg-[var(--xiaoone-bg-soft)] group-[.toast]:text-[var(--xiaoone-fg)]",
+          ...toastClassNames,
+          ...toastOptions?.classNames,
         },
       }}
       {...props}
@@ -48,9 +68,15 @@ function showToast(input: ToastInput, options?: Parameters<typeof sonnerToast>[1
       action: payload.action,
       duration: payload.duration,
     }
-    return payload.variant === 'destructive'
-      ? sonnerToast.error(message, toastOptions)
-      : sonnerToast(message, toastOptions)
+    if (payload.variant === 'destructive')
+      return sonnerToast.error(message, toastOptions)
+    if (payload.variant === 'success')
+      return sonnerToast.success(message, toastOptions)
+    if (payload.variant === 'warning')
+      return sonnerToast.warning(message, toastOptions)
+    if (payload.variant === 'info')
+      return sonnerToast.info(message, toastOptions)
+    return sonnerToast(message, toastOptions)
   }
   return sonnerToast(input as React.ReactNode, options)
 }

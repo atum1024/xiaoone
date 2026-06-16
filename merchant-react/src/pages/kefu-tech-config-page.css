@@ -1,0 +1,740 @@
+.mr-kefu-tech-config .mr-kefu-tech-form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-section + .mr-kefu-tech-form-section {
+  padding-top: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--xiaoone-border) 65%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--xiaoone-fg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-section--optional .mr-kefu-tech-form-section-title {
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-optional-tag {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--xiaoone-fg-mute);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 70%, var(--xiaoone-bg-elev));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-row {
+  display: grid;
+  gap: 14px 16px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-row--store {
+  grid-template-columns: minmax(0, 280px);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-row--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mr-kefu-tech-config .x1-lc-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mr-kefu-tech-config .x1-lc-settings-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .x1-lc-settings-input,
+.mr-kefu-tech-config .x1-lc-settings-textarea {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius);
+  outline: none;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .x1-lc-settings-textarea {
+  min-height: 72px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-form-origins {
+  min-height: 96px;
+}
+
+.mr-kefu-tech-config .x1-lc-settings-field-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-credential-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-credential-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 92%, var(--xiaoone-bg-soft));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-credential-box code {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--xiaoone-fg);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mr-kefu-tech-config .x1-lc-settings-well {
+  overflow: hidden;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-credential-box > span {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-dev-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  padding: 10px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 92%, var(--xiaoone-bg-soft));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-dev-meta code {
+  font-family: ui-monospace, monospace;
+}
+
+.mr-kefu-tech-config .x1-lc-badge--success {
+  background: var(--xiaoone-success-bg);
+  color: var(--xiaoone-success);
+}
+
+.mr-kefu-tech-config .x1-lc-badge--muted {
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .x1-lc-badge--info {
+  background: color-mix(in srgb, var(--xiaoone-info) 14%, transparent);
+  color: var(--xiaoone-info);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-toggle-label {
+  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--xiaoone-fg-soft);
+  cursor: pointer;
+  user-select: none;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-toggle-label input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--xiaoone-accent);
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-doc-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mr-kefu-tech-config .mr-kefu-tech-doc-lede {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-ai-handoff {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-info) 10%, var(--xiaoone-bg-elev));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-info) 26%, var(--xiaoone-border));
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-ai-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--xiaoone-info);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-ai-handoff strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-ai-handoff p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--xiaoone-panel-radius);
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  background: var(--xiaoone-bg-elev);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-title {
+  font-size: 13px;
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 1fr;
+  gap: 8px 12px;
+  align-items: start;
+  font-size: 12px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-row dt {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-weight: 500;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-row dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-row code {
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+  word-break: break-all;
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-env-note {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-sample-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-info) 10%, var(--xiaoone-bg-elev));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-info) 28%, var(--xiaoone-border));
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-quick-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-success) 10%, var(--xiaoone-bg-elev));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-success) 24%, var(--xiaoone-border));
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-quick-tip:hover {
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--xiaoone-shadow) 18%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-quick-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--xiaoone-success);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-quick-tip p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-glossary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-glossary-label {
+  flex-shrink: 0;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-term {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px dashed color-mix(in srgb, var(--xiaoone-border) 85%, transparent);
+  border-radius: 999px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg-soft);
+  font-size: 12px;
+  cursor: help;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-term:hover {
+  border-color: var(--xiaoone-accent);
+  background: color-mix(in srgb, var(--xiaoone-accent) 8%, var(--xiaoone-bg-elev));
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-term code {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tooltip {
+  max-width: 280px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tooltip strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: ui-monospace, monospace;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tooltip p {
+  margin: 0;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tabs-list {
+  width: 100%;
+  flex-wrap: wrap;
+  height: auto;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tab-trigger {
+  flex: 1 1 auto;
+  min-width: 140px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  padding: 8px 12px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: mr-kefu-guide-fade-in 0.25s ease;
+}
+
+@keyframes mr-kefu-guide-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-method-intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step {
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-elev);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step.is-open {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 35%, var(--xiaoone-border));
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--xiaoone-shadow) 12%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: var(--xiaoone-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-toggle:hover {
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 60%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--xiaoone-accent) 14%, transparent);
+  color: var(--xiaoone-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: mr-kefu-guide-fade-in 0.2s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-step-explain {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-snippet {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: var(--xiaoone-panel-radius);
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 75%, transparent);
+  overflow: hidden;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-snippet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 55%, var(--xiaoone-bg-elev));
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-snippet-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-copy-btn {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-copy-btn.is-copied {
+  color: var(--xiaoone-success);
+  border-color: color-mix(in srgb, var(--xiaoone-success) 40%, var(--xiaoone-border));
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-snippet-pre {
+  margin: 0;
+  padding: 12px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 11.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, monospace;
+  color: var(--xiaoone-fg-soft);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 94%, var(--xiaoone-bg-soft));
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section {
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 78%, transparent);
+  border-radius: var(--xiaoone-panel-radius);
+  background: var(--xiaoone-bg-elev);
+  overflow: hidden;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: var(--xiaoone-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-toggle:hover {
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 50%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-toggle > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-toggle strong {
+  font-size: 14px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-summary {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  font-weight: 400;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-section-body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: mr-kefu-guide-fade-in 0.2s ease;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-api-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-api-path {
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-subhead {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--xiaoone-fg);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--xiaoone-panel-radius);
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 72%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-table th,
+.mr-kefu-tech-config .mr-kefu-guide-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid color-mix(in srgb, var(--xiaoone-border) 65%, transparent);
+  vertical-align: top;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-table th {
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 50%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg-mute);
+  font-weight: 600;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-table code {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-checklist {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-checklist li {
+  margin-bottom: 6px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-security {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--xiaoone-panel-radius);
+  background: color-mix(in srgb, var(--xiaoone-bg-soft) 40%, var(--xiaoone-bg-elev));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-border) 70%, transparent);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-security-headline {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--xiaoone-fg-mute);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-security-popover ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--xiaoone-fg-soft);
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-security-popover li {
+  margin-bottom: 6px;
+}
+
+.mr-kefu-tech-config .mr-kefu-guide-security-trigger {
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .mr-kefu-tech-config .mr-kefu-tech-form-row--2,
+  .mr-kefu-tech-config .mr-kefu-tech-form-row--store {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .mr-kefu-tech-config .x1-lc-settings-form-head {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .mr-kefu-tech-config .x1-lc-settings-form-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .mr-kefu-tech-config .x1-lc-settings-form-actions .x1-lc-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  .mr-kefu-tech-config .mr-kefu-guide-tab-trigger {
+    min-width: 100%;
+  }
+
+  .mr-kefu-tech-config .mr-kefu-guide-snippet-pre {
+    max-height: 240px;
+  }
+
+  .mr-kefu-tech-config .mr-kefu-guide-env-row {
+    grid-template-columns: 1fr;
+  }
+
+}

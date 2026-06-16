@@ -1,0 +1,495 @@
+.x1-bind-dialog {
+  max-width: min(720px, calc(100vw - 32px));
+}
+
+.x1-bind-picks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.x1-bind-picks--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.x1-bind-confirm-replace {
+  padding: 8px 0 4px;
+  display: grid;
+  gap: 10px;
+}
+
+.x1-bind-confirm-replace__lead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--xiaoone-fg-soft);
+}
+
+@media (max-width: 640px) {
+  .x1-bind-picks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.x1-bind-pick {
+  --bind-brand-color: var(--partner-brand-color, var(--xiaoone-accent));
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg);
+  text-align: left;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.x1-bind-pick:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--bind-brand-color) 34%, var(--xiaoone-border-soft));
+  background: color-mix(in srgb, var(--bind-brand-color) 8%, var(--xiaoone-bg));
+}
+
+.x1-bind-pick:disabled {
+  opacity: 0.62;
+  cursor: default;
+}
+
+.x1-bind-pick strong {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.x1-bind-pick span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.x1-bind-qrcode-wrap {
+  border: 1px dashed var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  background: var(--xiaoone-bg-soft);
+}
+
+.x1-bind-qrcode {
+  display: block;
+  width: 200px;
+  height: 200px;
+  width: min(280px, 100%);
+  aspect-ratio: 1;
+  border-radius: var(--xiaoone-control-radius);
+  border: 1px solid var(--xiaoone-border-soft);
+  background: #fff;
+  object-fit: cover;
+}
+
+.x1-bind-flow {
+  display: grid;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+
+.x1-bind-status {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-soft);
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.x1-bind-status strong {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.x1-bind-status span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.x1-bind-status--bound {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.x1-bind-status--failed,
+.x1-bind-status--unavailable {
+  border-color: rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.07);
+}
+
+.x1-bind-fallback,
+.x1-bind-bot {
+  border: 1px dashed var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-soft);
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--xiaoone-fg-mute);
+}
+
+.x1-bind-bot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.x1-bind-bot strong {
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+}
+
+.x1-bind-form {
+  display: grid;
+  gap: 10px;
+}
+
+.x1-tg-flow {
+  display: grid;
+  gap: 12px;
+}
+
+.x1-tg-guide {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-soft);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr);
+  gap: 12px;
+}
+
+.x1-tg-guide__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.x1-tg-guide__steps li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.x1-tg-guide__index {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--xiaoone-r-pill);
+  background: color-mix(in srgb, var(--xiaoone-accent) 12%, var(--xiaoone-bg));
+  border: 1px solid color-mix(in srgb, var(--xiaoone-accent) 26%, var(--xiaoone-border-soft));
+  color: var(--xiaoone-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.x1-tg-guide__steps strong,
+.x1-tg-next-test strong {
+  display: block;
+  color: var(--xiaoone-fg);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.x1-tg-guide__steps p,
+.x1-tg-shot__note p,
+.x1-tg-next-test span {
+  margin: 3px 0 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.x1-tg-guide__steps code,
+.x1-tg-shot__note code {
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+}
+
+.x1-tg-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.x1-bind-mini-action {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-r-pill);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg-soft);
+  min-height: 28px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.x1-bind-mini-action:hover {
+  border-color: var(--xiaoone-accent-soft);
+  background: var(--xiaoone-accent-bg);
+  color: var(--xiaoone-accent);
+  text-decoration: none;
+}
+
+.x1-tg-shot {
+  border: 1px dashed var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg);
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.x1-tg-shot__phone {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: oklch(97% 0.01 220);
+  padding: 9px;
+  display: grid;
+  gap: 7px;
+}
+
+.x1-tg-shot__top {
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.x1-tg-shot__bubble,
+.x1-tg-shot__token {
+  border: 1px solid color-mix(in srgb, var(--xiaoone-accent) 16%, var(--xiaoone-border-soft));
+  border-radius: var(--xiaoone-control-radius);
+  background: oklch(99% 0.006 220);
+  color: var(--xiaoone-fg-soft);
+  padding: 7px 8px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.x1-tg-shot__token {
+  color: var(--xiaoone-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.x1-tg-shot__note strong {
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.x1-bind-form label {
+  display: grid;
+  gap: 5px;
+}
+
+.x1-bind-form label > span {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--xiaoone-fg-mute);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.x1-bind-form input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-fg);
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.x1-bind-form input:focus {
+  border-color: var(--xiaoone-accent-soft);
+  box-shadow: 0 0 0 3px var(--xiaoone-accent-bg);
+}
+
+.x1-bind-form input:disabled {
+  opacity: 0.65;
+}
+
+.x1-tg-next-test {
+  border: 1px solid color-mix(in srgb, var(--xiaoone-success) 30%, var(--xiaoone-border-soft));
+  border-radius: var(--xiaoone-control-radius);
+  background: color-mix(in srgb, var(--xiaoone-success) 9%, var(--xiaoone-bg));
+  color: var(--xiaoone-success);
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.x1-bind-link {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  padding: 10px 12px;
+  background: var(--xiaoone-bg);
+  color: var(--xiaoone-accent);
+  font-size: 13px;
+  text-decoration: none;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+}
+
+.x1-bind-link:hover {
+  text-decoration: underline;
+}
+
+.x1-tg-next-test__action {
+  margin-top: 8px;
+  width: fit-content;
+}
+
+.x1-tg-pairing {
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-bg-soft);
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.x1-tg-pairing__steps {
+  display: grid;
+  gap: 9px;
+}
+
+.x1-tg-pairing__steps > div {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.x1-tg-pairing__steps p {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.x1-tg-pairing__steps code {
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+}
+
+.x1-bind-payload {
+  display: block;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius);
+  padding: 10px;
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.x1-bind-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.x1-bind-steps code {
+  color: var(--xiaoone-fg);
+  font-size: 12px;
+}
+
+.x1-bind-token-note {
+  margin: 0;
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.x1-bind-tip {
+  margin: 0;
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  line-height: 1.5;
+}
+
+.x1-bind-tip--ok {
+  color: var(--xiaoone-success);
+}
+
+.x1-bind-tip--err {
+  color: rgb(239 68 68);
+}
+
+@media (max-width: 640px) {
+  .x1-tg-guide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .x1-tg-shot__phone {
+    display: none;
+  }
+
+  .x1-tg-shot {
+    padding: 8px 10px;
+  }
+
+  .x1-tg-guide__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .x1-bind-mini-action {
+    justify-content: center;
+  }
+
+  .x1-bind-dialog .xo-dialog-footer {
+    flex-direction: column;
+  }
+
+  .x1-bind-dialog .xo-dialog-footer .xo-button {
+    width: 100%;
+  }
+
+  .x1-bind-secondary-close {
+    display: none;
+  }
+}

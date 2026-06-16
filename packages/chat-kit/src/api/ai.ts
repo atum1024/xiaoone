@@ -10,7 +10,6 @@ export interface DispatchResult {
   reply: string
   model: string
   domain: string
-  is_mock: boolean
   usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number }
 }
 
@@ -24,11 +23,12 @@ export function createAiModule(api: AxiosInstance, authFetch: AuthFetch) {
   async function dispatchChat(
     messages: ChatMessage[],
     domain: string = 'general',
+    model: string,
   ): Promise<DispatchResult> {
     const r = await api.post('/api/v1/ai/dispatch/', {
       messages,
       domain,
-      model: 'xiaoone-demo',
+      model,
     })
     return r.data.data as DispatchResult
   }
@@ -41,11 +41,12 @@ export function createAiModule(api: AxiosInstance, authFetch: AuthFetch) {
   async function* streamChat(
     messages: ChatMessage[],
     domain: string = 'general',
+    model: string,
   ): AsyncGenerator<{ delta?: string; finish?: boolean; usage?: any; model?: string }, void, void> {
     const resp = await authFetch('/api/v1/ai/stream/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, domain, model: 'xiaoone-demo' }),
+      body: JSON.stringify({ messages, domain, model }),
     })
     if (!resp.ok || !resp.body) {
       throw new Error(`stream failed: ${resp.status}`)

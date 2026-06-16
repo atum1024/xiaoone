@@ -1,36 +1,45 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './LiveChatShellPage.css'
-import { Bot, CheckCheck, ChevronLeft, Download, FileText, Film, Globe2, Image as ImageIcon, MessageCircle, Paperclip, RefreshCw, SendHorizontal, Sparkles, X } from 'lucide-react'
-import { assignDefined, getChatKit, type LiveAttachmentMeta, type LiveConversation, type LiveConversationDetail, type LiveChannel, type LiveMessage, type LiveState } from '@xiaoone/chat-kit'
-import { ApiError } from '../lib/apiErrors'
+import { Ban, Bot, CheckCheck, ChevronLeft, Database, Download, FileText, Film, Globe2, Image as ImageIcon, MessageCircle, MessageSquareText, Paperclip, SendHorizontal, X } from 'lucide-react'
+import { useNavigate } from 'react-router'
+import { assignDefined, getChatKit, type AgentMaterialAsset, type LiveAttachmentMeta, type LiveConversation, type LiveConversationDetail, type LiveMessage, type LiveState, type QuickReply } from '@xiaoone/chat-kit'
+import { describeKefuError } from '../lib/apiErrors'
 import { useLiveChatStore, type LiveAgentPanelHandlers } from '../store/liveChat'
 import { useMediaMinWidth } from '../hooks/useMediaMinWidth'
+import { usePreferences } from '../app/preferences'
+import type { KefuTranslate, KefuTpl } from '../i18n/catalog/kefu'
+import { DefaultAvatar } from '../components/DefaultAvatar'
+import { WarehouseAssetPickerDialog } from '../components/WarehouseAssetPickerDialog'
+import { warehouseAssetToFile } from '../lib/warehouseAssets'
 
-const TABS: Array<{ key: LiveState; label: string }> = [
-  { key: 'waiting', label: '等待中' },
-  { key: 'active', label: '进行中' },
-  { key: 'closed', label: '已归档' },
-]
-
-const CHANNEL_OPTIONS = [
-  { value: '', label: '全部渠道' },
-  { value: 'web', label: '网页' },
-  { value: 'official_site', label: '官网' },
-  { value: 'telegram', label: 'Telegram' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'wecom', label: '企业微信' },
-] as const
-
-const CHANNEL_LABEL: Record<string, string> = {
-  web: '网页',
-  official_site: '官网',
-  telegram: 'Telegram',
-  whatsapp: 'WhatsApp',
-  wecom: '企业微信',
+interface LiveChatShellPageProps {
+  state?: LiveState
+  onStateChange?: (state: LiveState) => void
+  hideStateTabs?: boolean
 }
 
 /** 与后端 `message_limit` / `limit` 对齐；最大 50（见 chat_core serializers）。 */
 const LIVE_CHAT_MESSAGE_PAGE_SIZE = 20
+
+type KefuSetupState = {
+  loading: boolean
+  stores: number
+  sdkConfigs: number
+  corpusEntries: number
+  conversations: number
+}
+
+const KEFU_SETUP_EMPTY: KefuSetupState = {
+  loading: true,
+  stores: 0,
+  sdkConfigs: 0,
+  corpusEntries: 0,
+  conversations: 0,
+}
+
+function formatCountBadge(value: number) {
+  return value > 99 ? '99+' : String(value)
+}
 
 interface SuggestedReplyState {
   suggestion: string
@@ -42,21 +51,8 @@ interface SuggestedReplyState {
   }>
 }
 
-const LANGUAGE_LABEL: Record<string, string> = {
-  'zh-CN': '中文',
-  'zh-TW': '繁中',
-  'en-US': 'EN',
-  ja: '日语',
-  ko: '韩语',
-  es: '西语',
-  fr: '法语',
-  de: '德语',
-  pt: '葡语',
-  ru: '俄语',
-  ar: '阿语',
-  th: '泰语',
-  vi: '越语',
-}
+const SIMPLIFIED_CHINESE_HINT_RE = /[体湾国语广东欢联络资讯产订单问题请这们为会处发货后吗号码价钱]/
+const TRADITIONAL_CHINESE_HINT_RE = /[體臺灣國語廣東歡聯絡資訊產訂單問題請這們為會處發貨後嗎號碼價錢]/
 
 function prettyTime(value?: string | null) {
   if (!value)
@@ -85,45 +81,60 @@ function liveChatBubbleTime(value?: string | null) {
   })
 }
 
-function stateLabel(state?: string) {
+function stateLabel(state: string | undefined, t: KefuTranslate) {
   if (state === 'waiting')
-    return '等待中'
+    return t('kefu.liveChat.state.waiting')
   if (state === 'active')
-    return '进行中'
+    return t('kefu.liveChat.state.active')
   if (state === 'closed')
-    return '已归档'
-  return '未选择'
+    return t('kefu.liveChat.state.closed')
+  return t('kefu.liveChat.state.none')
 }
 
-function assignmentLabel(row?: LiveConversationDetail | LiveConversation | null) {
+function assignmentLabel(row: LiveConversationDetail | LiveConversation | null | undefined, t: KefuTranslate, tpl: KefuTpl) {
   if (!row)
-    return '未分配'
+    return t('kefu.liveChat.assignment.unassigned')
   if (row.assigned_kefu_agent_name)
-    return `客服：${row.assigned_kefu_agent_name}`
+    return tpl('kefu.liveChat.assignment.agent', row.assigned_kefu_agent_name)
   if (row.assigned_agent_id)
-    return `客服 #${row.assigned_agent_id}`
-  return '未接管'
+    return tpl('kefu.liveChat.assignment.agentId', String(row.assigned_agent_id))
+  return t('kefu.liveChat.assignment.notTaken')
 }
 
-function senderLabel(role?: string, name?: string) {
+function handoffHint(row: LiveConversationDetail | LiveConversation | null | undefined, aiAutoReplyEnabled: boolean, t: KefuTranslate, tpl: KefuTpl) {
+  if (needsHumanAttention(row))
+    return t('kefu.liveChat.handoff.needsHuman')
+  const s = row?.state
+  if (s === 'waiting')
+    return t('kefu.liveChat.handoff.waiting')
+  if (s === 'active')
+    return aiAutoReplyEnabled
+      ? tpl('kefu.liveChat.handoff.activeOn', assignmentLabel(row, t, tpl))
+      : tpl('kefu.liveChat.handoff.activeOff', assignmentLabel(row, t, tpl))
+  if (s === 'closed')
+    return t('kefu.liveChat.handoff.closed')
+  return t('kefu.liveChat.handoff.default')
+}
+
+function senderLabel(role: string | undefined, name: string | undefined, t: KefuTranslate) {
   if (name)
     return name
   if (role === 'visitor')
-    return '访客'
+    return t('kefu.liveChat.sender.visitor')
   if (role === 'agent')
-    return '客服'
+    return t('kefu.liveChat.sender.agent')
   if (role === 'bot')
-    return '自动回复'
-  return '系统'
+    return t('kefu.liveChat.sender.bot')
+  return t('kefu.liveChat.sender.system')
 }
 
-function storeLabel(row?: { store_name?: string; store_id?: string } | null) {
+function storeLabel(row: { store_name?: string; store_id?: string } | null | undefined, t: KefuTranslate, tpl: KefuTpl) {
   if (!row)
     return ''
   if (row.store_name)
     return row.store_name
   if (row.store_id)
-    return `店铺 #${row.store_id}`
+    return tpl('kefu.common.storeHash', String(row.store_id))
   return ''
 }
 
@@ -144,6 +155,9 @@ function formatFileSize(n: number) {
 
 function sortConversations(list: LiveConversation[]) {
   return [...list].sort((a, b) => {
+    const ah = needsHumanAttention(a) ? 1 : 0
+    const bh = needsHumanAttention(b) ? 1 : 0
+    if (bh !== ah) return bh - ah
     const ua = a.visitor_unread_count ?? 0
     const ub = b.visitor_unread_count ?? 0
     if (ub !== ua) return ub - ua
@@ -153,33 +167,90 @@ function sortConversations(list: LiveConversation[]) {
   })
 }
 
-function messageLanguageMetadata(content: string) {
-  if (/[\u4e00-\u9fff]/.test(content)) return { detected_language: 'zh-CN', language_label: '中文' }
-  if (/[A-Za-z]/.test(content)) return { detected_language: 'en-US', language_label: 'EN' }
-  return { detected_language: 'zh-CN', language_label: '中文' }
+function needsHumanAttention(row?: LiveConversation | LiveConversationDetail | null) {
+  return Array.isArray(row?.tags) && row.tags.includes('needs_human') && row.state === 'waiting'
 }
 
-function optimisticAgentMessage(detail: LiveConversationDetail | null, id: string, content: string): LiveMessage {
+const HANDOFF_COMPACT_KEYWORDS = [
+  '转人工',
+  '人工客服',
+  '找人工',
+  '真人客服',
+  '人工服务',
+  '人工处理',
+  '人工介入',
+  '转接人工',
+  'connectmetoagent',
+  'humanagent',
+  'realperson',
+  'liveagent',
+  'customerservicerepresentative',
+]
+
+function isHandoffRequestMessage(msg?: LiveMessage) {
+  if (msg?.sender_role !== 'visitor') return false
+  if (msg.metadata?.human_handoff_requested || msg.metadata?.agent_attention === 'needs_human') return true
+  const compact = String(msg.content || '').trim().toLowerCase().replace(/\s+/g, '')
+  return HANDOFF_COMPACT_KEYWORDS.some(keyword => compact.includes(keyword))
+}
+
+function playHandoffTone() {
+  try {
+    const Ctor = window.AudioContext || (window as any).webkitAudioContext
+    if (!Ctor)
+      return
+    const ctx = new Ctor()
+    const gain = ctx.createGain()
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02)
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32)
+    gain.connect(ctx.destination)
+    for (const [index, frequency] of [880, 1175].entries()) {
+      const osc = ctx.createOscillator()
+      osc.type = 'sine'
+      osc.frequency.value = frequency
+      osc.connect(gain)
+      osc.start(ctx.currentTime + index * 0.11)
+      osc.stop(ctx.currentTime + index * 0.11 + 0.18)
+    }
+    window.setTimeout(() => void ctx.close().catch(() => undefined), 600)
+  }
+  catch {
+    // Browsers may block audio before user interaction.
+  }
+}
+
+function messageLanguageMetadata(content: string, t: KefuTranslate) {
+  if (/[\u4e00-\u9fff]/.test(content)) return { detected_language: 'zh-CN', language_label: t('kefu.liveChat.lang.zhCN') }
+  if (/[A-Za-z]/.test(content)) return { detected_language: 'en-US', language_label: t('kefu.liveChat.lang.enUS') }
+  return { detected_language: 'zh-CN', language_label: t('kefu.liveChat.lang.zhCN') }
+}
+
+function optimisticAgentMessage(detail: LiveConversationDetail | null, id: string, content: string, t: KefuTranslate): LiveMessage {
   const now = new Date().toISOString()
   return {
     id,
     conversation: detail?.id || '',
     sender_role: 'agent',
     sender_id: String(detail?.assigned_agent_id || ''),
-    sender_name: detail?.assigned_kefu_agent_name || '我',
+    sender_name: detail?.assigned_kefu_agent_name || t('kefu.liveChat.sender.me'),
     content,
     content_translated: '',
     content_type: 'text',
     metadata: {
-      ...messageLanguageMetadata(content),
+      ...messageLanguageMetadata(content, t),
       pending: true,
     },
     delivered_at: null,
     read_at: null,
-    is_demo: !!detail?.is_demo,
     created_at: now,
     client_message_id: id,
   }
+}
+
+function httpStatus(error: unknown): number {
+  const e = error as { status?: number; response?: { status?: number } }
+  return Number(e?.response?.status || e?.status || 0)
 }
 
 async function fetchLiveAttachmentBlob(conversationId: string, attachmentId: string, download: boolean): Promise<string> {
@@ -202,6 +273,7 @@ function LiveMessageArticle(props: {
   onOpenPreview: (meta: LiveAttachmentMeta) => void
   onDownloadFile: (meta: LiveAttachmentMeta) => void
 }) {
+  const { t } = usePreferences()
   const {
     msg,
     conversationId,
@@ -243,13 +315,13 @@ function LiveMessageArticle(props: {
   if (msg.sender_role === 'system') {
     return (
       <div className="x1-lc-bubble-row is-system">
-        {msg.content || '系统消息'}
+        {msg.content || t('kefu.common.systemMessage')}
       </div>
     )
   }
 
   const isAgentSide = msg.sender_role === 'agent' || msg.sender_role === 'bot'
-  const who = senderLabel(msg.sender_role, msg.sender_name)
+  const who = senderLabel(msg.sender_role, msg.sender_name, t)
 
   return (
     <div className={`x1-lc-bubble-row ${isAgentSide ? 'is-agent' : 'is-visitor'}`}>
@@ -268,7 +340,7 @@ function LiveMessageArticle(props: {
                 type="button"
                 className="mr-live-msg-att__thumb"
                 onClick={() => void onOpenPreview(att)}
-                aria-label="查看大图"
+                aria-label={t('kefu.common.viewLargeImage')}
               >
                 {thumb
                   ? <img src={thumb} alt={att.name} />
@@ -280,10 +352,10 @@ function LiveMessageArticle(props: {
                 type="button"
                 className="mr-live-msg-att__video"
                 onClick={() => void onOpenPreview(att)}
-                aria-label="播放视频"
+                aria-label={t('kefu.common.playVideo')}
               >
                 <Film size={28} />
-                <span>点击播放</span>
+                <span>{t('kefu.common.clickPlay')}</span>
               </button>
             ) : null}
             {att.kind === 'file' ? (
@@ -301,11 +373,11 @@ function LiveMessageArticle(props: {
           </div>
         ) : null}
         
-        {msg.content ? <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div> : att ? null : <div>（空消息）</div>}
+        {msg.content ? <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div> : att ? null : <div>{t('kefu.common.emptyMessage')}</div>}
         
         {translationText ? (
           <div className="mr-live-msg-translation">
-            <span>译文</span>
+            <span>{t('kefu.common.translation')}</span>
             <p>{translationText}</p>
           </div>
         ) : null}
@@ -316,15 +388,59 @@ function LiveMessageArticle(props: {
   )
 }
 
-export function LiveChatShellPage() {
+export function LiveChatShellPage({ state: controlledState, onStateChange, hideStateTabs = false }: LiveChatShellPageProps) {
+  const { t, tpl } = usePreferences()
+  const TABS = useMemo(() => [
+    { key: 'waiting' as LiveState, label: t('kefu.liveChat.state.waiting') },
+    { key: 'active' as LiveState, label: t('kefu.liveChat.state.active') },
+    { key: 'closed' as LiveState, label: t('kefu.liveChat.state.closed') },
+  ], [t])
+  const channelLabel = useCallback((channel: string) => {
+    const map: Record<string, string> = {
+      web: t('kefu.liveChat.channel.web'),
+      official_site: t('kefu.liveChat.channel.officialSite'),
+      telegram: t('kefu.liveChat.channel.telegram'),
+      whatsapp: t('kefu.liveChat.channel.whatsapp'),
+      wecom: t('kefu.liveChat.channel.wecom'),
+    }
+    return map[channel] || channel
+  }, [t])
+  const languageLabelMap = useMemo(() => ({
+    'zh-CN': t('kefu.liveChat.lang.zhCN'),
+    'zh-TW': t('kefu.liveChat.lang.zhTW'),
+    'en-US': t('kefu.liveChat.lang.enUS'),
+    ja: t('kefu.liveChat.lang.ja'),
+    ko: t('kefu.liveChat.lang.ko'),
+    es: t('kefu.liveChat.lang.es'),
+    fr: t('kefu.liveChat.lang.fr'),
+    de: t('kefu.liveChat.lang.de'),
+    pt: t('kefu.liveChat.lang.pt'),
+    ru: t('kefu.liveChat.lang.ru'),
+    ar: t('kefu.liveChat.lang.ar'),
+    th: t('kefu.liveChat.lang.th'),
+    vi: t('kefu.liveChat.lang.vi'),
+  }), [t])
+  const navigate = useNavigate()
   const liveChatStore = useLiveChatStore()
+  const {
+    activeCount,
+    activeVisitorUnreadSum,
+    closedCount,
+    agentJoin,
+    agentLeave,
+    agentSendMessage,
+    agentWsStatus,
+    applyStateTransition,
+    attachAgentPanel,
+    ensureAgentRealtime,
+    fetchCounts: fetchLiveCounts,
+    pollHandle,
+    waitingCount,
+    waitingVisitorUnreadSum,
+  } = liveChatStore
   const isDesktop = useMediaMinWidth(721)
-  const [state, setState] = useState<LiveState>('waiting')
-  const [search, setSearch] = useState('')
-  const [storeId, setStoreId] = useState('')
-  const [channel, setChannel] = useState('')
-  const [stores, setStores] = useState<any[]>([])
-  const [closedCount, setClosedCount] = useState(0)
+  const [state, setLiveState] = useState<LiveState>(controlledState || 'waiting')
+  const [setup, setSetup] = useState<KefuSetupState>(KEFU_SETUP_EMPTY)
   const [loadingList, setLoadingList] = useState(true)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
@@ -333,7 +449,12 @@ export function LiveChatShellPage() {
   const [sending, setSending] = useState(false)
   const [takingOver, setTakingOver] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [blockingVisitor, setBlockingVisitor] = useState(false)
   const [aiSuggesting, setAiSuggesting] = useState(false)
+  const [quickAnswers, setQuickAnswers] = useState<QuickReply[]>([])
+  const [quickAnswersLoading, setQuickAnswersLoading] = useState(false)
+  const [quickAnswersOpen, setQuickAnswersOpen] = useState(false)
+  const [autoReplySaving, setAutoReplySaving] = useState(false)
   const [translationEnabled, setTranslationEnabled] = useState(true)
   const [autoTranslating, setAutoTranslating] = useState(false)
   const [listError, setListError] = useState('')
@@ -344,19 +465,43 @@ export function LiveChatShellPage() {
   const [suggestedReply, setSuggestedReply] = useState<SuggestedReplyState | null>(null)
   const [showFacts, setShowFacts] = useState(false)
   const [draft, setDraft] = useState('')
+  const [warehousePickerOpen, setWarehousePickerOpen] = useState(false)
+  const [warehouseSelectingId, setWarehouseSelectingId] = useState('')
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const selectedIdRef = useRef('')
   const stateRef = useRef<LiveState>('waiting')
   const listRef = useRef<LiveConversation[]>([])
   const detailRef = useRef<LiveConversationDetail | null>(null)
+  const listRequestSeqRef = useRef(0)
+  const detailRequestSeqRef = useRef(0)
   const pendingAutoTranslationsRef = useRef(new Set<string>())
   const pendingWsSendsRef = useRef(new Map<string, { content: string; optimisticId: string; timer: ReturnType<typeof setTimeout> }>())
   const countRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handoffAlertedRef = useRef(new Set<string>())
   const messageListRef = useRef<HTMLDivElement | null>(null)
+  const latestMessageScrollKeyRef = useRef('')
   const olderTopSentinelRef = useRef<HTMLDivElement | null>(null)
   const loadOlderMessagesRef = useRef<() => Promise<void>>(async () => {})
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [mediaPreview, setMediaPreview] = useState<MediaPreviewState>(null)
+  const selectConversation = useCallback((id: string) => {
+    selectedIdRef.current = id
+    setSelectedId(id)
+  }, [])
+  const clearDetailState = useCallback(() => {
+    detailRequestSeqRef.current += 1
+    detailRef.current = null
+    setLoadingDetail(false)
+    setDetail(null)
+    setSuggestedReply(null)
+    setOlderMessagesHasMore(false)
+    setOlderMessagesCursor('')
+  }, [])
+  const changeState = useCallback((next: LiveState) => {
+    stateRef.current = next
+    setLiveState(next)
+    onStateChange?.(next)
+  }, [onStateChange])
 
   const selected = useMemo(
     () => list.find(row => row.id === selectedId) || null,
@@ -367,141 +512,224 @@ export function LiveChatShellPage() {
   listRef.current = list
   detailRef.current = detail
 
+  useEffect(() => {
+    if (!controlledState || controlledState === stateRef.current)
+      return
+    stateRef.current = controlledState
+    setLiveState(controlledState)
+    setDetailError('')
+    setSuggestedReply(null)
+  }, [controlledState])
+
   /** 详情未返回前用列表行状态兜底，避免进行中会话仍短暂可点「接管」。 */
   const selectedConvState = detail?.state ?? selected?.state
+  const selectedVisitorBlocked = Boolean((detail || selected)?.visitor?.is_blocked)
+  const selectedAiAutoReplyEnabled = Boolean((detail ?? selected)?.ai_auto_reply_enabled)
+  const selectedStoreId = String(detail?.store_id || selected?.store_id || '')
+  const visibleQuickAnswers = useMemo(() => {
+    return quickAnswers.filter((item) => {
+      if (!item.content?.trim())
+        return false
+      if (!item.store)
+        return true
+      return selectedStoreId ? String(item.store) === selectedStoreId : false
+    })
+  }, [quickAnswers, selectedStoreId])
 
-  const wsStatus = useMemo<'connecting' | 'open' | 'closed' | 'no-token'>(() => {
-    const s = liveChatStore.agentWsStatus
+  const wsStatus = useMemo<'connecting' | 'open' | 'closed' | 'no-token' | 'auth-failed'>(() => {
+    const s = agentWsStatus
     if (s === 'no-token') return 'no-token'
+    if (s === 'auth-failed') return 'auth-failed'
     if (s === 'open') return 'open'
     if (s === 'closed') return 'closed'
     return 'connecting'
-  }, [liveChatStore.agentWsStatus])
-
-  const wsStatusLabel = useMemo(() => {
-    if (wsStatus === 'open') return '实时通道已连接（轮询兜底待机）'
-    if (wsStatus === 'connecting') return '实时通道连接中…'
-    if (wsStatus === 'no-token') return '请先登录'
-    if (liveChatStore.isPollingFallback()) return '实时通道不可用，正在轮询兜底（15s）'
-    return '实时通道已断开，重连中'
-  }, [liveChatStore, wsStatus])
+  }, [agentWsStatus])
 
   const tabStats = useMemo(() => ({
-    waiting: { count: liveChatStore.waitingCount, unread: liveChatStore.waitingVisitorUnreadSum },
-    active: { count: liveChatStore.activeCount, unread: liveChatStore.activeVisitorUnreadSum },
+    waiting: { count: waitingCount, unread: waitingVisitorUnreadSum },
+    active: { count: activeCount, unread: activeVisitorUnreadSum },
     closed: { count: closedCount, unread: 0 },
   }), [
-    liveChatStore.activeCount,
-    liveChatStore.activeVisitorUnreadSum,
-    liveChatStore.waitingCount,
-    liveChatStore.waitingVisitorUnreadSum,
+    activeCount,
+    activeVisitorUnreadSum,
+    waitingCount,
+    waitingVisitorUnreadSum,
     closedCount,
   ])
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    const byState = list.filter(item => item.state === state)
-    if (!q)
-      return byState
-    return byState.filter((item) => {
-      const fields = [
-        item.visitor?.name || '',
-        item.store_name || '',
-        item.subject || '',
-        item.last_message_preview || '',
-      ]
-      return fields.some(text => text.toLowerCase().includes(q))
-    })
-  }, [list, search, state])
+  const setupSteps = useMemo(() => [
+    {
+      key: 'store',
+      label: t('kefu.liveChat.setup.store'),
+      hint: t('kefu.liveChat.setup.storeHint'),
+      ready: setup.stores > 0,
+      count: setup.stores,
+      route: '/workbench/kefu/settings?tab=stores',
+    },
+    {
+      key: 'sdk',
+      label: t('kefu.liveChat.setup.sdk'),
+      hint: t('kefu.liveChat.setup.sdkHint'),
+      ready: setup.sdkConfigs > 0,
+      count: setup.sdkConfigs,
+      route: '/workbench/kefu/settings?tab=tech-config',
+    },
+    {
+      key: 'corpus',
+      label: t('kefu.liveChat.setup.corpus'),
+      hint: t('kefu.liveChat.setup.corpusHint'),
+      ready: setup.corpusEntries > 0,
+      count: setup.corpusEntries,
+      route: '/workbench/kefu/settings?tab=uploads',
+    },
+  ], [setup.corpusEntries, setup.sdkConfigs, setup.stores, t])
 
-  const loadClosedCount = useCallback(async () => {
-    try {
-      const params = {
-        store_id: storeId || undefined,
-        channel: (channel || undefined) as LiveChannel | undefined,
-        search: search.trim() || undefined,
-        state: 'closed' as LiveState,
-      }
-      const closed = await getChatKit().ChatAPI.conversations({ ...params, page_size: 1 })
-      const total = typeof closed.total === 'number' ? closed.total : closed.items.length
-      setClosedCount(total)
-    }
-    catch {
-      setClosedCount(0)
-    }
-  }, [channel, search, storeId])
+  const setupReadyCount = setupSteps.filter(item => item.ready).length
+  const nextSetupStep = setupSteps.find(item => !item.ready) || setupSteps[setupSteps.length - 1]
+  const latestMessageScrollKey = useMemo(() => {
+    if (!detail?.id)
+      return ''
+    const last = detail.messages[detail.messages.length - 1]
+    if (!last)
+      return `${detail.id}:empty`
+    return `${detail.id}:${last.id}:${last.created_at || ''}:${last.client_message_id || ''}`
+  }, [detail?.id, detail?.messages])
+
+  const scrollMessagesToBottom = useCallback((conversationId = selectedIdRef.current) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = messageListRef.current
+        if (!el || (conversationId && detailRef.current?.id !== conversationId)) return
+        el.scrollTop = el.scrollHeight
+      })
+    })
+  }, [])
+
+  const loadSetupState = useCallback(async () => {
+    const kit = getChatKit()
+    const [storeRes, sdkRes, corpusRes, conversationRes] = await Promise.allSettled([
+      kit.StoreAPI.list({ page_size: 1 }),
+      kit.SDKConfigAPI.list({ page_size: 1 }),
+      kit.CorpusAPI.list({ page_size: 1, is_active: true }),
+      kit.ChatAPI.conversations({ page_size: 1 }),
+    ])
+    setSetup({
+      loading: false,
+      stores: storeRes.status === 'fulfilled' ? Number(storeRes.value.total || storeRes.value.items?.length || 0) : 0,
+      sdkConfigs: sdkRes.status === 'fulfilled' ? Number(sdkRes.value.total || sdkRes.value.items?.length || 0) : 0,
+      corpusEntries: corpusRes.status === 'fulfilled' ? Number(corpusRes.value.total || corpusRes.value.items?.length || 0) : 0,
+      conversations: conversationRes.status === 'fulfilled' ? Number(conversationRes.value.total || conversationRes.value.items?.length || 0) : 0,
+    })
+  }, [])
+
+  const filtered = useMemo(() => {
+    return list.filter(item => item.state === state)
+  }, [list, state])
 
   const loadList = useCallback(async (preserve = true, forceSelectId = '', stateForRequest?: LiveState) => {
+    const requestSeq = ++listRequestSeqRef.current
+    const effectiveState = stateForRequest ?? stateRef.current
     setLoadingList(true)
     setListError('')
+    const previousList = listRef.current
+    const previousSelectedId = selectedIdRef.current
     try {
-      const effectiveState = stateForRequest ?? state
       const params = {
         state: effectiveState,
-        store_id: storeId || undefined,
-        channel: (channel || undefined) as LiveChannel | undefined,
-        search: search.trim() || undefined,
       }
       const res = await getChatKit().ChatAPI.conversations(params)
+      if (requestSeq !== listRequestSeqRef.current || effectiveState !== stateRef.current)
+        return
       const merged = sortConversations(res.items)
       setList(merged)
-      const currentSelectedId = selectedIdRef.current
       if (forceSelectId && merged.some(item => item.id === forceSelectId)) {
-        setSelectedId(forceSelectId)
+        selectConversation(forceSelectId)
         return
       }
-      if (preserve && currentSelectedId && merged.some(item => item.id === currentSelectedId)) {
+      if (preserve && previousSelectedId && merged.some(item => item.id === previousSelectedId)) {
+        selectConversation(previousSelectedId)
         return
       }
-      setSelectedId(merged[0]?.id || '')
+      const nextSelectedId = merged[0]?.id || ''
+      selectConversation(nextSelectedId)
+      if (!nextSelectedId)
+        clearDetailState()
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setListError(err.message || '会话列表加载失败')
-      else
-        setListError('会话列表加载失败')
-      setList([])
-      setSelectedId('')
+      if (requestSeq !== listRequestSeqRef.current || effectiveState !== stateRef.current)
+        return
+      setListError(describeKefuError(err, t('kefu.liveChat.listLoadFailed')))
+      const fallbackList = previousList.filter(row => row.state === effectiveState)
+      if (fallbackList.length > 0) {
+        setList(fallbackList)
+        if (previousSelectedId && fallbackList.some(item => item.id === previousSelectedId))
+          selectConversation(previousSelectedId)
+        else
+          selectConversation(fallbackList[0]?.id || '')
+      }
+      else {
+        setList([])
+        selectConversation('')
+        clearDetailState()
+      }
     }
     finally {
-      setLoadingList(false)
+      if (requestSeq === listRequestSeqRef.current && effectiveState === stateRef.current)
+        setLoadingList(false)
     }
-  }, [channel, search, state, storeId])
+  }, [clearDetailState, selectConversation])
 
   const loadDetail = useCallback(async (id: string) => {
     if (!id) {
-      setDetail(null)
+      clearDetailState()
       return
     }
+    const requestSeq = ++detailRequestSeqRef.current
     setLoadingDetail(true)
     setDetailError('')
+    setDetail(prev => (prev?.id === id ? prev : null))
+    setSuggestedReply(null)
+    setOlderMessagesHasMore(false)
+    setOlderMessagesCursor('')
     try {
       const data = await getChatKit().ChatAPI.detail(id, { message_limit: LIVE_CHAT_MESSAGE_PAGE_SIZE })
+      if (requestSeq !== detailRequestSeqRef.current || selectedIdRef.current !== id)
+        return
       setDetail(data)
       setOlderMessagesHasMore(!!data.messages_page?.has_more)
       setOlderMessagesCursor(data.messages_page?.before_cursor || data.messages[0]?.id || '')
       setSuggestedReply(null)
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '会话详情加载失败')
-      else
-        setDetailError('会话详情加载失败')
-      setDetail(null)
+      if (requestSeq !== detailRequestSeqRef.current || selectedIdRef.current !== id)
+        return
+      const message = describeKefuError(err, t('kefu.liveChat.detailLoadFailed'))
+      setDetailError(message)
+      if (httpStatus(err) === 404) {
+        setDetail(null)
+        setSuggestedReply(null)
+        const next = listRef.current.filter(row => row.id !== id)
+        const currentTabItems = next.filter(row => row.state === stateRef.current)
+        setList(next)
+        selectConversation(currentTabItems[0]?.id || '')
+      }
+      else {
+        setDetail(prev => (prev?.id === id ? prev : null))
+      }
     }
     finally {
-      setLoadingDetail(false)
+      if (requestSeq === detailRequestSeqRef.current)
+        setLoadingDetail(false)
     }
-  }, [])
+  }, [clearDetailState, selectConversation])
 
   const scheduleRefreshLiveCounts = useCallback((delayMs = 320) => {
     if (countRefreshTimerRef.current) clearTimeout(countRefreshTimerRef.current)
     countRefreshTimerRef.current = setTimeout(() => {
       countRefreshTimerRef.current = null
-      liveChatStore.fetchCounts().catch(() => {})
-      loadClosedCount().catch(() => {})
+      fetchLiveCounts().catch(() => {})
     }, delayMs)
-  }, [liveChatStore, loadClosedCount])
+  }, [fetchLiveCounts])
 
   const loadOlderMessages = useCallback(async () => {
     if (!detail || loadingOlderMessages || !olderMessagesHasMore) return
@@ -532,7 +760,7 @@ export function LiveChatShellPage() {
       setOlderMessagesHasMore(!!res.has_more)
     }
     catch {
-      setDetailError('加载更早消息失败')
+      setDetailError(t('kefu.liveChat.loadOlderFailed'))
     }
     finally {
       setLoadingOlderMessages(false)
@@ -551,16 +779,17 @@ export function LiveChatShellPage() {
   }, [loadOlderMessages])
 
   useEffect(() => {
-    if (!detail?.id || loadingDetail) return
-    const id = detail.id
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = messageListRef.current
-        if (!el || detailRef.current?.id !== id) return
-        el.scrollTop = el.scrollHeight
-      })
-    })
-  }, [detail?.id, loadingDetail])
+    if (!latestMessageScrollKey) {
+      latestMessageScrollKeyRef.current = ''
+      return
+    }
+    if (latestMessageScrollKey === latestMessageScrollKeyRef.current)
+      return
+    if (loadingOlderMessages)
+      return
+    latestMessageScrollKeyRef.current = latestMessageScrollKey
+    scrollMessagesToBottom(detail?.id || '')
+  }, [detail?.id, latestMessageScrollKey, loadingOlderMessages, scrollMessagesToBottom])
 
   useEffect(() => {
     const root = messageListRef.current
@@ -590,7 +819,7 @@ export function LiveChatShellPage() {
       })
     }
     catch {
-      setDetailError('无法加载附件预览')
+      setDetailError(t('kefu.liveChat.previewFailed'))
     }
   }, [])
 
@@ -598,7 +827,7 @@ export function LiveChatShellPage() {
     const cid = selectedIdRef.current
     if (!cid)
       return
-    if (!window.confirm(`下载文件「${meta.name}」？`))
+    if (!window.confirm(tpl('kefu.liveChat.downloadConfirm', meta.name)))
       return
     try {
       const url = await fetchLiveAttachmentBlob(cid, meta.id, true)
@@ -612,7 +841,7 @@ export function LiveChatShellPage() {
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000)
     }
     catch {
-      setDetailError('下载失败')
+      setDetailError(t('kefu.liveChat.downloadFailed'))
     }
   }, [])
 
@@ -625,22 +854,31 @@ export function LiveChatShellPage() {
 
   useEffect(() => {
     void loadList(false)
-    void loadClosedCount()
-  }, [loadClosedCount, loadList])
+  }, [loadList, state])
 
   useEffect(() => {
-    let alive = true
-    void getChatKit().StoreAPI.list().then((res) => {
-      if (alive)
-        setStores(res.items)
-    }).catch(() => {
-      if (alive)
-        setStores([])
-    })
-    return () => {
-      alive = false
+    void loadSetupState()
+  }, [loadSetupState])
+
+  useEffect(() => {
+    if (loadingList)
+      return
+    if (selectedId && filtered.some(row => row.id === selectedId))
+      return
+    if (filtered[0]) {
+      if (selectedId)
+        setDetailError(t('kefu.liveChat.stateChanged'))
+      selectConversation(filtered[0].id)
+      return
     }
-  }, [])
+    if (selectedId) {
+      selectConversation('')
+      clearDetailState()
+      return
+    }
+    if (detail)
+      clearDetailState()
+  }, [clearDetailState, detail, filtered, loadingList, selectConversation, selectedId])
 
   const appendInPlace = useCallback((message: LiveMessage) => {
     setDetail((prev) => {
@@ -668,12 +906,29 @@ export function LiveChatShellPage() {
   const bumpListMeta = useCallback((env: { conversation: LiveConversation; message?: LiveMessage }) => {
     const conv = env.conversation
     if (!conv?.id) return
+    if (needsHumanAttention(conv)) {
+      const alertKey = `${conv.id}:${env.message?.id || conv.last_message_at || ''}`
+      if (!handoffAlertedRef.current.has(alertKey)) {
+        handoffAlertedRef.current.add(alertKey)
+        playHandoffTone()
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          try {
+            new Notification(t('kefu.liveChat.notification.handoffTitle'), {
+              body: tpl('kefu.liveChat.notification.handoffBody', conv.visitor?.name || t('kefu.common.visitor')),
+              tag: `kefu-handoff-${conv.id}`,
+            })
+          }
+          catch {
+            // Notification support varies by browser.
+          }
+        }
+      }
+    }
     const currentTab = stateRef.current
     const currentSelectedId = selectedIdRef.current
     if (currentSelectedId === conv.id && conv.state !== currentTab) {
-      setState(conv.state)
-      setSelectedId(conv.id)
-      setList([])
+      changeState(conv.state)
+      selectConversation(conv.id)
     }
     setList((prev) => {
       const i = prev.findIndex(c => c.id === conv.id)
@@ -691,7 +946,7 @@ export function LiveChatShellPage() {
     })
     if (env.message) appendInPlace(env.message)
     scheduleRefreshLiveCounts()
-  }, [appendInPlace, scheduleRefreshLiveCounts])
+  }, [appendInPlace, changeState, scheduleRefreshLiveCounts, selectConversation])
 
   const replaceOptimisticMessage = useCallback((optimisticId: string, confirmed?: LiveMessage) => {
     setDetail((prev) => {
@@ -739,7 +994,7 @@ export function LiveChatShellPage() {
     }
     setDraft(pending.content)
     markOptimisticFailed(pending.optimisticId)
-    setDetailError(error || '发送失败')
+    setDetailError(error || t('kefu.liveChat.delivery.failed'))
   }, [markOptimisticFailed, replaceOptimisticMessage, scheduleRefreshLiveCounts])
 
   const clearPendingSends = useCallback(() => {
@@ -779,12 +1034,39 @@ export function LiveChatShellPage() {
   }, [loadDetail])
 
   useEffect(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      void Notification.requestPermission().catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    setQuickAnswersLoading(true)
+    getChatKit().QuickReplyAPI.list({ category: 'agent_answer', page_size: 200 })
+      .then((res) => {
+        if (!cancelled)
+          setQuickAnswers(res.items || [])
+      })
+      .catch(() => {
+        if (!cancelled)
+          setDetailError(t('kefu.liveChat.quickAnswersLoadFailed'))
+      })
+      .finally(() => {
+        if (!cancelled)
+          setQuickAnswersLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
     function buildAgentPanelHandlers(): LiveAgentPanelHandlers {
       return {
         onReady: () => {
           const current = selectedIdRef.current
           const selectedConv = listRef.current.find(item => item.id === current)
-          if (current && selectedConv?.state !== 'closed') liveChatStore.agentJoin(current)
+          if (current && selectedConv?.state !== 'closed') agentJoin(current)
           void compensateSelectedMessages()
         },
         onMessage: (env) => {
@@ -821,7 +1103,7 @@ export function LiveChatShellPage() {
           bumpListMeta(env)
         },
         onMerchantEvent: (event, data) => {
-          if (event === 'message' || event === 'state') {
+          if (event === 'message' || event === 'state' || event === 'handoff_alert') {
             const conversation = data?.conversation as LiveConversation | undefined
             const message = data?.message as LiveMessage | undefined
             if (conversation) bumpListMeta({ conversation, message })
@@ -835,33 +1117,34 @@ export function LiveChatShellPage() {
       }
     }
 
-    liveChatStore.ensureAgentRealtime()
-    liveChatStore.attachAgentPanel(buildAgentPanelHandlers())
-    liveChatStore.fetchCounts().catch(() => {})
-    loadClosedCount().catch(() => {})
+    ensureAgentRealtime()
+    attachAgentPanel(buildAgentPanelHandlers())
+    fetchLiveCounts().catch(() => {})
     return () => {
       const current = selectedIdRef.current
-      if (current) liveChatStore.agentLeave(current)
-      liveChatStore.attachAgentPanel(null)
+      if (current) agentLeave(current)
+      attachAgentPanel(null)
       clearPendingSends()
       if (countRefreshTimerRef.current) {
         clearTimeout(countRefreshTimerRef.current)
         countRefreshTimerRef.current = null
       }
     }
-  }, [bumpListMeta, clearPendingSends, compensateSelectedMessages, liveChatStore, loadClosedCount, settlePendingSend, updateMessageInPlace])
+  }, [agentJoin, agentLeave, attachAgentPanel, bumpListMeta, clearPendingSends, compensateSelectedMessages, ensureAgentRealtime, fetchLiveCounts, settlePendingSend, updateMessageInPlace])
 
   useEffect(() => {
     if (wsStatus === 'open')
       return
     const timer = window.setInterval(() => {
+      if (document.hidden) return
       void loadList(true)
       if (selectedIdRef.current)
         void loadDetail(selectedIdRef.current)
-      scheduleRefreshLiveCounts()
-    }, 10000)
+      if (pollHandle == null)
+        scheduleRefreshLiveCounts()
+    }, 15000)
     return () => window.clearInterval(timer)
-  }, [loadDetail, loadList, scheduleRefreshLiveCounts, wsStatus])
+  }, [loadDetail, loadList, pollHandle, scheduleRefreshLiveCounts, wsStatus])
 
   useEffect(() => {
     if (selectedId)
@@ -874,11 +1157,11 @@ export function LiveChatShellPage() {
 
   useEffect(() => {
     const current = list.find(item => item.id === selectedId)
-    if (selectedId && current?.state !== 'closed') liveChatStore.agentJoin(selectedId)
+    if (selectedId && current?.state !== 'closed') agentJoin(selectedId)
     return () => {
-      if (selectedId) liveChatStore.agentLeave(selectedId)
+      if (selectedId) agentLeave(selectedId)
     }
-  }, [list, liveChatStore, selectedId])
+  }, [agentJoin, agentLeave, list, selectedId])
 
   useEffect(() => {
     if (isDesktop) setMobileDetailOpen(false)
@@ -890,8 +1173,15 @@ export function LiveChatShellPage() {
 
   function messageLanguage(msg: LiveMessage): string {
     const raw = String(msg.metadata?.detected_language || '')
-    if (raw) return raw
     const text = msg.content || ''
+    if (raw.toLowerCase().startsWith('zh')) {
+      if (SIMPLIFIED_CHINESE_HINT_RE.test(text) && !TRADITIONAL_CHINESE_HINT_RE.test(text))
+        return 'zh-CN'
+      if (TRADITIONAL_CHINESE_HINT_RE.test(text) && !SIMPLIFIED_CHINESE_HINT_RE.test(text))
+        return 'zh-TW'
+      return raw
+    }
+    if (raw) return raw
     if (/[\u4e00-\u9fff]/.test(text)) return 'zh-CN'
     if (/[A-Za-z]/.test(text)) return 'en-US'
     return detail?.visitor?.locale || 'zh-CN'
@@ -899,7 +1189,7 @@ export function LiveChatShellPage() {
 
   function messageLanguageLabel(msg: LiveMessage): string {
     const code = messageLanguage(msg)
-    return LANGUAGE_LABEL[code] || code
+    return languageLabelMap[code as keyof typeof languageLabelMap] || code
   }
 
   function languageFamily(code: string): string {
@@ -915,7 +1205,8 @@ export function LiveChatShellPage() {
 
   function latestVisitorLanguage(): string {
     const rows = detail?.messages || []
-    const latest = [...rows].reverse().find(m => m.sender_role === 'visitor')
+    const visitors = [...rows].reverse().filter(m => m.sender_role === 'visitor')
+    const latest = visitors.find(m => !isHandoffRequestMessage(m)) || visitors[0]
     return latest ? messageLanguage(latest) : (detail?.visitor?.locale || 'zh-CN')
   }
 
@@ -961,24 +1252,24 @@ export function LiveChatShellPage() {
     if (translationStatus(msg) !== 'failed') return ''
     const err = msg.metadata?.translation_errors?.[targetLanguage]
     const text = String(err?.message || '').trim()
-    return text ? `译文暂不可用：${text}` : '译文暂不可用'
+    return text ? tpl('kefu.liveChat.translationUnavailableDetail', text) : t('kefu.liveChat.translationUnavailable')
   }
 
   function translationPendingText(msg: LiveMessage): string {
     if (!translationEnabled || !isTranslatableMessage(msg)) return ''
     const targetLanguage = translateTargetForMessage(msg)
     if (sameLanguage(messageLanguage(msg), targetLanguage) || messageTranslationForAgent(msg)) return ''
-    return translationStatus(msg) === 'pending' ? '译文生成中' : ''
+    return translationStatus(msg) === 'pending' ? t('kefu.liveChat.translationPending') : ''
   }
 
   function messageDeliveryText(msg: LiveMessage): string {
     const rawState = msg.metadata?.delivery_state
     const deliveryState = typeof rawState === 'string' ? rawState : ''
-    if (deliveryState === 'read') return '已读'
-    if (deliveryState === 'delivered') return '已送达'
-    if (msg.metadata?.send_failed) return '发送失败'
-    if (msg.metadata?.pending) return '发送中'
-    if (msg.sender_role === 'agent') return '已发送'
+    if (deliveryState === 'read') return t('kefu.liveChat.delivery.read')
+    if (deliveryState === 'delivered') return t('kefu.liveChat.delivery.delivered')
+    if (msg.metadata?.send_failed) return t('kefu.liveChat.delivery.failed')
+    if (msg.metadata?.pending) return t('kefu.liveChat.delivery.pending')
+    if (msg.sender_role === 'agent') return t('kefu.liveChat.delivery.sent')
     return ''
   }
 
@@ -1045,25 +1336,47 @@ export function LiveChatShellPage() {
     setTakingOver(true)
     setDetailError('')
     const id = selectedId
+    const previousState = detailRef.current?.state ?? selected?.state ?? stateRef.current
     try {
       const res = await getChatKit().ChatAPI.takeover(id)
       if (res?.conversation)
         setDetail(prev => prev ? ({ ...prev, ...res.conversation }) : (res.conversation as LiveConversationDetail))
+      applyStateTransition(previousState, 'active')
       // setState 异步：必须同步更新 ref，且 loadList 显式拉「进行中」，否则仍请求「等待中」导致列表与计数不同步
-      stateRef.current = 'active'
-      setState('active')
+      changeState('active')
       await loadList(true, id, 'active')
       await loadDetail(id)
-      scheduleRefreshLiveCounts()
+      await fetchLiveCounts()
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '接管失败')
-      else
-        setDetailError('接管失败')
+      setDetailError(describeKefuError(err, t('kefu.liveChat.takeoverFailed')))
     }
     finally {
       setTakingOver(false)
+    }
+  }
+
+  async function onToggleAiAutoReply() {
+    if (!selectedId)
+      return
+    const id = selectedId
+    const nextEnabled = !selectedAiAutoReplyEnabled
+    setAutoReplySaving(true)
+    setDetailError('')
+    setDetail(prev => (prev?.id === id ? { ...prev, ai_auto_reply_enabled: nextEnabled } : prev))
+    setList(prev => prev.map(row => row.id === id ? { ...row, ai_auto_reply_enabled: nextEnabled } : row))
+    try {
+      const updated = await getChatKit().ChatAPI.patch(id, { ai_auto_reply_enabled: nextEnabled })
+      setDetail(prev => (prev?.id === id ? { ...prev, ...updated } : prev))
+      setList(prev => sortConversations(prev.map(row => row.id === id ? { ...row, ...updated } : row)))
+    }
+    catch (err) {
+      setDetailError(describeKefuError(err, t('kefu.liveChat.autoReplySaveFailed')))
+      await loadDetail(id)
+      await loadList(true, id, 'active')
+    }
+    finally {
+      setAutoReplySaving(false)
     }
   }
 
@@ -1073,24 +1386,64 @@ export function LiveChatShellPage() {
     setClosing(true)
     setDetailError('')
     const id = selectedId
+    const previousState = detailRef.current?.state ?? selected?.state ?? stateRef.current
     try {
       const res = await getChatKit().ChatAPI.close(id)
       if (res?.conversation)
         setDetail(prev => prev ? ({ ...prev, ...res.conversation }) : (res.conversation as LiveConversationDetail))
-      stateRef.current = 'closed'
-      setState('closed')
+      applyStateTransition(previousState, 'closed')
+      changeState('closed')
       await loadList(true, id, 'closed')
+      await loadDetail(id)
+      await fetchLiveCounts()
+    }
+    catch (err) {
+      setDetailError(describeKefuError(err, t('kefu.liveChat.archiveFailed')))
+    }
+    finally {
+      setClosing(false)
+    }
+  }
+
+  async function onToggleVisitorBlock() {
+    if (!selectedId)
+      return
+    const id = selectedId
+    const currentlyBlocked = Boolean((detail || selected)?.visitor?.is_blocked)
+    let reason = ''
+    if (!currentlyBlocked) {
+      const value = window.prompt(t('kefu.liveChat.blockPrompt'), '')
+      if (value === null)
+        return
+      reason = value.trim()
+    }
+    else if (!window.confirm(t('kefu.liveChat.unblockConfirm'))) {
+      return
+    }
+
+    setBlockingVisitor(true)
+    setDetailError('')
+    try {
+      const res = currentlyBlocked
+        ? await getChatKit().ChatAPI.unblockVisitor(id)
+        : await getChatKit().ChatAPI.blockVisitor(id, { reason })
+      if (res?.conversation)
+        setDetail(prev => prev ? ({ ...prev, ...res.conversation }) : (res.conversation as LiveConversationDetail))
+      if (!currentlyBlocked) {
+        changeState('closed')
+        await loadList(true, id, 'closed')
+      }
+      else {
+        await loadList(true, id)
+      }
       await loadDetail(id)
       scheduleRefreshLiveCounts()
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '归档失败')
-      else
-        setDetailError('归档失败')
+      setDetailError(describeKefuError(err, currentlyBlocked ? t('kefu.liveChat.unblockFailed') : t('kefu.liveChat.blockFailed')))
     }
     finally {
-      setClosing(false)
+      setBlockingVisitor(false)
     }
   }
 
@@ -1110,13 +1463,10 @@ export function LiveChatShellPage() {
       if (recommended)
         setSuggestedReply(next)
       else
-        setDetailError('暂无可用建议回复')
+        setDetailError(t('kefu.liveChat.noSuggestion'))
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '建议回复生成失败')
-      else
-        setDetailError('建议回复生成失败')
+      setDetailError(describeKefuError(err, t('kefu.liveChat.suggestFailed'), t('kefu.liveChat.suggestTimeout')))
     }
     finally {
       setAiSuggesting(false)
@@ -1130,28 +1480,87 @@ export function LiveChatShellPage() {
     setDraft(next)
   }
 
-  async function onPickFiles(files: FileList | null) {
-    const f = files?.[0]
-    if (!f || !selectedId)
-      return
+  async function sendAgentText(
+    content: string,
+    options: { clearDraft?: boolean; restoreDraftOnTimeout?: boolean } = {},
+  ) {
+    const nextContent = content.trim()
+    if (!nextContent || !selectedId)
+      return false
+    const clearDraft = options.clearDraft !== false
+    const restoreDraftOnTimeout = options.restoreDraftOnTimeout !== false
+    setSending(true)
+    setDetailError('')
+    try {
+      if (wsStatus === 'open' && detail?.state !== 'closed') {
+        const clientMessageId = agentSendMessage(selectedId, nextContent)
+        if (!clientMessageId) {
+          setDetailError(t('kefu.liveChat.sendFailed'))
+          return false
+        }
+        appendInPlace(optimisticAgentMessage(detail, clientMessageId, nextContent, t))
+        const timer = setTimeout(() => {
+          const pending = pendingWsSendsRef.current.get(clientMessageId)
+          pendingWsSendsRef.current.delete(clientMessageId)
+          if (pending) markOptimisticFailed(pending.optimisticId)
+          if (restoreDraftOnTimeout)
+            setDraft(nextContent)
+          setDetailError(t('kefu.liveChat.sendTimeout'))
+        }, 10000)
+        pendingWsSendsRef.current.set(clientMessageId, { content: nextContent, optimisticId: clientMessageId, timer })
+        if (clearDraft)
+          setDraft('')
+        scheduleRefreshLiveCounts(80)
+        return true
+      }
+
+      await getChatKit().ChatAPI.send(selectedId, nextContent)
+      if (clearDraft)
+        setDraft('')
+      await loadDetail(selectedId)
+      await loadList(true)
+      const current = detail?.state
+      if (current === 'closed')
+        changeState('active')
+      scheduleRefreshLiveCounts()
+      return true
+    }
+    catch (err) {
+      setDetailError(describeKefuError(err, t('kefu.liveChat.messageSendFailed')))
+      return false
+    }
+    finally {
+      setSending(false)
+    }
+  }
+
+  async function sendQuickAnswer(item: QuickReply) {
+    const ok = await sendAgentText(item.content || '', { clearDraft: false, restoreDraftOnTimeout: false })
+    if (ok)
+      setQuickAnswersOpen(false)
+  }
+
+  async function sendPickedAttachmentFile(f: File) {
+    if (!selectedId)
+      return false
     setSending(true)
     setDetailError('')
     try {
       const att = await getChatKit().ChatAPI.uploadLiveAttachment(selectedId, f)
       const cap = draft.trim()
       if (wsStatus === 'open' && detail?.state !== 'closed') {
-        const clientMessageId = liveChatStore.agentSendMessage(selectedId, cap, att.id)
+        const clientMessageId = agentSendMessage(selectedId, cap, att.id)
         if (!clientMessageId) {
-          setDetailError('发送失败，请稍后重试')
+          setDetailError(t('kefu.liveChat.sendFailed'))
           return
         }
-        if (cap) appendInPlace(optimisticAgentMessage(detail, clientMessageId, cap))
+        if (cap) appendInPlace(optimisticAgentMessage(detail, clientMessageId, cap, t))
         const timer = setTimeout(() => {
           const pending = pendingWsSendsRef.current.get(clientMessageId)
           pendingWsSendsRef.current.delete(clientMessageId)
           if (pending) markOptimisticFailed(pending.optimisticId)
           setDraft(cap)
-          setDetailError('发送超时，请重试')
+          setDetailError(t('kefu.liveChat.sendTimeout'))
         }, 10000)
         pendingWsSendsRef.current.set(clientMessageId, { content: cap, optimisticId: clientMessageId, timer })
         setDraft('')
@@ -1163,15 +1572,14 @@ export function LiveChatShellPage() {
         await loadDetail(selectedId)
         await loadList(true)
         if (detail?.state === 'closed')
-          setState('active')
+          changeState('active')
         scheduleRefreshLiveCounts()
       }
+      return true
     }
     catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '附件发送失败')
-      else
-        setDetailError('附件发送失败')
+      setDetailError(describeKefuError(err, t('kefu.liveChat.attachmentSendFailed')))
+      return false
     }
     finally {
       setSending(false)
@@ -1180,106 +1588,84 @@ export function LiveChatShellPage() {
     }
   }
 
+  async function onPickFiles(files: FileList | null) {
+    const f = files?.[0]
+    if (!f)
+      return
+    await sendPickedAttachmentFile(f)
+  }
+
+  async function onPickWarehouseAsset(asset: AgentMaterialAsset) {
+    setWarehouseSelectingId(asset.id)
+    try {
+      const file = await warehouseAssetToFile(asset)
+      const sent = await sendPickedAttachmentFile(file)
+      if (sent)
+        setWarehousePickerOpen(false)
+    }
+    catch (err) {
+      setDetailError(describeKefuError(err, t('kefu.liveChat.attachmentSendFailed')))
+    }
+    finally {
+      setWarehouseSelectingId('')
+    }
+  }
+
   async function onSend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const content = draft.trim()
     if (!content || !selectedId)
       return
-    setSending(true)
-    setDetailError('')
-    try {
-      if (wsStatus === 'open' && detail?.state !== 'closed') {
-        const clientMessageId = liveChatStore.agentSendMessage(selectedId, content)
-        if (!clientMessageId) {
-          setDetailError('发送失败，请稍后重试')
-          return
-        }
-        appendInPlace(optimisticAgentMessage(detail, clientMessageId, content))
-        const timer = setTimeout(() => {
-          const pending = pendingWsSendsRef.current.get(clientMessageId)
-          pendingWsSendsRef.current.delete(clientMessageId)
-          if (pending) markOptimisticFailed(pending.optimisticId)
-          setDraft(content)
-          setDetailError('发送超时，请重试')
-        }, 10000)
-        pendingWsSendsRef.current.set(clientMessageId, { content, optimisticId: clientMessageId, timer })
-        setDraft('')
-        scheduleRefreshLiveCounts(80)
-      }
-      else {
-        await getChatKit().ChatAPI.send(selectedId, content)
-        setDraft('')
-        await loadDetail(selectedId)
-        await loadList(true)
-        const current = detail?.state
-        if (current === 'closed')
-          setState('active')
-        scheduleRefreshLiveCounts()
-      }
-    }
-    catch (err) {
-      if (err instanceof ApiError)
-        setDetailError(err.message || '消息发送失败')
-      else
-        setDetailError('消息发送失败')
-    }
-    finally {
-      setSending(false)
-    }
+    await sendAgentText(content)
   }
 
   return (
     <div className="x1-lc-container">
-      <header className="x1-lc-header">
-        <div className="x1-lc-header-top">
-          <h1><Sparkles size={18} className="mr-muted" /> 客户会话处理台</h1>
-          <div className="x1-lc-status">
-            <RefreshCw size={14} className={loadingList ? "animate-spin" : ""} style={{ cursor: 'pointer' }} onClick={() => void loadList(true)} />
-            {wsStatusLabel}
-          </div>
-        </div>
-        
-        <div className="x1-lc-header-toolbar">
-          <div className="x1-lc-tabs" role="tablist" aria-label="会话状态">
-            {TABS.map(tab => (
-              <button
-                key={tab.key}
-                type="button"
-                className={`x1-lc-tab ${state === tab.key ? 'is-active' : ''}`}
-                onClick={() => setState(tab.key)}
-              >
-                {tab.label}
-                <b>{tabStats[tab.key].count}</b>
-                {tabStats[tab.key].unread > 0 ? <em>{tabStats[tab.key].unread > 99 ? '99+' : tabStats[tab.key].unread}</em> : null}
-              </button>
-            ))}
-          </div>
+      <section className="x1-lc-workspace">
+        {!hideStateTabs ? (
+          <header className="x1-lc-header">
+            <div className="x1-lc-header-toolbar">
+              <div className="x1-lc-toolbar-leading">
+                <div className="x1-lc-tabs" role="tablist" aria-label={t('kefu.liveChat.tabsAria')}>
+                  {TABS.map(tab => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      className={`x1-lc-tab x1-lc-tab--${tab.key} ${state === tab.key ? 'is-active' : ''}`}
+                      onClick={() => {
+                        if (tab.key === state)
+                          return
+                        setDetailError('')
+                        setSuggestedReply(null)
+                        changeState(tab.key)
+                      }}
+                    >
+                      {tab.label}
+                      {tab.key === 'waiting'
+                        ? (tabStats.waiting.count > 0 ? <em className="is-alert">{formatCountBadge(tabStats.waiting.count)}</em> : null)
+                        : <b>{formatCountBadge(tabStats[tab.key].count)}</b>}
+                      {tab.key !== 'waiting' && tabStats[tab.key].unread > 0 ? <em>{formatCountBadge(tabStats[tab.key].unread)}</em> : null}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </header>
+        ) : null}
 
-          <div className="x1-lc-filters">
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜访客、主题、会话内容" />
-            <select value={storeId} onChange={e => setStoreId(e.target.value)} aria-label="按店铺筛选">
-              <option value="">全部店铺</option>
-              {stores.map(store => <option key={store.id} value={store.id}>{store.name}</option>)}
-            </select>
-            <select value={channel} onChange={e => setChannel(e.target.value)} aria-label="按渠道筛选">
-              {CHANNEL_OPTIONS.map(item => <option key={item.value || 'all'} value={item.value}>{item.label}</option>)}
-            </select>
-          </div>
-        </div>
-      </header>
-
-      <div className={`x1-lc-body x1-lc-shell ${mobileDetailOpen && !isDesktop ? 'is-mobile-detail' : ''}`}>
+        <div className={`x1-lc-body x1-lc-shell ${mobileDetailOpen && !isDesktop ? 'is-mobile-detail' : ''}`}>
         <aside className="x1-lc-sidebar">
           <div className="x1-lc-sidebar-head">
-            <MessageCircle size={16} className="mr-muted" /> 会话列表
+            <span><MessageCircle size={16} className="mr-muted" /> {t('kefu.liveChat.sidebarTitle')}</span>
+            <em>{tpl('kefu.common.countItems', String(filtered.length))}</em>
           </div>
           <div className="x1-lc-list">
-            {loadingList ? <div className="x1-lc-empty"><p>加载中...</p></div> : null}
+            {loadingList ? <div className="x1-lc-empty"><p>{t('kefu.common.loadingPlain')}</p></div> : null}
             {listError ? <div className="mr-state-error" style={{ margin: 8 }}>{listError}</div> : null}
             {!loadingList && !listError && filtered.length === 0 ? (
               <div className="x1-lc-empty">
                 <div className="x1-lc-empty-icon"><MessageCircle size={24} /></div>
-                <p>{state === 'closed' ? '暂无归档会话' : '当前没有会话'}</p>
+                <p>{state === 'closed' ? t('kefu.liveChat.noArchived') : t('kefu.liveChat.noConversations')}</p>
               </div>
             ) : null}
             
@@ -1289,17 +1675,22 @@ export function LiveChatShellPage() {
                 type="button"
                 className={`x1-lc-item ${row.id === selectedId ? 'is-active' : ''}`}
                 onClick={() => {
-                  setSelectedId(row.id)
+                  selectConversation(row.id)
                   if (!isDesktop) setMobileDetailOpen(true)
                 }}
               >
-                <div className="x1-lc-item-top">
-                  <strong>{row.visitor?.name || '访客'}</strong>
-                  <time>{row.visitor_unread_count ? `未读 ${row.visitor_unread_count}` : prettyTime(row.last_message_at)}</time>
-                </div>
-                <div className="x1-lc-item-bottom">
-                  <span className="x1-lc-item-badge">{stateLabel(row.state)}</span>
-                  <span>{storeLabel(row) || '默认店铺'} · {CHANNEL_LABEL[String(row.channel || '')] || row.channel || '网页'}</span>
+                <DefaultAvatar src={row.visitor?.avatar} className="x1-lc-item-avatar" alt="" size={42} />
+                <div className="x1-lc-item-content">
+                  <div className="x1-lc-item-top">
+                    <strong>{row.visitor?.name || t('kefu.common.visitor')}</strong>
+                    <time>{row.visitor_unread_count ? tpl('kefu.liveChat.unread', String(row.visitor_unread_count)) : prettyTime(row.last_message_at)}</time>
+                  </div>
+                  <div className="x1-lc-item-bottom">
+                    <span className="x1-lc-item-badge">{stateLabel(row.state, t)}</span>
+                    {needsHumanAttention(row) ? <span className="x1-lc-item-badge x1-lc-item-badge-danger">{t('kefu.liveChat.needsHuman')}</span> : null}
+                    {row.visitor?.is_blocked ? <span className="x1-lc-item-badge x1-lc-item-badge-danger">{t('kefu.liveChat.blocked')}</span> : null}
+                    <span>{storeLabel(row, t, tpl) || t('kefu.common.defaultStore')} · {channelLabel(String(row.channel || '')) || row.channel || t('kefu.liveChat.channel.web')}</span>
+                  </div>
                 </div>
               </button>
             ))}
@@ -1314,101 +1705,254 @@ export function LiveChatShellPage() {
                   <ChevronLeft size={18} />
                 </button>
               ) : null}
-              <h2>{selected?.visitor?.name || '会话区'}</h2>
-              {selectedId && <span className="x1-lc-badge">{stateLabel(detail?.state || selected?.state)}</span>}
+              <h2>{selected?.visitor?.name || t('kefu.liveChat.conversationArea')}</h2>
+              {selectedId && <span className="x1-lc-badge">{stateLabel(detail?.state || selected?.state, t)}</span>}
+              {selectedVisitorBlocked ? <span className="x1-lc-badge x1-lc-badge-danger">{t('kefu.liveChat.blocked')}</span> : null}
             </div>
             
             <div className="x1-lc-main-actions">
+              {/* 主操作：根据会话状态自动切换语义 —— 等待中=接管，进行中=AI 建议，已归档=新建消息恢复 */}
+              {selectedConvState === 'waiting' ? (
+                <button
+                  type="button"
+                  className="x1-lc-btn x1-lc-btn-primary"
+                  onClick={() => void onTakeOver()}
+                  disabled={!selectedId || takingOver}
+                  title={t('kefu.liveChat.takeoverTitle')}
+                >
+                  <CheckCheck size={14} />
+                  {takingOver ? t('kefu.liveChat.takingOver') : t('kefu.liveChat.takeover')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="x1-lc-btn x1-lc-btn-primary"
+                  onClick={() => void onSuggestReply()}
+                  disabled={!selectedId || aiSuggesting || selectedConvState === 'closed'}
+                  title={t('kefu.liveChat.aiSuggestTitle')}
+                >
+                  <Bot size={14} />
+                  {aiSuggesting ? t('kefu.liveChat.aiSuggesting') : t('kefu.liveChat.aiSuggest')}
+                </button>
+              )}
+
               <button
                 type="button"
-                className={`x1-lc-btn ${translationEnabled ? 'x1-lc-btn-primary' : ''}`}
+                className={`x1-lc-btn ${quickAnswersOpen ? 'is-on' : ''}`}
+                onClick={() => setQuickAnswersOpen(prev => !prev)}
+                disabled={!selectedId || selectedVisitorBlocked || quickAnswersLoading}
+                title={t('kefu.liveChat.quickAnswersTitle')}
+              >
+                <MessageSquareText size={14} />
+                {quickAnswersLoading ? t('kefu.liveChat.quickAnswersLoading') : t('kefu.liveChat.quickAnswers')}
+              </button>
+
+              {selectedConvState === 'active' ? (
+                <label
+                  className={`x1-lc-auto-reply-switch ${selectedAiAutoReplyEnabled ? 'is-on' : ''} ${!selectedId || autoReplySaving ? 'is-disabled' : ''}`}
+                  title={selectedAiAutoReplyEnabled ? t('kefu.liveChat.aiAutoReplyOnTitle') : t('kefu.liveChat.aiAutoReplyOffTitle')}
+                >
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    checked={selectedAiAutoReplyEnabled}
+                    disabled={!selectedId || autoReplySaving}
+                    onChange={() => void onToggleAiAutoReply()}
+                    aria-label={t('kefu.qa.autoReplyAria')}
+                  />
+                  <span>{autoReplySaving ? t('kefu.common.savingEllipsis') : t('kefu.common.aiAutoReply')}</span>
+                </label>
+              ) : null}
+
+              <button
+                type="button"
+                className={`x1-lc-btn ${translationEnabled ? 'is-on' : ''}`}
                 onClick={() => setTranslationEnabled(prev => !prev)}
                 disabled={!selectedId}
-                title={translationEnabled ? (autoTranslating ? '翻译中...' : '关闭翻译') : '开启翻译'}
+                title={translationEnabled ? t('kefu.liveChat.translationOnTitle') : t('kefu.liveChat.translationOffTitle')}
               >
                 <Globe2 size={14} />
-                {translationEnabled ? (autoTranslating ? '翻译中…' : '关闭翻译') : '翻译'}
+                {translationEnabled ? (autoTranslating ? t('kefu.liveChat.translating') : t('kefu.liveChat.translationOn')) : t('kefu.liveChat.translationOff')}
               </button>
-              <button type="button" className="x1-lc-btn" onClick={() => setShowFacts(prev => !prev)} disabled={!selectedId}>
-                {showFacts ? '收起详情' : '详情'}
-              </button>
-              <button type="button" className="x1-lc-btn" onClick={() => void onSuggestReply()} disabled={!selectedId || aiSuggesting}>
-                <Bot size={14} />
-                {aiSuggesting ? '生成中...' : '建议'}
-              </button>
+
               <button
                 type="button"
                 className="x1-lc-btn"
-                onClick={() => void onTakeOver()}
-                disabled={!selectedId || takingOver || selectedConvState === 'closed' || selectedConvState === 'active'}
+                onClick={() => setShowFacts(prev => !prev)}
+                disabled={!selectedId}
+                title={t('kefu.liveChat.detailsTitle')}
               >
-                <CheckCheck size={14} />
-                {takingOver ? '接管中...' : '接管'}
+                {showFacts ? t('kefu.common.collapseDetails') : t('kefu.common.details')}
               </button>
-              <button type="button" className="x1-lc-btn" onClick={() => void onCloseConversation()} disabled={!selectedId || closing || selectedConvState === 'closed'}>
-                {closing ? '归档中...' : '归档'}
+
+              <button
+                type="button"
+                className={`x1-lc-btn ${selectedVisitorBlocked ? '' : 'x1-lc-btn-danger'}`}
+                onClick={() => void onToggleVisitorBlock()}
+                disabled={!selectedId || blockingVisitor}
+                title={selectedVisitorBlocked ? t('kefu.liveChat.unblockTitle') : t('kefu.liveChat.blockTitle')}
+              >
+                <Ban size={14} />
+                {blockingVisitor ? t('kefu.liveChat.blocking') : selectedVisitorBlocked ? t('kefu.liveChat.unblockVisitor') : t('kefu.liveChat.blockVisitor')}
+              </button>
+
+              <button
+                type="button"
+                className="x1-lc-btn"
+                onClick={() => void onCloseConversation()}
+                disabled={!selectedId || closing || selectedConvState === 'closed'}
+                title={t('kefu.liveChat.archiveTitle')}
+              >
+                {closing ? t('kefu.liveChat.archiving') : t('kefu.liveChat.archive')}
               </button>
             </div>
           </div>
 
-          {loadingDetail ? <div className="x1-lc-empty"><p>会话加载中...</p></div> : null}
+          {selectedId && (detail || selected) ? (
+            <div className={`x1-lc-handoff-hint x1-lc-handoff-hint-${selectedConvState || 'none'}`}>
+              {needsHumanAttention(detail || selected) || selectedVisitorBlocked ? <span className="x1-lc-handoff-dot" aria-hidden /> : null}
+              <span>{selectedVisitorBlocked ? tpl('kefu.liveChat.handoff.blocked', detail?.visitor?.blocked_reason ? tpl('kefu.liveChat.handoff.blockedReason', detail.visitor.blocked_reason) : '') : handoffHint(detail || selected, selectedAiAutoReplyEnabled, t, tpl)}</span>
+              <span className="x1-lc-handoff-meta">{assignmentLabel(detail || selected, t, tpl)}</span>
+            </div>
+          ) : null}
+
+          {loadingDetail ? <div className="x1-lc-empty"><p>{t('kefu.liveChat.loadingDetail')}</p></div> : null}
           {detailError ? <div className="mr-state-error" style={{ margin: 20 }}>{detailError}</div> : null}
-          
+
           {!loadingDetail && !detailError && !detail ? (
-            <div className="x1-lc-empty">
-              <div className="x1-lc-empty-icon"><MessageCircle size={24} /></div>
-              <strong>请选择左侧会话</strong>
-              <p>进入会话后，可先接管，再发送回复。</p>
+            <div className="x1-lc-empty x1-lc-empty-cta">
+              <div className="x1-lc-empty-icon"><MessageCircle size={28} /></div>
+              {setupReadyCount < setupSteps.length ? (
+                <>
+                  <strong>{tpl('kefu.liveChat.setupRemaining', String(setupSteps.length - setupReadyCount))}</strong>
+                  <p>{tpl('kefu.liveChat.setupNext', nextSetupStep.label, nextSetupStep.hint)}</p>
+                  <div className="x1-lc-empty-actions">
+                    <button
+                      type="button"
+                      className="x1-lc-btn x1-lc-btn-primary"
+                      onClick={() => navigate(nextSetupStep.route)}
+                    >
+                      {tpl('kefu.liveChat.setupGo', nextSetupStep.label)}
+                    </button>
+                    <button
+                      type="button"
+                      className="x1-lc-btn"
+                      onClick={() => navigate('/workbench/kefu/settings?tab=tech-config')}
+                    >
+                      {t('kefu.liveChat.setupViewConfig')}
+                    </button>
+                  </div>
+                </>
+              ) : list.length === 0 ? (
+                <>
+                  <strong>{t('kefu.liveChat.readyTitle')}</strong>
+                  <p>
+                    {t('kefu.liveChat.readyDesc')}
+                    {state === 'closed' ? t('kefu.liveChat.readyClosedHint') : ''}
+                  </p>
+                  <div className="x1-lc-empty-actions">
+                    <button
+                      type="button"
+                      className="x1-lc-btn x1-lc-btn-primary"
+                      onClick={() => navigate('/workbench/kefu/settings?tab=tech-config')}
+                    >
+                      {t('kefu.liveChat.readyViewCreds')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <strong>{t('kefu.liveChat.selectTitle')}</strong>
+                  <p>{t('kefu.liveChat.selectDesc')}</p>
+                </>
+              )}
             </div>
           ) : null}
 
           {showFacts && detail ? (
             <section className="mr-empty" style={{ margin: '20px 20px 0' }}>
               <div className="mr-panel-head">
-                <strong>会话详情</strong>
-                <span className="mr-badge">{assignmentLabel(detail)}</span>
+                <strong>{t('kefu.liveChat.factsTitle')}</strong>
+                <span className="mr-badge">{assignmentLabel(detail, t, tpl)}</span>
               </div>
               <div className="mr-simple-list">
                 <article className="mr-simple-item">
                   <div>
-                    <strong>访客</strong>
-                    <span>{detail.visitor?.name || '访客'} · {detail.visitor?.email || detail.visitor?.external_user_id || '未提供联系方式'}</span>
+                    <strong>{t('kefu.liveChat.factsVisitor')}</strong>
+                    <span>
+                      {detail.visitor?.name || t('kefu.common.visitor')} · {detail.visitor?.email || detail.visitor?.external_user_id || t('kefu.liveChat.factsNoContact')}
+                      {detail.visitor?.is_blocked ? ` · ${t('kefu.liveChat.blocked')}${detail.visitor.blocked_reason ? tpl('kefu.liveChat.handoff.blockedReason', detail.visitor.blocked_reason) : ''}` : ''}
+                    </span>
                   </div>
                 </article>
                 <article className="mr-simple-item">
                   <div>
-                    <strong>来源</strong>
-                    <span>{storeLabel(detail) || '默认店铺'} · {CHANNEL_LABEL[String(detail.channel || '')] || detail.channel || '网页'} · {detail.subject || '无主题'}</span>
+                    <strong>{t('kefu.liveChat.factsSource')}</strong>
+                    <span>{storeLabel(detail, t, tpl) || t('kefu.common.defaultStore')} · {channelLabel(String(detail.channel || '')) || detail.channel || t('kefu.liveChat.channel.web')} · {detail.subject || t('kefu.liveChat.factsNoSubject')}</span>
                   </div>
                 </article>
                 <article className="mr-simple-item">
                   <div>
-                    <strong>会话</strong>
-                    <span>ID: {detail.id} · 最近活动 {prettyTime(detail.last_message_at || detail.created_at)}</span>
+                    <strong>{t('kefu.liveChat.factsConversation')}</strong>
+                    <span>{tpl('kefu.liveChat.factsRecentActivity', String(detail.id), prettyTime(detail.last_message_at || detail.created_at))}</span>
                   </div>
                 </article>
               </div>
             </section>
           ) : null}
 
+          {quickAnswersOpen ? (
+            <section className="mr-empty" style={{ margin: '20px 20px 0' }}>
+              <div className="mr-panel-head">
+                <strong>{t('kefu.liveChat.quickAnswersPanel')}</strong>
+                <button type="button" className="mr-btn" onClick={() => setQuickAnswersOpen(false)}>{t('kefu.common.collapse')}</button>
+              </div>
+              {visibleQuickAnswers.length ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {visibleQuickAnswers.map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="mr-btn"
+                      disabled={!selectedId || sending || selectedVisitorBlocked}
+                      title={item.content}
+                      onClick={() => void sendQuickAnswer(item)}
+                      style={{ maxWidth: '100%', justifyContent: 'flex-start' }}
+                    >
+                      <MessageSquareText size={14} />
+                      <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="mr-inline-stack">
+                  <span className="mr-muted">{t('kefu.liveChat.quickAnswersEmpty')}</span>
+                  <button type="button" className="mr-btn" onClick={() => navigate('/workbench/kefu/settings?tab=quick-replies')}>
+                    {t('kefu.liveChat.quickAnswersConfig')}
+                  </button>
+                </div>
+              )}
+            </section>
+          ) : null}
+
           {suggestedReply ? (
             <section className="mr-empty" style={{ margin: '20px 20px 0' }}>
               <div className="mr-panel-head">
-                <strong>建议回复</strong>
-                <button type="button" className="mr-btn" onClick={() => setSuggestedReply(null)}>收起</button>
+                <strong>{t('kefu.liveChat.suggestedTitle')}</strong>
+                <button type="button" className="mr-btn" onClick={() => setSuggestedReply(null)}>{t('kefu.common.collapse')}</button>
               </div>
               {suggestedReply.corpusSuggestion ? (
                 <div className="mr-inline-stack">
-                  <span className="mr-muted">匹配建议</span>
+                  <span className="mr-muted">{t('kefu.liveChat.suggestedCorpus')}</span>
                   <p>{suggestedReply.corpusSuggestion}</p>
-                  <button type="button" className="mr-btn" onClick={() => applySuggestedReply(suggestedReply.corpusSuggestion)}>使用这段</button>
+                  <button type="button" className="mr-btn" onClick={() => applySuggestedReply(suggestedReply.corpusSuggestion)}>{t('kefu.liveChat.useThis')}</button>
                 </div>
               ) : null}
               {suggestedReply.suggestion ? (
                 <div className="mr-inline-stack">
-                  <span className="mr-muted">润色建议</span>
+                  <span className="mr-muted">{t('kefu.liveChat.suggestedPolish')}</span>
                   <p>{suggestedReply.suggestion}</p>
-                  <button type="button" className="mr-btn mr-btn-primary" onClick={() => applySuggestedReply(suggestedReply.suggestion)}>使用这段</button>
+                  <button type="button" className="mr-btn mr-btn-primary" onClick={() => applySuggestedReply(suggestedReply.suggestion)}>{t('kefu.liveChat.useThis')}</button>
                 </div>
               ) : null}
               {suggestedReply.matches.length ? (
@@ -1416,10 +1960,10 @@ export function LiveChatShellPage() {
                   {suggestedReply.matches.slice(0, 3).map((match, index) => (
                     <article key={`${match.score}-${index}`} className="mr-simple-item">
                       <div>
-                        <strong>{String(match.entry?.title || match.entry?.question || '匹配依据')}</strong>
+                        <strong>{String(match.entry?.title || match.entry?.question || t('kefu.liveChat.matchBasis'))}</strong>
                         <span>{String(match.entry?.answer || match.entry?.content || '').slice(0, 120)}</span>
                       </div>
-                      <span className="mr-badge">匹配 {match.score}</span>
+                      <span className="mr-badge">{tpl('kefu.liveChat.matchScore', String(match.score))}</span>
                     </article>
                   ))}
                 </div>
@@ -1432,10 +1976,10 @@ export function LiveChatShellPage() {
             {olderMessagesHasMore || loadingOlderMessages ? (
               <div className="mr-msg-history-loader">
                 <span className="mr-msg-history-hint">
-                  {loadingOlderMessages ? '加载更早消息…' : `上滑或继续下拉至顶部，每次加载 ${LIVE_CHAT_MESSAGE_PAGE_SIZE} 条`}
+                  {loadingOlderMessages ? t('kefu.liveChat.loadOlderLoading') : tpl('kefu.liveChat.loadOlderHint', String(LIVE_CHAT_MESSAGE_PAGE_SIZE))}
                 </span>
                 <button type="button" className="mr-btn" onClick={() => void loadOlderMessages()} disabled={loadingOlderMessages || !olderMessagesHasMore}>
-                  {loadingOlderMessages ? '加载中…' : '加载更早消息'}
+                  {loadingOlderMessages ? t('kefu.common.loading') : t('kefu.liveChat.loadOlder')}
                 </button>
               </div>
             ) : null}
@@ -1460,7 +2004,7 @@ export function LiveChatShellPage() {
 
           {detail?.state === 'closed' ? (
             <div style={{ padding: '0 20px 10px', textAlign: 'center', fontSize: 13, color: 'var(--xiaoone-fg-mute)' }}>
-              当前会话已归档。发送消息后会话将恢复到进行中。
+              {t('kefu.liveChat.archivedComposerHint')}
             </div>
           ) : null}
 
@@ -1477,29 +2021,38 @@ export function LiveChatShellPage() {
                 value={draft}
                 onChange={e => setDraft(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     if (draft.trim() && !sending) onSend(e as unknown as FormEvent<HTMLFormElement>);
                   }
                 }}
-                placeholder={selectedId ? '输入回复内容 (Enter 发送, Shift+Enter 换行)...' : '请先选择会话'}
-                disabled={!selectedId || sending}
+                placeholder={!selectedId ? t('kefu.liveChat.composerNoSelection') : selectedVisitorBlocked ? t('kefu.liveChat.composerBlocked') : t('kefu.liveChat.composerPlaceholder')}
+                disabled={!selectedId || sending || selectedVisitorBlocked}
               />
               <div className="x1-lc-composer-actions">
                 <button
                   type="button"
                   className="x1-lc-icon-btn"
-                  disabled={!selectedId || sending}
+                  disabled={!selectedId || sending || selectedVisitorBlocked}
                   onClick={() => fileInputRef.current?.click()}
-                  title="添加附件"
+                  title={t('kefu.common.addAttachment')}
                 >
                   <Paperclip size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="x1-lc-icon-btn"
+                  disabled={!selectedId || sending || selectedVisitorBlocked}
+                  onClick={() => setWarehousePickerOpen(true)}
+                  title={t('composer.warehouse.pick')}
+                >
+                  <Database size={18} />
                 </button>
                 <button 
                   type="submit" 
                   className={`x1-lc-icon-btn ${draft.trim() && !sending ? 'primary' : ''}`}
-                  disabled={!selectedId || sending || !draft.trim()}
-                  title="发送"
+                  disabled={!selectedId || sending || selectedVisitorBlocked || !draft.trim()}
+                  title={t('kefu.common.send')}
                 >
                   <SendHorizontal size={18} />
                 </button>
@@ -1507,13 +2060,23 @@ export function LiveChatShellPage() {
             </div>
           </form>
         </main>
-      </div>
+        </div>
+      </section>
+
+      <WarehouseAssetPickerDialog
+        open={warehousePickerOpen}
+        onOpenChange={setWarehousePickerOpen}
+        title={t('composer.warehouse.dialogTitle')}
+        description={t('composer.warehouse.dialogDesc')}
+        selectingId={warehouseSelectingId}
+        onSelect={onPickWarehouseAsset}
+      />
 
       {mediaPreview ? (
         <div
           role="dialog"
           aria-modal
-          aria-label="附件预览"
+          aria-label={t('kefu.common.attachmentPreview')}
           style={{
             position: 'fixed',
             inset: 0,
@@ -1534,7 +2097,7 @@ export function LiveChatShellPage() {
         >
           <button
             type="button"
-            aria-label="关闭预览"
+            aria-label={t('kefu.common.closePreview')}
             style={{
               position: 'absolute',
               top: 16,

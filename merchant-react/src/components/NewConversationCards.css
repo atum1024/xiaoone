@@ -1,0 +1,90 @@
+.mr-new-conv-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.mr-new-conv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 72px;
+  padding: 12px 10px;
+  border: 1px solid var(--xiaoone-border-soft);
+  border-radius: var(--xiaoone-control-radius, 12px);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 88%, transparent);
+  color: var(--xiaoone-fg-soft);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.mr-new-conv-card:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 36%, var(--xiaoone-border-soft));
+  background: color-mix(in srgb, var(--xiaoone-accent) 6%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg);
+}
+
+.mr-new-conv-card.is-active {
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 52%, var(--xiaoone-border-soft));
+  background: color-mix(in srgb, var(--xiaoone-accent) 10%, var(--xiaoone-bg-elev));
+  color: var(--xiaoone-fg);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--xiaoone-accent) 18%, transparent);
+}
+
+.mr-new-conv-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mr-new-conv-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--xiaoone-accent) 10%, var(--xiaoone-bg-soft));
+  color: var(--xiaoone-accent);
+}
+
+.mr-new-conv-card.is-active .mr-new-conv-card__icon {
+  background: color-mix(in srgb, var(--xiaoone-accent) 18%, var(--xiaoone-bg-soft));
+}
+
+.mr-new-conv-card__label {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .mr-new-conv-cards {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 2px;
+  }
+
+  .mr-new-conv-card {
+    flex: 0 0 auto;
+    min-width: 96px;
+    max-width: 120px;
+  }
+}

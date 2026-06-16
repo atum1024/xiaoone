@@ -17,8 +17,8 @@
   --x1-portal-glass-border-soft: rgba(255, 255, 255, 0.10);
 
   /* ---- 主色：indigo / purple / blue 渐变族（与官网 Login.tsx 一致） ---- */
-  --x1-portal-accent: #4f46e5;           /* indigo-600 primary CTA */
-  --x1-portal-accent-2: #6366f1;         /* indigo-500 hover */
+  --x1-portal-accent: var(--xiaoone-accent);
+  --x1-portal-accent-2: var(--xiaoone-accent-2);
   --x1-portal-accent-3: #7c3aed;         /* purple-600 portal glow shift */
   --x1-portal-accent-4: #2563eb;         /* blue-600 portal glow shift */
   --x1-portal-link: #4338ca;             /* indigo-700 secondary link */

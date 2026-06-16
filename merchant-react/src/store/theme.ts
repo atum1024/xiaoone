@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { syncFaviconForTheme } from '../lib/favicon'
 
 export type ThemeMode = 'dark' | 'light'
 
@@ -7,11 +8,9 @@ function applyTheme(mode: ThemeMode) {
   if (typeof document === 'undefined') return
   const root = document.documentElement
   root.dataset.theme = mode
-  if (mode === 'dark') {
-    root.classList.add('dark')
-  } else {
-    root.classList.remove('dark')
-  }
+  root.classList.toggle('dark', mode === 'dark')
+  root.style.colorScheme = mode
+  syncFaviconForTheme(mode)
 }
 
 interface ThemeState {

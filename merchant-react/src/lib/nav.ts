@@ -1,20 +1,25 @@
+import type { Locale } from '../i18n/types'
+import { uiT } from '../i18n/catalogResolve'
+
 // 用户端 chat-app shell 的导航元数据 —— 全局唯一来源。
 // Phase 2:  业务大类 + 客服系统静态子菜单 + 营销/支持/代理 的 agent 对话占位。
 // Phase 3:  客服系统 12 项打通到 kefu service。
 // Phase 4:  营销/支持/代理 的 children 改为从 agent service 拉对话列表。
-// Phase 9:  客服迁入顶部快捷入口，自动化成为独立主页面，顾问独立到侧栏底部。
+// Phase 9:  客服迁入顶部快捷入口，自动化成为独立主页面，xiaoone独立到侧栏底部。
 //           feedback 业务以「维修工」名称恢复为独立入口。
 
 export type NavCategory =
-  | 'consultant' // 顾问（general · plugin consultant）
+  | 'consultant' // xiaoone（general · plugin consultant）
   | 'system' // 程序员（原软件开发）
-  | 'marketing' // 推广大师（原营销推广）
-  | 'support' // 渠道专员（原业务支持）
+  | 'marketing' // 推广能力（原营销推广）
+  | 'marketingImage' // 平面设计（marketing · image）
+  | 'marketingVideo' // 视频剪辑（marketing · video）
+  | 'marketingCopy' // 营销文案（marketing · text）
+  | 'support' // 辣鸡PPT（原业务支持）
   | 'agency' // 商务经理（原商务代理）
   | 'feedback' // 维修工（原问题反馈）
   | 'kefu' // 客服（统一客服主页面）
   | 'automation' // 自动化（顶部快捷入口主页面）
-  | 'team-chat' // 仅用于团队沟通主视图的 selectedCategory / 兼容展开状态
 
 export interface KefuNavItem {
   key: string // 'stores' / 'corpus' / ...
@@ -34,7 +39,8 @@ export const KEFU_GROUPS: KefuNavGroup[] = [
   {
     title: '元数据',
     items: [
-      { key: 'qa-templates', label: '问答模板', description: '语料资料 / 语料条目与用户端快捷询问、状态文案统一管理' },
+      { key: 'qa-templates', label: 'AI 问答库', description: '上传资料、AI 问答条目、访客快捷问题与自动回复' },
+      { key: 'quick-replies', label: '快捷回复', description: '客服接待台一键快速回答' },
     ],
   },
   {
@@ -55,57 +61,80 @@ export const KEFU_GROUPS: KefuNavGroup[] = [
 export interface BusinessCategory {
   key: NavCategory
   label: string
-  domain: 'general' | 'marketing' | 'support' | 'agency' | 'kefu' | 'team-chat' | 'feedback'
+  domain: 'general' | 'marketing' | 'support' | 'agency' | 'kefu' | 'feedback'
   /** chat-app 风格里 pencil 图标 = 新建对话（agent 或 自动化 hero） */
   pencil: boolean
   /** Phase 1-2 占位标志 */
   placeholder?: 'soon'
   /**
    * 仅 `domain === 'general'` 且 `childrenKind === 'threads'` 时生效：
-   * 将同域线程拆到「顾问 / 程序员 / 自动化」侧栏分组（按 thread.plugin_key）。
+   * 将同域线程拆到「xiaoone / 程序员 / 自动化」侧栏分组（按 thread.plugin_key）。
    */
   generalThreadBucket?: 'software' | 'automation' | 'consultant'
   /**
    * 子菜单类型：
    * - static       客服 12 项 CRUD 子菜单
    * - threads      AI agent 对话历史（marketing/support/agency）
-   * - team-threads 已废弃（团队沟通改为主内容区标签）
    * - placeholder  「即将上线」占位
    * - none         无二级菜单（点击一级即进入对应主视图）
    */
-  childrenKind: 'static' | 'threads' | 'team-threads' | 'placeholder' | 'none'
+  childrenKind: 'static' | 'threads' | 'placeholder' | 'none'
   description: string
 }
 
 export const BUSINESS_CATEGORIES: BusinessCategory[] = [
   {
     key: 'system',
-    label: '程序员',
+    label: '软件开发',
     domain: 'general',
     pencil: true,
     childrenKind: 'threads',
     generalThreadBucket: 'software',
-    description: '自主开发 / 需求外包 — 由 AI 协助评估 / 编写 / 联调',
+    description: 'xiaoone / 专业团队 — 由 AI 协助评估 / 编写 / 联调',
   },
   {
     key: 'marketing',
-    label: '推广大师',
+    label: '推广能力',
     domain: 'marketing',
     pencil: true,
     childrenKind: 'threads',
-    description: '小红书 / 推特 / 抖音 / TikTok / 知乎 / Instagram / Facebook / Quora',
+    description: '图片素材、短视频和通用营销文案创作',
+  },
+  {
+    key: 'marketingImage',
+    label: '图片设计',
+    domain: 'marketing',
+    pencil: true,
+    childrenKind: 'threads',
+    description: '图片素材生成与改图入口',
+  },
+  {
+    key: 'marketingVideo',
+    label: '视频制作',
+    domain: 'marketing',
+    pencil: true,
+    childrenKind: 'threads',
+    description: '短视频脚本与视频生成入口',
+  },
+  {
+    key: 'marketingCopy',
+    label: '文案生成',
+    domain: 'marketing',
+    pencil: true,
+    childrenKind: 'threads',
+    description: '营销文案、选题与发布内容入口',
   },
   {
     key: 'support',
-    label: '渠道专员',
+    label: '辣鸡PPT',
     domain: 'support',
     pencil: true,
     childrenKind: 'threads',
-    description: '短信号码 / 全球营销加速器 / 旅游流量卡 / 广告会员支付卡',
+    description: '演示文稿生成：方案汇报 / 工作总结 / 产品介绍 / 数据报告',
   },
   {
     key: 'agency',
-    label: '商务经理',
+    label: '企业服务',
     domain: 'agency',
     pencil: true,
     childrenKind: 'threads',
@@ -113,7 +142,7 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
   },
   {
     key: 'feedback',
-    label: '维修工',
+    label: '帮助中心',
     domain: 'feedback',
     pencil: true,
     childrenKind: 'threads',
@@ -123,20 +152,19 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
 
 export const CONSULTANT_CATEGORY: BusinessCategory = {
   key: 'consultant',
-  label: '顾问',
+  label: 'xiaoone',
   domain: 'general',
   pencil: true,
   childrenKind: 'threads',
   generalThreadBucket: 'consultant',
-  description: '描述目标即可；顾问会澄清问题、整理建议，并推荐下一步业务入口',
+  description: '描述目标即可；xiaoone会澄清问题、整理建议，并推荐下一步业务入口',
 }
 
 export type QuickActionKey =
   | 'new-chat'  // 新对话（统一业务创建入口）
   | 'search'    // 全局主题搜索
-  | 'live-chat'  // 客服（客户咨询 + 店铺 / 问答模板 / 技术配置）
+  | 'live-chat'  // 客服（客户咨询 + 店铺 / AI 问答库 / 快捷回复 / 技术配置）
   | 'automation' // 自动化主页面
-  | 'file-library' // 自动化文件库
 
 export interface QuickAction {
   key: QuickActionKey
@@ -150,14 +178,13 @@ export interface QuickAction {
 
 /**
  * 顶部 quick-action 顺序：新对话 → 搜索 → 客服 → 自动化。
- * 顾问作为和「智能团队」同级的底部 section；账户仅从底部「设置」菜单进入。
+ * xiaoone作为和「智能团队」同级的底部 section；账户仅从底部「设置」菜单进入。
  */
 export const QUICK_ACTIONS: QuickAction[] = [
   { key: 'new-chat', label: '新对话', icon: 'pencil' },
   { key: 'search', label: '搜索', icon: 'search' },
   { key: 'live-chat', label: '客服', icon: 'consult', badge: 'unread' },
   { key: 'automation', label: '自动化', icon: 'sparkles' },
-  { key: 'file-library', label: '文件库', icon: 'package' },
 ]
 
 export function findKefuItem(itemKey: string): { item: KefuNavItem; group: KefuNavGroup } | null {
@@ -168,4 +195,88 @@ export function findKefuItem(itemKey: string): { item: KefuNavItem; group: KefuN
     }
   }
   return null
+}
+
+const KEFU_GROUP_TITLE_KEYS: Record<string, string> = {
+  '元数据': 'common.nav.kefuGroup.metadata',
+  '店铺管理': 'common.nav.kefuGroup.stores',
+  '接入与集成': 'common.nav.kefuGroup.integration',
+}
+
+const KEFU_ITEM_KEYS: Record<string, { label: string; desc: string }> = {
+  'qa-templates': { label: 'common.nav.kefu.qaTemplates', desc: 'common.nav.kefu.qaTemplates.desc' },
+  'quick-replies': { label: 'common.nav.kefu.quickReplies', desc: 'common.nav.kefu.quickReplies.desc' },
+  stores: { label: 'common.nav.kefu.stores', desc: 'common.nav.kefu.stores.desc' },
+  'tech-config': { label: 'common.nav.kefu.techConfig', desc: 'common.nav.kefu.techConfig.desc' },
+}
+
+const BUSINESS_LABEL_KEYS: Record<NavCategory, { label: string; description?: string }> = {
+  consultant: { label: 'common.nav.consultant' },
+  system: { label: 'common.nav.system', description: 'biz.system' },
+  marketing: { label: 'common.nav.marketing', description: 'biz.marketing' },
+  marketingImage: { label: 'common.nav.marketingImage' },
+  marketingVideo: { label: 'common.nav.marketingVideo' },
+  marketingCopy: { label: 'common.nav.marketingCopy' },
+  support: { label: 'common.nav.support' },
+  agency: { label: 'common.nav.agency' },
+  feedback: { label: 'common.nav.feedback' },
+  kefu: { label: 'common.nav.kefu' },
+  automation: { label: 'common.nav.automation' },
+}
+
+const QUICK_ACTION_LABEL_KEYS: Record<QuickActionKey, string> = {
+  'new-chat': 'common.nav.quick.newChat',
+  search: 'common.nav.quick.search',
+  'live-chat': 'common.nav.quick.liveChat',
+  automation: 'common.nav.quick.automation',
+}
+
+function localizeBusinessCategory(cat: BusinessCategory, locale: Locale): BusinessCategory {
+  const keys = BUSINESS_LABEL_KEYS[cat.key]
+  return {
+    ...cat,
+    label: keys ? uiT(locale, keys.label, cat.label) : cat.label,
+    description: keys?.description ? uiT(locale, keys.description, cat.description) : cat.description,
+  }
+}
+
+export function getKefuGroups(locale: Locale): KefuNavGroup[] {
+  return KEFU_GROUPS.map(group => ({
+    ...group,
+    title: uiT(locale, KEFU_GROUP_TITLE_KEYS[group.title] || group.title, group.title),
+    items: group.items.map(item => {
+      const keys = KEFU_ITEM_KEYS[item.key]
+      return keys
+        ? {
+            ...item,
+            label: uiT(locale, keys.label, item.label),
+            description: uiT(locale, keys.desc, item.description),
+          }
+        : item
+    }),
+  }))
+}
+
+export function getBusinessCategories(locale: Locale): BusinessCategory[] {
+  return BUSINESS_CATEGORIES.map(cat => localizeBusinessCategory(cat, locale))
+}
+
+export function getConsultantCategory(locale: Locale): BusinessCategory {
+  return localizeBusinessCategory(CONSULTANT_CATEGORY, locale)
+}
+
+export function getQuickActions(locale: Locale): QuickAction[] {
+  return QUICK_ACTIONS.map(action => ({
+    ...action,
+    label: uiT(locale, QUICK_ACTION_LABEL_KEYS[action.key], action.label),
+  }))
+}
+
+export function getNavLabels(locale: Locale) {
+  return {
+    kefuGroups: getKefuGroups(locale),
+    businessCategories: getBusinessCategories(locale),
+    consultantCategory: getConsultantCategory(locale),
+    quickActions: getQuickActions(locale),
+  }
 }

@@ -1,0 +1,494 @@
+/* ============================================================
+   PresentationPreviewPane - right-panel PPT preview
+   ============================================================ */
+
+.ppp-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--color-surface, var(--xiaoone-bg-soft));
+  border-left: 1px solid var(--color-border, var(--xiaoone-border));
+  overflow: hidden;
+}
+
+/* ?? header ?? */
+.ppp-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--xiaoone-control-radius);
+  border: 1px solid var(--xiaoone-warning-border);
+  background: var(--xiaoone-bg-elev)beb;
+  color: var(--xiaoone-warning);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ppp-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--color-border, var(--xiaoone-border));
+  background: var(--color-bg, var(--xiaoone-bg-elev));
+}
+
+.ppp-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ppp-color-bar {
+  flex: 0 0 4px;
+  height: 36px;
+  border-radius: 3px;
+  margin-top: 2px;
+  background: var(--xiaoone-accent);
+}
+
+.ppp-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.ppp-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text, var(--xiaoone-fg));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.ppp-subtitle {
+  font-size: 11px;
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px 0 0;
+}
+
+.ppp-download-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--xiaoone-control-radius);
+  border: 1px solid var(--color-border, var(--xiaoone-border));
+  background: var(--color-bg, var(--xiaoone-bg-elev));
+  color: var(--color-text, var(--xiaoone-fg));
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.ppp-download-btn:hover:not(:disabled) {
+  background: var(--color-primary, var(--xiaoone-accent));
+  color: var(--xiaoone-bg-elev);
+  border-color: var(--color-primary, var(--xiaoone-accent));
+}
+
+.ppp-download-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ppp-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ppp-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border, var(--xiaoone-border));
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  background: var(--color-surface, var(--xiaoone-bg-soft));
+  white-space: nowrap;
+}
+
+.ppp-version-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ppp-version-nav button {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border, var(--xiaoone-border));
+  background: var(--color-surface, var(--xiaoone-bg-soft));
+  color: var(--color-text, var(--xiaoone-fg));
+  cursor: pointer;
+}
+
+.ppp-version-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ppp-version-label {
+  font-size: 11px;
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+}
+
+/* ?? body ?? */
+.ppp-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ?? thumbnail list ?? */
+.ppp-thumbnails {
+  flex: 0 0 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 12px 9px;
+  border-bottom: 1px solid var(--color-border, var(--xiaoone-border));
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  background: color-mix(in srgb, var(--color-bg, var(--xiaoone-bg-elev)) 72%, var(--color-surface, var(--xiaoone-bg-soft)));
+}
+
+.ppp-thumb {
+  flex: 0 0 132px;
+  width: 132px;
+  min-height: 58px;
+  border-radius: 5px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: var(--color-bg, var(--xiaoone-bg-elev));
+  text-align: left;
+  transition: border-color 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.ppp-thumb:hover {
+  border-color: var(--color-border-hover, var(--xiaoone-border-strong));
+}
+
+.ppp-thumb.is-active {
+  border-color: var(--color-primary, var(--xiaoone-accent));
+}
+
+.ppp-thumb-index {
+  font-size: 9px;
+  color: var(--color-muted, var(--xiaoone-fg-faint));
+  line-height: 1;
+}
+
+.ppp-thumb-title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text, var(--xiaoone-fg));
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ?? main slide preview ?? */
+.ppp-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ppp-slide-canvas {
+  border-radius: var(--xiaoone-control-radius);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 34%);
+  grid-template-rows: auto auto 1fr;
+  column-gap: 24px;
+  align-items: center;
+  padding: 32px 40px;
+  animation: ppp-slide-in 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.ppp-slide-canvas.ratio-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ppp-slide-number {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+.ppp-slide-title {
+  grid-column: 1;
+  font-size: clamp(16px, 2.8vw, 26px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 6px;
+}
+
+.ppp-slide-subtitle {
+  grid-column: 1;
+  font-size: clamp(11px, 1.4vw, 14px);
+  opacity: 0.75;
+  margin: 0 0 18px;
+}
+
+.ppp-slide-bullets {
+  grid-column: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ppp-slide-bullet {
+  display: flex;
+  gap: 8px;
+  font-size: clamp(11px, 1.3vw, 14px);
+  line-height: 1.45;
+}
+
+.ppp-slide-bullet::before {
+  content: '*';
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+.ppp-slide-visual {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.ppp-slide-visual-art {
+  position: relative;
+  min-height: 46%;
+  border: 2px solid;
+  border-radius: var(--xiaoone-control-radius);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, currentColor 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--color-bg, var(--xiaoone-bg-elev)) 88%, transparent);
+}
+
+.ppp-slide-visual-art::before,
+.ppp-slide-visual-art::after {
+  content: '';
+  position: absolute;
+  border-radius: var(--xiaoone-r-pill);
+  background: currentColor;
+  opacity: 0.16;
+  animation: ppp-visual-drift 3.8s ease-in-out infinite alternate;
+}
+
+.ppp-slide-visual-art::before {
+  width: 58%;
+  height: 58%;
+  left: -16%;
+  top: 10%;
+}
+
+.ppp-slide-visual-art::after {
+  width: 42%;
+  height: 42%;
+  right: -10%;
+  bottom: 8%;
+  animation-delay: 420ms;
+}
+
+.ppp-slide-visual-dot,
+.ppp-slide-visual-line {
+  position: absolute;
+  display: block;
+  background: currentColor;
+}
+
+.ppp-slide-visual-dot {
+  width: 12px;
+  height: 12px;
+  right: 18px;
+  top: 18px;
+  border-radius: 50%;
+}
+
+.ppp-slide-visual-line {
+  width: 54%;
+  height: 6px;
+  left: 18px;
+  bottom: 28px;
+  border-radius: var(--xiaoone-r-pill);
+  opacity: 0.36;
+}
+
+.ppp-slide-visual-line.short {
+  width: 36%;
+  bottom: 16px;
+  opacity: 0.24;
+}
+
+.ppp-slide-visual figcaption {
+  font-size: clamp(9px, 1.05vw, 11px);
+  line-height: 1.45;
+  color: currentColor;
+  opacity: 0.68;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ?? speaker notes ?? */
+.ppp-notes-toggle {
+  font-size: 11px;
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  align-self: flex-start;
+}
+
+.ppp-notes {
+  background: var(--color-surface, var(--xiaoone-bg-soft));
+  border-radius: var(--xiaoone-control-radius);
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* ?? empty state ?? */
+.ppp-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+
+.ppp-empty-icon {
+  opacity: 0.35;
+}
+
+.ppp-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text, var(--xiaoone-fg));
+  margin: 0;
+}
+
+.ppp-empty-hint {
+  font-size: 12px;
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  margin: 0;
+  max-width: 220px;
+}
+
+.ppp-empty-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.ppp-empty-pill {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border, var(--xiaoone-border));
+  color: var(--color-muted, var(--xiaoone-fg-mute));
+  background: var(--color-surface, var(--xiaoone-bg-soft));
+}
+
+@keyframes ppp-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ppp-visual-drift {
+  from {
+    transform: translate3d(-4px, 2px, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5px, -3px, 0) scale(1.04);
+  }
+}
+
+@media (max-width: 1180px) {
+  .ppp-slide-canvas {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .ppp-slide-title,
+  .ppp-slide-subtitle,
+  .ppp-slide-bullets,
+  .ppp-slide-visual {
+    grid-column: 1;
+  }
+
+  .ppp-slide-visual {
+    grid-row: auto;
+    margin-top: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppp-slide-canvas,
+  .ppp-slide-visual-art::before,
+  .ppp-slide-visual-art::after {
+    animation: none;
+  }
+}

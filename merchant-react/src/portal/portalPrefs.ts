@@ -1,24 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { defaultLocaleForRegion, regionFromHostname } from '@xiaoone/region'
+import { syncFaviconForTheme } from '../lib/favicon'
+import { useLocaleStore } from '../store/locale'
+import type { Locale, LocalizedCopy } from '../i18n/types'
 
 /**
- * 用户端「门面页」（/login、/register）的浅色/深色 + 中文/英文偏好。
- *
- * - 持久化到 localStorage：`xiaoone.user.portal.lang`、`xiaoone.user.portal.theme`。
- * - 首次访问时支持从 URL 查询参数 `?lang=&theme=` 种子（官网点击「登录/创建工作站」
- *   时会带上自己的 locale / theme），消费完会用 history.replaceState 把这两个
- *   query 删除，避免污染浏览器历史。
- * - 同时把 theme 设到 `<html data-theme=...>`（与现有 `mr-*` 暗色工作台共用约定，
- *   见 styles.css 的 `:root, [data-theme='dark']` / `[data-theme='light']`）。
+ * Portal auth pages share the canonical merchant locale store.
+ * Theme remains portal-scoped in localStorage for marketing/portal light defaults.
  */
-export type PortalLocale = 'zh' | 'en'
+export type PortalLocale = Locale
 export type PortalTheme = 'light' | 'dark'
 
-const LANG_KEY = 'xiaoone.user.portal.lang'
 const THEME_KEY = 'xiaoone.user.portal.theme'
-
-function isLocale(v: unknown): v is PortalLocale {
-  return v === 'zh' || v === 'en'
-}
 
 function isTheme(v: unknown): v is PortalTheme {
   return v === 'light' || v === 'dark'
@@ -31,7 +24,7 @@ function readSeedFromUrl(): { lang?: PortalLocale; theme?: PortalTheme } {
   const lang = params.get('lang')
   const theme = params.get('theme')
   const seed: { lang?: PortalLocale; theme?: PortalTheme } = {}
-  if (isLocale(lang))
+  if (lang === 'zh' || lang === 'en')
     seed.lang = lang
   if (isTheme(theme))
     seed.theme = theme
@@ -45,15 +38,14 @@ function readSeedFromUrl(): { lang?: PortalLocale; theme?: PortalTheme } {
   return seed
 }
 
-function getInitialLocale(seedLang?: PortalLocale): PortalLocale {
-  if (seedLang)
-    return seedLang
-  if (typeof window === 'undefined')
-    return 'zh'
-  const stored = window.localStorage.getItem(LANG_KEY)
-  if (isLocale(stored))
-    return stored
-  return window.navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en'
+function applyPortalDocumentTheme(theme: PortalTheme) {
+  if (typeof document === 'undefined')
+    return
+  const root = document.documentElement
+  root.dataset.theme = theme
+  root.classList.toggle('dark', theme === 'dark')
+  root.style.colorScheme = theme
+  syncFaviconForTheme(theme)
 }
 
 function getInitialTheme(seedTheme?: PortalTheme): PortalTheme {
@@ -67,10 +59,7 @@ function getInitialTheme(seedTheme?: PortalTheme): PortalTheme {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export interface LocalizedCopy {
-  zh: string
-  en: string
-}
+export type { LocalizedCopy }
 
 export interface PortalPrefs {
   locale: PortalLocale
@@ -84,30 +73,31 @@ export interface PortalPrefs {
 
 export function usePortalPrefs(): PortalPrefs {
   const seed = useMemo(() => readSeedFromUrl(), [])
-  const [locale, setLocaleState] = useState<PortalLocale>(() => getInitialLocale(seed.lang))
+  const locale = useLocaleStore(s => s.locale)
+  const setLocaleGlobal = useLocaleStore(s => s.set)
+  const toggleLocaleGlobal = useLocaleStore(s => s.toggle)
+  const tCopy = useLocaleStore(s => s.tCopy)
   const [theme, setThemeState] = useState<PortalTheme>(() => getInitialTheme(seed.theme))
 
   useEffect(() => {
-    document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en'
-    window.localStorage.setItem(LANG_KEY, locale)
-  }, [locale])
+    useLocaleStore.getState().init()
+    if (seed.lang)
+      setLocaleGlobal(seed.lang)
+  }, [seed.lang, setLocaleGlobal])
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
+  useLayoutEffect(() => {
+    applyPortalDocumentTheme(theme)
     window.localStorage.setItem(THEME_KEY, theme)
   }, [theme])
 
-  const setLocale = useCallback((l: PortalLocale) => setLocaleState(l), [])
+  const setLocale = useCallback((l: PortalLocale) => setLocaleGlobal(l), [setLocaleGlobal])
   const setTheme = useCallback((th: PortalTheme) => setThemeState(th), [])
-  const toggleLocale = useCallback(
-    () => setLocaleState(prev => (prev === 'zh' ? 'en' : 'zh')),
-    [],
-  )
+  const toggleLocale = useCallback(() => toggleLocaleGlobal(), [toggleLocaleGlobal])
   const toggleTheme = useCallback(
-    () => setThemeState(prev => (prev === 'light' ? 'dark' : 'light')),
+    () => setThemeState(prev => prev === 'light' ? 'dark' : 'light'),
     [],
   )
-  const t = useCallback((copy: LocalizedCopy) => copy[locale], [locale])
+  const t = useCallback((copy: LocalizedCopy) => tCopy(copy), [tCopy])
 
   return { locale, theme, setLocale, setTheme, toggleLocale, toggleTheme, t }
 }

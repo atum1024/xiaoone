@@ -5,6 +5,8 @@ export { RealtimeSocket, type RealtimePayload, type RealtimeSocketOptions } from
 export { VisitorLiveSocket, type VisitorLiveSocketOptions, type VisitorSocketHandlers } from './realtime/visitorLiveSocket'
 export { TeamLiveSocket, type TeamLiveSocketOptions, type TeamSocketHandlers } from './realtime/teamLiveSocket'
 export { AgentLiveSocket } from './realtime/agentLiveSocket'
+export { ServiceCaseLiveSocket, type ServiceCaseSocketHandlers, type ServiceCaseMeta, type ServiceCaseMessage } from './realtime/serviceCaseLiveSocket'
+export { mountXiaooneKefuWidget, type XiaooneKefuWidgetOptions } from './widget/visitorWidget'
 
 export { createChatApiClient } from './api/chatApi'
 export { createTeamChatApi } from './api/teamChatApi'

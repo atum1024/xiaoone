@@ -19,7 +19,6 @@ export interface TeamChatMessage {
   content: string
   attachment: TeamChatAttachment | null
   created_at: string
-  is_demo?: boolean
 }
 
 export interface TeamChatMember {
@@ -40,7 +39,6 @@ export interface TeamConversation {
   last_message_at: string | null
   last_message_preview: string
   unread: number
-  is_demo?: boolean
   created_at: string
 }
 

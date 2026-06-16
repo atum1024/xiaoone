@@ -1,0 +1,66 @@
+/* VIP figma landing — scoped fixes (CTA contrast, brand marks) */
+
+.vip-figma-cta {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.vip-figma-cta:hover,
+.vip-figma-cta:focus-visible {
+  color: #0f172a !important;
+}
+
+.vip-figma-cta .vip-figma-cta__label {
+  color: inherit;
+}
+
+.xiaoone-brand-mark {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+.xiaoone-brand-mark--horizontal {
+  width: auto;
+  max-width: 100%;
+}
+
+.xiaoone-brand-mark--square {
+  aspect-ratio: 1;
+  width: auto;
+}
+
+.xiaoone-brand-mark--slogan {
+  width: auto;
+  max-width: 100%;
+}
+
+.vip-figma-colorful-slogan {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: rgb(248 250 252);
+}
+
+.vip-figma-colorful-slogan__word {
+  white-space: nowrap;
+}
+
+.vip-figma-colorful-slogan__dot {
+  background: linear-gradient(
+    90deg,
+    #22d3ee 0%,
+    #a78bfa 35%,
+    #f472b6 65%,
+    #fb923c 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}

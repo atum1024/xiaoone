@@ -8,8 +8,8 @@ export interface TeamMember {
     email: string
     name: string
     avatar?: string
-    is_demo?: boolean
     created_at?: string
+    phone?: string
   }
   role: 'owner' | 'admin' | 'agent' | 'viewer' | string
   is_active: boolean
@@ -21,6 +21,14 @@ export interface TeamMember {
   kefu_max_concurrent?: number
   kefu_skill_ids?: number[]
   kefu_agent_id?: number | null
+  menu_permissions?: string[]
+  effective_menu_permissions?: string[]
+}
+
+export interface MenuPermissionOption {
+  id: string
+  label: string
+  route: string
 }
 
 export interface TeamListResponse {
@@ -28,6 +36,21 @@ export interface TeamListResponse {
   total: number
   self: { user_id: number; role: string; can_manage: boolean }
   roles: string[]
+  menu_options?: MenuPermissionOption[]
+}
+
+export interface TeamMemberAddResponse {
+  member: TeamMember
+  created: boolean
+}
+
+export type TeamMemberAddPayload = {
+  email: string
+  name?: string
+  role?: string
+  password?: string
+  menu_permissions?: string[]
+  kefu_max_concurrent?: number
 }
 
 export const TeamAPI = {
@@ -35,18 +58,24 @@ export const TeamAPI = {
     const r = await api.get('/api/v1/iam/team/')
     return r.data.data
   },
-  async invite(payload: { email: string; name?: string; role?: string; password?: string }): Promise<TeamMember> {
+  async add(payload: TeamMemberAddPayload): Promise<TeamMemberAddResponse> {
+    const r = await api.post('/api/v1/iam/team/', payload)
+    return r.data.data
+  },
+  async invite(payload: TeamMemberAddPayload): Promise<TeamMember> {
     const r = await api.post('/api/v1/iam/team/', payload)
     return r.data.data.member
   },
   async update(memberId: number, payload: Partial<{
     name: string
+    email: string
     role: string
     is_active: boolean
     password: string
     can_serve_live_chat: boolean
     kefu_max_concurrent: number
     kefu_skill_ids: number[]
+    menu_permissions: string[]
   }>): Promise<TeamMember> {
     const r = await api.patch(`/api/v1/iam/team/${memberId}/`, payload)
     return r.data.data.member

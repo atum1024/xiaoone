@@ -1,6 +1,10 @@
 import { create } from 'zustand'
-import { AgentLiveSocket, getChatKit, type LiveConversation, type LiveMessage } from '@xiaoone/chat-kit'
+import { AgentLiveSocket, getChatKit, type LiveConversation, type LiveMessage, type LiveState } from '@xiaoone/chat-kit'
+import { describeKefuError } from '../lib/apiErrors'
 import { readAccessToken } from '../lib/authEvents'
+import { useAgentStore } from './agent'
+import { queryClient } from '../app/queryClient'
+import { AGENT_QUERY_KEYS } from '../hooks/agentQueries'
 
 export interface LiveAgentPanelHandlers {
   onReady?: () => void
@@ -16,6 +20,10 @@ function sumVisitorUnread(items: { visitor_unread_count?: number }[]) {
   return items.reduce((s, c) => s + (c.visitor_unread_count ?? 0), 0)
 }
 
+function normalizeLiveState(value?: string | null): LiveState | null {
+  return value === 'waiting' || value === 'active' || value === 'closed' ? value : null
+}
+
 let liveSocket: InstanceType<typeof AgentLiveSocket> | null = null
 let realtimeRefreshTimer: ReturnType<typeof setTimeout> | null = null
 let panelHandlers: LiveAgentPanelHandlers | null = null
@@ -24,13 +32,14 @@ let pendingAgentJoinIds = new Set<string>()
 interface LiveChatState {
   waitingCount: number
   activeCount: number
+  closedCount: number
   visitorUnreadTotal: number
   waitingVisitorUnreadSum: number
   activeVisitorUnreadSum: number
   lastSync: string | null
   pollHandle: number | null
   realtimeConnected: boolean
-  agentWsStatus: 'idle' | 'no-token' | 'connecting' | 'open' | 'closed'
+  agentWsStatus: 'idle' | 'no-token' | 'connecting' | 'open' | 'closed' | 'auth-failed'
   loaded: boolean
   error: string
 }
@@ -41,6 +50,7 @@ interface LiveChatActions {
   tooltipSummary: () => string
   isPollingFallback: () => boolean
   fetchCounts: () => Promise<void>
+  applyStateTransition: (from?: string | null, to?: string | null) => void
   scheduleFetchCounts: (delayMs?: number) => void
   ensureAgentRealtime: () => void
   attachAgentPanel: (handlers: LiveAgentPanelHandlers | null) => void
@@ -57,6 +67,7 @@ interface LiveChatActions {
 export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, get) => ({
   waitingCount: 0,
   activeCount: 0,
+  closedCount: 0,
   visitorUnreadTotal: 0,
   waitingVisitorUnreadSum: 0,
   activeVisitorUnreadSum: 0,
@@ -71,7 +82,7 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
   
   unreadLabel: () => {
     const state = get()
-    const n = state.visitorUnreadTotal > 0 ? state.visitorUnreadTotal : state.waitingCount
+    const n = state.waitingCount > 0 ? state.waitingCount : state.visitorUnreadTotal
     if (n <= 0) return ''
     return n > 99 ? '99+' : String(n)
   },
@@ -84,25 +95,58 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
     if (state.visitorUnreadTotal) parts.push(`访客新消息 ${state.visitorUnreadTotal}`)
     return parts.join(' · ') || '暂无待处理'
   },
-  
+
   isPollingFallback: () => get().pollHandle != null,
+
+  applyStateTransition: (from, to) => {
+    const source = normalizeLiveState(from)
+    const target = normalizeLiveState(to)
+    if (!source || !target || source === target) return
+    set((state) => {
+      const next = {
+        waitingCount: state.waitingCount,
+        activeCount: state.activeCount,
+        closedCount: state.closedCount,
+      }
+      if (source === 'waiting')
+        next.waitingCount = Math.max(0, next.waitingCount - 1)
+      if (source === 'active')
+        next.activeCount = Math.max(0, next.activeCount - 1)
+      if (source === 'closed')
+        next.closedCount = Math.max(0, next.closedCount - 1)
+      if (target === 'waiting')
+        next.waitingCount += 1
+      if (target === 'active')
+        next.activeCount += 1
+      if (target === 'closed')
+        next.closedCount += 1
+      return {
+        ...next,
+        lastSync: new Date().toISOString(),
+        loaded: true,
+      }
+    })
+  },
 
   fetchCounts: async () => {
     try {
       const { ChatAPI } = getChatKit()
       const countPageSize = 200
-      const [waiting, active] = await Promise.all([
+      const [waiting, active, closed] = await Promise.all([
         ChatAPI.conversations({ state: 'waiting', page_size: countPageSize }),
         ChatAPI.conversations({ state: 'active', page_size: countPageSize }),
+        ChatAPI.conversations({ state: 'closed', page_size: 1 }),
       ])
       const waitingVisitorUnreadSum = sumVisitorUnread(waiting.items)
       const activeVisitorUnreadSum = sumVisitorUnread(active.items)
       const waitingTotal = typeof waiting.total === 'number' ? waiting.total : waiting.items.length
       const activeTotal = typeof active.total === 'number' ? active.total : active.items.length
+      const closedTotal = typeof closed.total === 'number' ? closed.total : closed.items.length
 
       set({
         waitingCount: waitingTotal,
         activeCount: activeTotal,
+        closedCount: closedTotal,
         waitingVisitorUnreadSum,
         activeVisitorUnreadSum,
         visitorUnreadTotal: waitingVisitorUnreadSum + activeVisitorUnreadSum,
@@ -110,16 +154,16 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
         loaded: true,
         error: ''
       })
-    } catch (e: any) {
-      set({ error: e?.response?.data?.message || '同步客户咨询失败' })
+    } catch (e: unknown) {
+      set({ error: describeKefuError(e, '同步客户咨询失败') })
     }
   },
 
-  scheduleFetchCounts: (delayMs = 300) => {
+  scheduleFetchCounts: (delayMs = 800) => {
     if (realtimeRefreshTimer != null) clearTimeout(realtimeRefreshTimer)
     realtimeRefreshTimer = setTimeout(() => {
       realtimeRefreshTimer = null
-      get().fetchCounts().catch(() => {})
+      if (!document.hidden) get().fetchCounts().catch(() => {})
     }, delayMs)
   },
 
@@ -175,8 +219,17 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
     const { createAgentLiveSocket } = getChatKit()
     liveSocket = createAgentLiveSocket({
       onTransportStatus: (status) => {
+        if (status === 'auth-failed') {
+          get().stopPolling()
+          set({
+            realtimeConnected: false,
+            agentWsStatus: 'auth-failed',
+            error: '登录已失效，请刷新页面重新登录',
+          })
+          return
+        }
         if (status === 'connecting') {
-          set({ agentWsStatus: 'connecting' })
+          set({ agentWsStatus: 'connecting', error: '' })
           return
         }
         if (status === 'open' && get().agentWsStatus !== 'open') {
@@ -186,7 +239,7 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
       onReady: () => {
         set({ realtimeConnected: true, agentWsStatus: 'open' })
         get().stopPolling()
-        get().scheduleFetchCounts(0)
+        get().fetchCounts().catch(() => {})
         if (liveSocket && pendingAgentJoinIds.size) {
           for (const id of Array.from(pendingAgentJoinIds)) {
             liveSocket.joinConversation(id)
@@ -196,7 +249,10 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
         panelHandlers?.onReady?.()
       },
       onClose: () => {
+        if (get().agentWsStatus === 'auth-failed')
+          return
         set({ realtimeConnected: false, agentWsStatus: 'closed' })
+        queryClient.invalidateQueries({ queryKey: AGENT_QUERY_KEYS.overview() }).catch(() => {})
         get().startPolling(15000)
       },
       onMessage: (env) => {
@@ -210,6 +266,8 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
       },
       onMerchantEvent: (event, data) => {
         if (event === 'message' || event === 'state') get().scheduleFetchCounts()
+        if (event.startsWith('agent.'))
+          useAgentStore.getState().handleRealtimeEvent(event, data)
         panelHandlers?.onMerchantEvent?.(event, data)
       },
       onAck: (env) => panelHandlers?.onAck?.(env),
@@ -235,7 +293,10 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
   startPolling: (intervalMs = 12000) => {
     get().stopPolling()
     get().fetchCounts().catch(() => {})
-    const handle = window.setInterval(() => get().fetchCounts(), intervalMs)
+    const handle = window.setInterval(() => {
+      if (document.hidden) return
+      get().fetchCounts().catch(() => {})
+    }, intervalMs)
     set({ pollHandle: handle as unknown as number })
   },
 
@@ -255,6 +316,7 @@ export const useLiveChatStore = create<LiveChatState & LiveChatActions>()((set, 
     set({
       waitingCount: 0,
       activeCount: 0,
+      closedCount: 0,
       visitorUnreadTotal: 0,
       waitingVisitorUnreadSum: 0,
       activeVisitorUnreadSum: 0,

@@ -16,7 +16,9 @@ export interface LiveVisitor {
   external_user_id?: string
   channel?: string
   store_id?: string
-  is_demo: boolean
+  is_blocked?: boolean
+  blocked_reason?: string
+  blocked_at?: string
 }
 
 export interface LiveAttachmentMeta {
@@ -40,7 +42,6 @@ export interface LiveMessage {
   metadata: Record<string, any>
   delivered_at: string | null
   read_at: string | null
-  is_demo: boolean
   created_at: string
   client_message_id?: string
 }
@@ -69,7 +70,8 @@ export interface LiveConversation {
   assigned_kefu_agent_name: string
   tags: string[]
   note: string
-  is_demo: boolean
+  /** 人工接管后的当前会话是否继续启用 AI 自动回复 */
+  ai_auto_reply_enabled: boolean
   created_at: string
   updated_at: string
 }
@@ -79,7 +81,7 @@ export type LiveConversationPatch = Partial<Pick<LiveConversation,
   | 'store_id' | 'store_name'
   | 'skill_id' | 'skill_name'
   | 'assigned_kefu_agent_id' | 'assigned_kefu_agent_name'
-  | 'tags' | 'note' | 'subject'
+  | 'tags' | 'note' | 'subject' | 'ai_auto_reply_enabled'
 >> & { state?: 'waiting' | 'active' }
 
 export interface LiveConversationDetail extends LiveConversation {
@@ -117,8 +119,13 @@ export interface ChannelAccount {
   webhook_url: string
   credentials: Record<string, any>
   extras: Record<string, any>
+  health?: {
+    status: 'ready' | 'warning' | 'incomplete' | 'disabled'
+    label: string
+    missing_credentials: string[]
+    required_credentials: string[]
+  }
   enabled: boolean
-  is_demo: boolean
   created_at: string
   updated_at: string
 }

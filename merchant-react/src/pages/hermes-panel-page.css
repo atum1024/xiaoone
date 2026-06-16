@@ -1,0 +1,112 @@
+.hermes-panel-page {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--xiaoone-bg);
+}
+
+.hermes-panel-toolbar {
+  min-height: 52px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--xiaoone-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  border-radius: var(--xiaoone-panel-radius) var(--xiaoone-panel-radius) 0 0;
+}
+
+.hermes-panel-toolbar div:first-child {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.hermes-panel-toolbar span {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hermes-panel-toolbar strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.hermes-panel-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hermes-panel-toolbar__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-color: var(--xiaoone-border);
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg);
+  border-radius: var(--xiaoone-control-radius);
+}
+
+.hermes-panel-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  background: var(--xiaoone-bg);
+}
+
+.hermes-panel-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 32px 20px;
+  color: var(--xiaoone-fg);
+  text-align: center;
+}
+
+.hermes-panel-state p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hermes-panel-state span {
+  max-width: 420px;
+  color: var(--xiaoone-fg-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hermes-panel-state--error p {
+  color: var(--xiaoone-danger);
+}
+
+@media (max-width: 760px) {
+  .hermes-panel-page {
+    min-height: 720px;
+  }
+
+  .hermes-panel-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hermes-panel-toolbar__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

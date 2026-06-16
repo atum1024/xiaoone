@@ -1,15 +1,16 @@
 import { ChangeEvent, useEffect, useMemo, useState, useRef } from 'react'
 import { getChatKit, type AgentAttachment } from '@xiaoone/chat-kit'
 import { Icon } from '../components/Icon'
+import { usePreferences } from '../app/preferences'
 import { toast, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@xiaoone/react-ui'
 import './automation-file-library-page.css'
 
-const TEMPLATES = [
-  { key: 'file-organize', label: '文件梳理', note: '请对选中文件做结构化梳理，输出摘要、关键事实、待确认问题和可执行清单。' },
-  { key: 'install-doc', label: '安装文档生成', note: '请把选中文件整理成安装与使用文档，包含环境要求、安装步骤、配置项、验证方式和常见问题。' },
-  { key: 'corpus', label: '客服语料整理', note: '请把选中文件整理成客服语料，按问题、标准回答、适用场景、注意事项输出。' },
-  { key: 'sop', label: '运营 SOP 生成', note: '请把选中文件整理成运营 SOP，包含目标、适用范围、角色分工、步骤、检查点和异常处理。' },
-]
+const TEMPLATE_DEFS = [
+  { key: 'file-organize', labelKey: 'automation.file.template.fileOrganize', noteKey: 'automation.file.template.fileOrganizeNote' },
+  { key: 'install-doc', labelKey: 'automation.file.template.installDoc', noteKey: 'automation.file.template.installDocNote' },
+  { key: 'corpus', labelKey: 'automation.file.template.corpus', noteKey: 'automation.file.template.corpusNote' },
+  { key: 'sop', labelKey: 'automation.file.template.sop', noteKey: 'automation.file.template.sopNote' },
+] as const
 
 function absoluteUrl(url: string) {
   if (!url) return ''
@@ -17,6 +18,7 @@ function absoluteUrl(url: string) {
 }
 
 export function AutomationFileLibraryPage() {
+  const { t, tpl } = usePreferences()
   const { AgentAttachmentAPI } = getChatKit()
   const uploadInputRef = useRef<HTMLInputElement>(null)
 
@@ -33,8 +35,22 @@ export function AutomationFileLibraryPage() {
   const [generatedDownloadUrl, setGeneratedDownloadUrl] = useState('')
   const [generatedShareUrl, setGeneratedShareUrl] = useState('')
 
-  const [templateKey, setTemplateKey] = useState(TEMPLATES[0].key)
-  const [instruction, setInstruction] = useState(TEMPLATES[0].note)
+  const [templateKey, setTemplateKey] = useState<string>(TEMPLATE_DEFS[0].key)
+  const [instruction, setInstruction] = useState('')
+
+  const templates = useMemo(
+    () => TEMPLATE_DEFS.map(item => ({
+      key: item.key,
+      label: t(item.labelKey),
+      note: t(item.noteKey),
+    })),
+    [t],
+  )
+
+  useEffect(() => {
+    const current = templates.find(item => item.key === templateKey)
+    if (current) setInstruction(current.note)
+  }, [templateKey, templates])
 
   const sourceFiles = useMemo(() => files.filter(f => f.source === 'user_upload'), [files])
   const generatedFiles = useMemo(() => files.filter(f => f.source === 'ai_output'), [files])
@@ -48,7 +64,7 @@ export function AutomationFileLibraryPage() {
       const currentIds = new Set(r.filter(f => f.source === 'user_upload').map(f => f.id))
       setSelectedFileIds(prev => prev.filter(id => currentIds.has(id)))
     } catch {
-      toast({ title: '文件库加载失败' })
+      toast({ title: t('automation.file.toast.loadFailed') })
     } finally {
       setFileLoading(false)
     }
@@ -66,10 +82,10 @@ export function AutomationFileLibraryPage() {
       for (const file of picked) {
         await AgentAttachmentAPI.upload(file)
       }
-      toast({ title: '文件已上传' })
+      toast({ title: t('automation.file.toast.uploaded') })
       loadFiles()
     } catch (e: any) {
-      toast({ title: '文件上传失败', description: e?.message || '未知错误' })
+      toast({ title: t('automation.file.toast.uploadFailed'), description: e?.message || t('automation.archives.unknownError') })
     } finally {
       setUploading(false)
       if (uploadInputRef.current) uploadInputRef.current.value = ''
@@ -82,7 +98,7 @@ export function AutomationFileLibraryPage() {
 
   const organizeFiles = async () => {
     if (!selectedFileIds.length) {
-      toast({ title: '请先选择文件' })
+      toast({ title: t('automation.file.toast.selectFirst') })
       return
     }
     setOrganizing(true)
@@ -100,10 +116,10 @@ export function AutomationFileLibraryPage() {
       setMarkdownPreview(r.markdown_preview || '')
       setGeneratedDownloadUrl(absoluteUrl(r.download_url))
       setGeneratedShareUrl(absoluteUrl(r.share_url))
-      toast({ title: 'Markdown 已生成' })
+      toast({ title: t('automation.file.toast.markdownReady') })
       loadFiles()
     } catch (e: any) {
-      toast({ title: 'AI 梳理失败', description: e?.message || '未知错误' })
+      toast({ title: t('automation.file.toast.organizeFailed'), description: e?.message || t('automation.archives.unknownError') })
     } finally {
       setOrganizing(false)
     }
@@ -112,7 +128,7 @@ export function AutomationFileLibraryPage() {
   const copyText = async (text: string, label: string) => {
     if (!text) return
     await navigator.clipboard.writeText(text)
-    toast({ title: `${label}已复制` })
+    toast({ title: tpl('automation.file.toast.copied', label) })
   }
 
   const refreshPublicShare = async () => {
@@ -122,9 +138,9 @@ export function AutomationFileLibraryPage() {
       const r = await AgentAttachmentAPI.share(generatedAttachment.id)
       setGeneratedAttachment(r.attachment)
       setGeneratedShareUrl(absoluteUrl(r.share_url))
-      toast({ title: '公开链接已生成' })
+      toast({ title: t('automation.file.toast.publicReady') })
     } catch (e: any) {
-      toast({ title: '生成公开链接失败', description: e?.message || '未知错误' })
+      toast({ title: t('automation.file.toast.publicFailed'), description: e?.message || t('automation.archives.unknownError') })
     } finally {
       setSharing(false)
     }
@@ -136,9 +152,9 @@ export function AutomationFileLibraryPage() {
     try {
       await AgentAttachmentAPI.revokeShare(generatedAttachment.id)
       setGeneratedShareUrl('')
-      toast({ title: '公开链接已撤销' })
+      toast({ title: t('automation.file.toast.publicRevoked') })
     } catch (e: any) {
-      toast({ title: '撤销公开链接失败', description: e?.message || '未知错误' })
+      toast({ title: t('automation.file.toast.revokeFailed'), description: e?.message || t('automation.archives.unknownError') })
     } finally {
       setRevokingShare(false)
     }
@@ -150,20 +166,15 @@ export function AutomationFileLibraryPage() {
 
   return (
     <section className="file-page">
-      <header className="file-head">
-        <div>
-          <span className="file-kicker">自动化</span>
-          <h1>文件库</h1>
-        </div>
-        <button type="button" className="file-action" onClick={loadFiles}>
-          刷新
-        </button>
-      </header>
-
       <section className="file-block">
         <div className="file-block-head">
-          <strong>上传与梳理</strong>
-          <span>选择文件后生成 Markdown，可下载或复制链接。</span>
+          <div>
+            <strong>{t('automation.file.uploadTitle')}</strong>
+            <span>{t('automation.file.uploadDesc')}</span>
+          </div>
+          <button type="button" className="file-action" onClick={loadFiles}>
+            {t('automation.file.refresh')}
+          </button>
         </div>
 
         <div className="file-toolbar">
@@ -176,28 +187,28 @@ export function AutomationFileLibraryPage() {
           />
           <button type="button" className="file-action" disabled={uploading} onClick={() => uploadInputRef.current?.click()}>
             <Icon name="package" size={14} />
-            {uploading ? '上传中…' : '上传文件'}
+            {uploading ? t('automation.file.uploading') : t('automation.file.upload')}
           </button>
 
           <Select value={templateKey} onValueChange={v => {
             setTemplateKey(v)
-            setInstruction(TEMPLATES.find(t => t.key === v)?.note || '')
+            setInstruction(templates.find(item => item.key === v)?.note || '')
           }}>
             <SelectTrigger className="file-select w-[140px] border-none h-[32px] bg-[var(--xiaoone-bg)]">
-              <SelectValue placeholder="选择梳理模板" />
+              <SelectValue placeholder={t('automation.file.templatePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              {TEMPLATES.map(tpl => (
-                <SelectItem key={tpl.key} value={tpl.key}>{tpl.label}</SelectItem>
+              {templates.map(tplItem => (
+                <SelectItem key={tplItem.key} value={tplItem.key}>{tplItem.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <button type="button" className="file-action is-primary" disabled={organizing || !selectedFileIds.length} onClick={organizeFiles}>
             <Icon name="sparkles" size={14} />
-            {organizing ? '梳理中…' : 'AI 一键梳理'}
+            {organizing ? t('automation.file.organizing') : t('automation.file.organize')}
           </button>
-          <span className="file-count">已选 {selectedFiles.length} 个文件</span>
+          <span className="file-count">{tpl('automation.file.selectedCount', String(selectedFiles.length))}</span>
         </div>
 
         <textarea
@@ -205,14 +216,14 @@ export function AutomationFileLibraryPage() {
           onChange={e => setInstruction(e.target.value)}
           className="file-instruction"
           rows={3}
-          placeholder="补充这次梳理的目标，例如：整理成安装文档、生成客服语料、输出 SOP。"
+          placeholder={t('automation.file.instructionPlaceholder')}
         />
 
         <div className="file-grid">
           <div className="file-list">
             <div className="file-list-head">
-              <strong>上传文件</strong>
-              <span>{sourceFiles.length} 个</span>
+              <strong>{t('automation.file.sourceTitle')}</strong>
+              <span>{tpl('automation.file.countUnit', String(sourceFiles.length))}</span>
             </div>
             {sourceFiles.map(f => (
               <button
@@ -224,41 +235,41 @@ export function AutomationFileLibraryPage() {
                 <span className="file-check">{selectedFileIds.includes(f.id) ? '✓' : ''}</span>
                 <span className="file-copy">
                   <strong>{f.name}</strong>
-                  <small>{f.is_text ? '已抽取文本' : '仅元数据'} · {Math.ceil(f.size / 1024)} KB</small>
+                  <small>{f.is_text ? t('automation.file.textExtracted') : t('automation.file.metadataOnly')} · {Math.ceil(f.size / 1024)} KB</small>
                 </span>
               </button>
             ))}
-            {fileLoading && <div className="file-empty">加载中…</div>}
-            {!fileLoading && !sourceFiles.length && <div className="file-empty">暂无上传文件</div>}
+            {fileLoading && <div className="file-empty">{t('automation.file.loading')}</div>}
+            {!fileLoading && !sourceFiles.length && <div className="file-empty">{t('automation.file.noUploads')}</div>}
           </div>
 
           <div className="file-output">
             <div className="file-list-head">
-              <strong>生成结果</strong>
-              <span>{generatedFiles.length} 个 Markdown</span>
+              <strong>{t('automation.file.resultTitle')}</strong>
+              <span>{tpl('automation.file.markdownCount', String(generatedFiles.length))}</span>
             </div>
             {markdownPreview ? (
               <div className="markdown-preview">
                 <pre>{markdownPreview}</pre>
               </div>
             ) : (
-              <div className="file-empty">选择文件后点击 AI 一键梳理，生成 Markdown 预览。</div>
+              <div className="file-empty">{t('automation.file.resultEmpty')}</div>
             )}
 
             {generatedAttachment && (
               <div className="output-actions">
-                <button type="button" className="file-action" onClick={openGeneratedDownload}>下载</button>
-                <button type="button" className="file-action" onClick={() => copyText(generatedDownloadUrl, '登录态链接')}>复制登录态链接</button>
+                <button type="button" className="file-action" onClick={openGeneratedDownload}>{t('automation.file.download')}</button>
+                <button type="button" className="file-action" onClick={() => copyText(generatedDownloadUrl, t('automation.file.toast.authLink'))}>{t('automation.file.copyAuthLink')}</button>
                 {generatedShareUrl ? (
                   <>
-                    <button type="button" className="file-action" onClick={() => copyText(generatedShareUrl, '公开链接')}>复制公开链接</button>
+                    <button type="button" className="file-action" onClick={() => copyText(generatedShareUrl, t('automation.file.toast.publicLink'))}>{t('automation.file.copyPublicLink')}</button>
                     <button type="button" className="file-action is-danger" disabled={revokingShare} onClick={revokePublicShare}>
-                      {revokingShare ? '撤销中…' : '撤销公开链接'}
+                      {revokingShare ? t('automation.file.revoking') : t('automation.file.revokePublic')}
                     </button>
                   </>
                 ) : (
                   <button type="button" className="file-action" disabled={sharing} onClick={refreshPublicShare}>
-                    {sharing ? '生成中…' : '重新生成公开链接'}
+                    {sharing ? t('automation.file.regenerating') : t('automation.file.regeneratePublic')}
                   </button>
                 )}
               </div>

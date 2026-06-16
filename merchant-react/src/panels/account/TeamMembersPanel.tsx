@@ -1,24 +1,51 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import {
   Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-  Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
-  Switch, InputNumber, Badge, DataTable, Tooltip, TooltipContent, TooltipTrigger,
+  Input, PasswordInput, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+  Switch, InputNumber, Badge, DataTable,
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-  toast, Empty
+  toast, Checkbox
 } from '@xiaoone/react-ui'
 import { APageHeader } from './APageHeader'
 import { Icon } from '../../components/Icon'
-import { getChatKit, type Skill } from '@xiaoone/chat-kit'
 import { TeamAPI, type TeamMember } from '../../lib/teamApi'
-import { useAuthStore as useAuth } from '../../store/auth'
-import { useWorkspaceStore } from '../../store/workspace'
+import { DEFAULT_SUBACCOUNT_MENU_PERMISSIONS, MENU_PERMISSION_OPTIONS, type MenuPermissionOption } from '../../app/menuPermissions'
+import { isUserBlockedMenu } from '../../app/blockedMenus'
+import { usePreferences } from '../../app/preferences'
 import './team-members-panel.css'
+import { DefaultAvatar } from '../../components/DefaultAvatar'
 
-const ROLE_LABEL: Record<string, string> = {
-  owner: '所有者',
-  admin: '管理员',
-  agent: '客服',
-  viewer: '只读',
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const TEAM_CONCURRENT_MIN = 1
+const TEAM_CONCURRENT_MAX = 50
+
+function validateConcurrentLimit(value: unknown): number | null {
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < TEAM_CONCURRENT_MIN || n > TEAM_CONCURRENT_MAX) return null
+  return n
+}
+
+function normalizeTeamErrorMessage(error: any, t: (key: string, fallback?: string) => string, locale: string): string {
+  const data = error?.response?.data || {}
+  const detail = data?.data || {}
+  const code = String(detail?.code || data?.code || data?.error || data?.message || '').trim()
+  const message = String(data?.message || data?.error || error?.message || '').trim()
+  if (code === 'team_seats_exceeded' || message === 'team_seats_exceeded') {
+    const max = Number(detail?.team_seats_max || 0)
+    const used = Number(detail?.team_seats_used || 0)
+    return locale === 'zh'
+      ? `团队席位已达上限（已用 ${used} / 上限 ${max}），请升级套餐或停用成员后再添加。`
+      : `Team seat limit reached (${used}/${max}). Upgrade the plan or deactivate a member before adding another.`
+  }
+  if (/email already exists|already bound/i.test(message))
+    return locale === 'zh' ? '该邮箱已被其他账号或商户使用。' : 'This email is already used by another account or merchant.'
+  if (/email must be|invalid email|email is required/i.test(message))
+    return t('account.team.toastInvalidEmail', '请输入正确的邮箱')
+  if (/kefu_max_concurrent/i.test(message))
+    return locale === 'zh' ? '并发会话上限需为 1-50 的整数。' : 'Concurrent session limit must be an integer from 1 to 50.'
+  if (/permission|only owner|only owner\/admin/i.test(message))
+    return locale === 'zh' ? '当前账号没有权限执行该团队操作。' : 'You do not have permission to perform this team action.'
+  return message || t('account.common.unknownError')
 }
 
 const ROLE_TYPE: Record<string, string> = {
@@ -29,12 +56,19 @@ const ROLE_TYPE: Record<string, string> = {
 }
 
 export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
-  const auth = useAuth()
-  const ws = useWorkspaceStore()
-  const { SkillAPI } = getChatKit()
+  const { t, tpl, locale } = usePreferences()
+  const localeTag = locale === 'zh' ? 'zh-CN' : 'en-US'
+  const permSep = locale === 'zh' ? '、' : ', '
+
+  const ROLE_LABEL: Record<string, string> = useMemo(() => ({
+    owner: t('account.team.roleOwner'),
+    admin: t('account.team.roleAdmin'),
+    agent: t('account.team.roleAgent'),
+    viewer: t('account.team.roleViewer'),
+  }), [t])
 
   const [members, setMembers] = useState<TeamMember[]>([])
-  const [skills, setSkills] = useState<Skill[]>([])
+  const [menuOptions, setMenuOptions] = useState<MenuPermissionOption[]>(MENU_PERMISSION_OPTIONS)
   const [loading, setLoading] = useState(false)
   const [canManage, setCanManage] = useState(false)
   const [myRole, setMyRole] = useState('')
@@ -45,19 +79,27 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
   const [search, setSearch] = useState('')
 
   const [inviteOpen, setInviteOpen] = useState(false)
-  const [inviteForm, setInviteForm] = useState({ email: '', name: '', role: 'agent', password: '' })
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    name: '',
+    role: 'agent',
+    password: '',
+    kefu_max_concurrent: 5,
+    menu_permissions: [...DEFAULT_SUBACCOUNT_MENU_PERMISSIONS],
+  })
   const [inviteSubmitting, setInviteSubmitting] = useState(false)
-  const [inviteResult, setInviteResult] = useState<{ email: string; password?: string } | null>(null)
+  const [inviteResult, setInviteResult] = useState<{ email: string; password?: string; note?: string } | null>(null)
 
   const [editOpen, setEditOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<TeamMember | null>(null)
   const [editForm, setEditForm] = useState({
+    email: '',
     name: '',
     role: 'agent' as TeamMember['role'],
     password: '',
     can_serve_live_chat: true,
     kefu_max_concurrent: 5,
-    kefu_skill_ids: [] as number[],
+    menu_permissions: [] as string[],
   })
   const [editSubmitting, setEditSubmitting] = useState(false)
 
@@ -70,16 +112,9 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
       setMyRole(r.self.role)
       setMyUserId(r.self.user_id)
       if (r.roles?.length) setAllRoles(r.roles)
-      if (r.self.can_manage) {
-        try {
-          const sk = await SkillAPI.list({ page_size: 200 })
-          setSkills(sk.items)
-        } catch {
-          setSkills([])
-        }
-      }
+      if (r.menu_options?.length) setMenuOptions(r.menu_options.filter(opt => !isUserBlockedMenu(opt.id)))
     } catch (e: any) {
-      toast({ title: '加载团队失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.team.toastLoadFailed'), description: e?.message || t('account.common.unknownError') })
     } finally {
       setLoading(false)
     }
@@ -105,37 +140,60 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
     admins: members.filter(m => m.is_active && (m.role === 'owner' || m.role === 'admin')).length,
   }), [members])
 
-  const avatarLabel = (m: TeamMember) => (m.user.name || m.user.email || '？').slice(0, 1).toUpperCase()
   const isSelf = (m: TeamMember) => m.user.id === myUserId
 
   const openInvite = () => {
-    setInviteForm({ email: '', name: '', role: 'agent', password: '' })
+    setInviteForm({
+      email: '',
+      name: '',
+      role: 'agent',
+      password: '',
+      kefu_max_concurrent: 5,
+      menu_permissions: [...DEFAULT_SUBACCOUNT_MENU_PERMISSIONS],
+    })
     setInviteResult(null)
     setInviteOpen(true)
   }
 
   const submitInvite = async () => {
     const email = inviteForm.email.trim().toLowerCase()
-    if (!email || !email.includes('@')) {
-      toast({ title: '请输入正确的邮箱' })
+    if (!EMAIL_PATTERN.test(email)) {
+      toast({ title: t('account.team.toastInvalidEmail') })
+      return
+    }
+    if (inviteForm.role !== 'owner' && inviteForm.menu_permissions.length === 0) {
+      toast({ title: t('account.team.toastMinPermission') })
+      return
+    }
+    if (inviteForm.role !== 'viewer' && inviteForm.role !== 'owner' && validateConcurrentLimit(inviteForm.kefu_max_concurrent) === null) {
+      toast({
+        title: t('account.team.concurrentLimit'),
+        description: locale === 'zh' ? '并发会话上限需为 1-50 的整数。' : 'Concurrent session limit must be an integer from 1 to 50.',
+      })
       return
     }
     setInviteSubmitting(true)
     try {
-      const member = await TeamAPI.invite({
+      const result = await TeamAPI.add({
         email,
         name: inviteForm.name.trim(),
         role: inviteForm.role,
         password: inviteForm.password || undefined,
+        kefu_max_concurrent: inviteForm.kefu_max_concurrent,
+        menu_permissions: inviteForm.role === 'owner' ? [] : [...inviteForm.menu_permissions],
       })
-      toast({ title: '成员已加入团队' })
+      const member = result.member
+      toast({ title: t('account.team.toastMemberAdded') })
       setInviteResult({
         email,
-        password: member.initial_password || (inviteForm.password ? undefined : '（已发送邀请，使用现有密码）'),
+        password: member.initial_password,
+        note: member.initial_password
+          ? undefined
+          : (inviteForm.password ? t('account.team.usedYourPassword') : (result.created ? undefined : t('account.team.existingPassword'))),
       })
       load()
     } catch (e: any) {
-      toast({ title: '邀请失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.team.toastAddFailed'), description: normalizeTeamErrorMessage(e, t, locale) })
     } finally {
       setInviteSubmitting(false)
     }
@@ -144,43 +202,90 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
   const openEdit = (m: TeamMember) => {
     setEditTarget(m)
     setEditForm({
+      email: m.user.email || '',
       name: m.user.name || '',
       role: m.role,
       password: '',
       can_serve_live_chat: m.role === 'viewer' ? false : (m.can_serve_live_chat !== false),
       kefu_max_concurrent: m.kefu_max_concurrent ?? 5,
-      kefu_skill_ids: [...(m.kefu_skill_ids || [])],
+      menu_permissions: [...(m.menu_permissions || m.effective_menu_permissions || DEFAULT_SUBACCOUNT_MENU_PERMISSIONS)].filter(id => !isUserBlockedMenu(id)),
     })
     setEditOpen(true)
   }
 
+  const toggleInviteMenu = (id: string, checked: boolean) => {
+    setInviteForm(prev => {
+      const next = checked
+        ? Array.from(new Set([...prev.menu_permissions, id]))
+        : prev.menu_permissions.filter(x => x !== id)
+      return { ...prev, menu_permissions: next }
+    })
+  }
+
+  const toggleEditMenu = (id: string, checked: boolean) => {
+    setEditForm(prev => {
+      const next = checked
+        ? Array.from(new Set([...prev.menu_permissions, id]))
+        : prev.menu_permissions.filter(x => x !== id)
+      return { ...prev, menu_permissions: next }
+    })
+  }
+
+  const permissionSummary = useCallback((m: TeamMember) => {
+    if (m.role === 'owner') return t('account.team.permissionsAll')
+    const ids = m.effective_menu_permissions || m.menu_permissions || []
+    if (!ids.length) return t('account.team.permissionsAll')
+    const labels = menuOptions.filter(opt => ids.includes(opt.id)).map(opt => opt.label)
+    if (labels.length <= 2) return labels.join(permSep) || t('account.team.permissionsNone')
+    return tpl('account.team.permissionsMore', labels.slice(0, 2).join(permSep), String(labels.length))
+  }, [t, tpl, menuOptions, permSep])
+
   const submitEdit = async () => {
     if (!editTarget) return
+    const nextEmail = editForm.email.trim().toLowerCase()
+    if (!EMAIL_PATTERN.test(nextEmail)) {
+      toast({ title: t('account.team.toastInvalidEmail') })
+      return
+    }
+    if (editForm.role !== 'owner' && editForm.menu_permissions.length === 0) {
+      toast({ title: t('account.team.toastMinPermission') })
+      return
+    }
+    if (editForm.role !== 'viewer' && editForm.role !== 'owner' && validateConcurrentLimit(editForm.kefu_max_concurrent) === null) {
+      toast({
+        title: t('account.team.concurrentLimit'),
+        description: locale === 'zh' ? '并发会话上限需为 1-50 的整数。' : 'Concurrent session limit must be an integer from 1 to 50.',
+      })
+      return
+    }
     setEditSubmitting(true)
     try {
       const payload: any = {}
+      if (nextEmail !== (editTarget.user.email || '').toLowerCase()) payload.email = nextEmail
       if ((editForm.name || '').trim() !== (editTarget.user.name || '')) payload.name = editForm.name.trim()
       if (editForm.role !== editTarget.role) payload.role = editForm.role
       if (editForm.password) payload.password = editForm.password
+      if (editForm.role !== 'owner') {
+        const prevPerms = [...(editTarget.menu_permissions || editTarget.effective_menu_permissions || [])].sort().join(',')
+        const nextPerms = [...editForm.menu_permissions].sort().join(',')
+        if (prevPerms !== nextPerms) payload.menu_permissions = [...editForm.menu_permissions]
+      }
       if (editForm.role !== 'viewer') {
         const prevServe = editTarget.role === 'viewer' ? false : (editTarget.can_serve_live_chat !== false)
         if (editForm.can_serve_live_chat !== prevServe) payload.can_serve_live_chat = editForm.can_serve_live_chat
         if (editForm.kefu_max_concurrent !== (editTarget.kefu_max_concurrent ?? 5)) payload.kefu_max_concurrent = editForm.kefu_max_concurrent
-        const prevSk = [...(editTarget.kefu_skill_ids || [])].sort().join(',')
-        const nextSk = [...editForm.kefu_skill_ids].sort().join(',')
-        if (prevSk !== nextSk) payload.kefu_skill_ids = [...editForm.kefu_skill_ids]
       }
       if (Object.keys(payload).length === 0) {
-        toast({ title: '未做任何修改' })
+        toast({ title: t('account.team.toastNoChanges') })
         setEditOpen(false)
         return
       }
       await TeamAPI.update(editTarget.id, payload)
-      toast({ title: '已更新' })
+      toast({ title: t('account.team.toastUpdated') })
       setEditOpen(false)
       load()
     } catch (e: any) {
-      toast({ title: '更新失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.team.toastUpdateFailed'), description: normalizeTeamErrorMessage(e, t, locale) })
     } finally {
       setEditSubmitting(false)
     }
@@ -190,35 +295,34 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
     try {
       if (active) await TeamAPI.update(m.id, { is_active: true })
       else await TeamAPI.deactivate(m.id)
-      toast({ title: active ? '已启用' : '已停用' })
+      toast({ title: active ? t('account.team.toastActivated') : t('account.team.toastDeactivated') })
       load()
     } catch (e: any) {
-      toast({ title: '操作失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.team.toastActionFailed'), description: normalizeTeamErrorMessage(e, t, locale) })
     }
   }
 
   const resetPwd = async (m: TeamMember) => {
     try {
       const r = await TeamAPI.resetPassword(m.id)
-      alert(`${m.user.email} 的新密码：\n\n${r.password}\n\n请尽快通过安全渠道传递给该成员，并提醒首次登录后立即修改。`)
+      alert(tpl('account.team.resetPasswordAlert', m.user.email, r.password))
     } catch (e: any) {
-      toast({ title: '重置失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.team.toastResetFailed'), description: normalizeTeamErrorMessage(e, t, locale) })
     }
   }
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       key: 'member',
-      title: '成员',
+      title: t('account.team.colMember'),
       width: 240,
       render: (row: TeamMember) => (
         <div className="cell-member">
-          <span className="ava">{avatarLabel(row)}</span>
+          <DefaultAvatar src={row.user.avatar} className="ava" alt="" size={34} />
           <div className="cell-info">
             <div className="cell-line">
               <strong>{row.user.name || row.user.email.split('@')[0]}</strong>
-              {isSelf(row) && <Badge variant="outline" className="rounded-full text-xs">我</Badge>}
-              {row.user.is_demo && <Badge variant="outline" className="rounded-full text-xs text-amber-500 border-amber-200">示例</Badge>}
+              {isSelf(row) && <Badge variant="outline" className="rounded-full text-xs">{t('account.team.me')}</Badge>}
             </div>
             <div className="cell-email">{row.user.email}</div>
           </div>
@@ -227,7 +331,7 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
     },
     {
       key: 'role',
-      title: '角色',
+      title: t('account.team.colRole'),
       width: 120,
       render: (row: TeamMember) => (
         <Badge variant="outline" className={`rounded-full ${ROLE_TYPE[row.role] || 'text-gray-500'}`}>
@@ -237,115 +341,117 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
     },
     {
       key: 'kefu',
-      title: '客户咨询',
+      title: t('account.team.colLiveChat'),
       width: 108,
       render: (row: TeamMember) => {
-        if (row.role === 'viewer') return <span className="muted">—</span>
+        if (row.role === 'viewer') return <span className="muted">{t('account.common.notAvailable')}</span>
         return (
           <Badge variant="outline" className={`rounded-full ${row.can_serve_live_chat !== false ? 'text-green-500 border-green-200' : 'text-gray-500 border-gray-200'}`}>
-            {row.can_serve_live_chat !== false ? '可接待' : '仅后台'}
+            {row.can_serve_live_chat !== false ? t('account.team.canServe') : t('account.team.backofficeOnly')}
           </Badge>
         )
       }
     },
     {
+      key: 'menu_permissions',
+      title: t('account.team.colMenuPermissions'),
+      width: 170,
+      render: (row: TeamMember) => <span className="muted">{permissionSummary(row)}</span>
+    },
+    {
       key: 'status',
-      title: '状态',
+      title: t('account.team.colStatus'),
       width: 100,
       render: (row: TeamMember) => (
         <Badge variant="outline" className={`rounded-full ${row.is_active ? 'text-green-500 border-green-200' : 'text-gray-500 border-gray-200'}`}>
-          {row.is_active ? '活跃' : '已停用'}
+          {row.is_active ? t('account.team.active') : t('account.team.inactive')}
         </Badge>
       )
     },
     {
       key: 'created_at',
-      title: '加入时间',
+      title: t('account.team.colJoinedAt'),
       width: 180,
-      render: (row: TeamMember) => <span className="muted">{row.created_at ? new Date(row.created_at).toLocaleString('zh-CN', { hour12: false }) : '—'}</span>
+      render: (row: TeamMember) => (
+        <span className="muted">
+          {row.created_at ? new Date(row.created_at).toLocaleString(localeTag, { hour12: false }) : t('account.common.notAvailable')}
+        </span>
+      )
     },
     {
       key: 'actions',
-      title: '操作',
+      title: t('account.team.colActions'),
       width: 120,
       render: (row: TeamMember) => (
         <div className="cell-actions">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isSelf(row) || !row.is_active} onClick={() => ws.enterTeamCommunications('dm')}>
-                <Icon name="chat" size={13} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>发起私聊</TooltipContent>
-          </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8"><Icon name="more" size={14} /></Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem disabled={!canManage} onClick={() => openEdit(row)}>编辑成员</DropdownMenuItem>
-              <DropdownMenuItem disabled={!canManage} onClick={() => resetPwd(row)}>重置密码</DropdownMenuItem>
+              <DropdownMenuItem disabled={!canManage} onClick={() => openEdit(row)}>{t('account.team.editMember')}</DropdownMenuItem>
+              <DropdownMenuItem disabled={!canManage} onClick={() => resetPwd(row)}>{t('account.team.resetPassword')}</DropdownMenuItem>
               {row.is_active ? (
                 <DropdownMenuItem disabled={!canManage || isSelf(row)} onClick={() => {
-                  if (confirm(`确定停用 ${row.user.email}？该成员将无法再登录商户后台，但历史记录会保留。`)) setActive(row, false)
-                }} className="text-red-500 focus:text-red-500">停用账号</DropdownMenuItem>
+                  if (confirm(tpl('account.team.deactivateConfirm', row.user.email))) setActive(row, false)
+                }} className="text-red-500 focus:text-red-500">{t('account.team.deactivate')}</DropdownMenuItem>
               ) : (
-                <DropdownMenuItem disabled={!canManage} onClick={() => setActive(row, true)}>启用账号</DropdownMenuItem>
+                <DropdownMenuItem disabled={!canManage} onClick={() => setActive(row, true)}>{t('account.team.activate')}</DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       )
     }
-  ]
+  ], [t, tpl, ROLE_LABEL, canManage, myUserId, permissionSummary, localeTag])
 
   return (
     <section className={`apage ${embedded ? 'apage--embedded' : ''}`}>
       {!embedded ? (
         <APageHeader
-          root="团队管理"
-          group="成员"
-          title="团队成员管理"
-          description={canManage ? '管理员可管理成员账号，并配置是否接待「客户咨询」、并发上限与技能组（与客服系统同步）。' : '只有所有者 / 管理员可以管理成员；其他角色仅可查看团队列表与彼此聊天。'}
+          root={t('account.team.root')}
+          group={t('account.team.group')}
+          title={t('account.team.title')}
+          description={canManage ? t('account.team.descriptionManage') : t('account.team.descriptionView')}
           iconName="users"
           service="iam service"
           actions={
             <>
-              <Button variant="outline" size="sm" onClick={load} disabled={loading}>刷新</Button>
-              {canManage && <Button size="sm" onClick={openInvite}>邀请成员</Button>}
+              <Button variant="outline" size="sm" onClick={load} disabled={loading}>{t('account.common.refresh')}</Button>
+              {canManage && <Button size="sm" onClick={openInvite}>{t('account.team.addMember')}</Button>}
             </>
           }
         />
       ) : (
         <div className="tm-embed-toolbar">
-          <Button variant="outline" size="sm" onClick={load} disabled={loading}>刷新</Button>
-          {canManage && <Button size="sm" onClick={openInvite}>邀请成员</Button>}
+          <Button variant="outline" size="sm" onClick={load} disabled={loading}>{t('account.common.refresh')}</Button>
+          {canManage && <Button size="sm" onClick={openInvite}>{t('account.team.addMember')}</Button>}
         </div>
       )}
 
       <div className="apage-body">
         <div className="stats">
           <div className="stat-card">
-            <small>团队总人数</small>
+            <small>{t('account.team.totalMembers')}</small>
             <strong>{stats.total}</strong>
           </div>
           <div className="stat-card">
-            <small>活跃成员</small>
+            <small>{t('account.team.activeMembers')}</small>
             <strong>{stats.active}</strong>
           </div>
           <div className="stat-card">
-            <small>已停用</small>
+            <small>{t('account.team.inactiveMembers')}</small>
             <strong>{stats.inactive}</strong>
           </div>
           <div className="stat-card">
-            <small>管理员</small>
+            <small>{t('account.team.admins')}</small>
             <strong>{stats.admins}</strong>
           </div>
           <div className="stat-card self">
-            <small>当前角色</small>
+            <small>{t('account.team.currentRole')}</small>
             <strong>
               <Badge variant="outline" className={`rounded-full ${ROLE_TYPE[myRole] || 'text-gray-500'}`}>
-                {ROLE_LABEL[myRole] || myRole || '—'}
+                {ROLE_LABEL[myRole] || myRole || t('account.common.notAvailable')}
               </Badge>
             </strong>
           </div>
@@ -354,55 +460,55 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
         {!canManage && (
           <div className="hint-card">
             <Icon name="user" size={14} />
-            <span>当前账号没有团队管理权限，新增 / 修改 / 停用功能仅对所有者和管理员开放。</span>
+            <span>{t('account.team.noPermissionHint')}</span>
           </div>
         )}
 
         <div className="toolbar">
-          <div className="relative w-[260px]">
-            <span className="absolute left-3 top-2 text-[var(--xiaoone-fg-mute)]"><Icon name="search" size={14} /></span>
+          <div className="tm-search-field">
+            <span className="tm-search-field__icon"><Icon name="search" size={14} /></span>
             <Input
-              className="pl-8"
+              className="tm-search-field__input"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="搜索姓名 / 邮箱…"
+              placeholder={t('account.team.searchPlaceholder')}
             />
           </div>
           <Select value={filterStatus} onValueChange={(v: any) => setFilterStatus(v)}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="全部状态" />
+              <SelectValue placeholder={t('account.team.allStatus')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="active">活跃</SelectItem>
-              <SelectItem value="inactive">已停用</SelectItem>
+              <SelectItem value="all">{t('account.team.all')}</SelectItem>
+              <SelectItem value="active">{t('account.team.active')}</SelectItem>
+              <SelectItem value="inactive">{t('account.team.inactive')}</SelectItem>
             </SelectContent>
           </Select>
-          <span className="toolbar-info">{filtered.length} / {members.length} 位成员</span>
+          <span className="toolbar-info">{tpl('account.team.memberCount', String(filtered.length), String(members.length))}</span>
         </div>
 
         <div className="table-wrap">
-          <DataTable columns={columns} data={filtered} rowKey={r => String(r.id)} emptyText={loading ? '加载中…' : '暂无团队成员'} />
+          <DataTable columns={columns} data={filtered} rowKey={r => String(r.id)} emptyText={loading ? t('account.common.loading') : t('account.team.noMembers')} />
         </div>
       </div>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="max-w-[460px]">
           <DialogHeader>
-            <DialogTitle>邀请团队成员</DialogTitle>
+            <DialogTitle>{t('account.team.dialogAddTitle')}</DialogTitle>
           </DialogHeader>
           {!inviteResult ? (
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <label className="text-sm font-medium">邮箱（用作登录账号）<span className="text-red-500">*</span></label>
+                <label className="text-sm font-medium">{t('account.team.emailLabel')}<span className="text-red-500">*</span></label>
                 <Input value={inviteForm.email} onChange={e => setInviteForm({ ...inviteForm, email: e.target.value })} placeholder="member@example.com" />
               </div>
               <div className="grid gap-2">
-                <label className="text-sm font-medium">显示名称</label>
-                <Input value={inviteForm.name} onChange={e => setInviteForm({ ...inviteForm, name: e.target.value })} placeholder="留空则使用邮箱前缀" />
+                <label className="text-sm font-medium">{t('account.team.displayName')}</label>
+                <Input value={inviteForm.name} onChange={e => setInviteForm({ ...inviteForm, name: e.target.value })} placeholder={t('account.team.displayNamePlaceholder')} />
               </div>
               <div className="grid gap-2">
-                <label className="text-sm font-medium">角色</label>
+                <label className="text-sm font-medium">{t('account.team.role')}</label>
                 <Select value={inviteForm.role} onValueChange={v => setInviteForm({ ...inviteForm, role: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -413,26 +519,49 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <label className="text-sm font-medium">初始密码（可选）</label>
-                <Input type="password" value={inviteForm.password} onChange={e => setInviteForm({ ...inviteForm, password: e.target.value })} placeholder="留空则系统自动生成" />
+                <label className="text-sm font-medium">{t('account.team.initialPassword')}</label>
+                <PasswordInput value={inviteForm.password} onChange={e => setInviteForm({ ...inviteForm, password: e.target.value })} placeholder={t('account.team.initialPasswordPlaceholder')} />
               </div>
-              <small className="hint">若邮箱已存在，将直接加入当前商户；不会覆盖已有密码。</small>
+              {inviteForm.role !== 'viewer' && inviteForm.role !== 'owner' && (
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">{t('account.team.concurrentLimit')}</label>
+                  <InputNumber value={inviteForm.kefu_max_concurrent} onChange={v => setInviteForm({ ...inviteForm, kefu_max_concurrent: v || 5 })} min={TEAM_CONCURRENT_MIN} max={TEAM_CONCURRENT_MAX} />
+                </div>
+              )}
+              {inviteForm.role !== 'owner' && (
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">{t('account.team.menuPermissions')}</label>
+                  <div className="tm-permission-grid">
+                    {menuOptions.map(opt => (
+                      <label key={opt.id} className="tm-permission-item">
+                        <Checkbox
+                          checked={inviteForm.menu_permissions.includes(opt.id)}
+                          onCheckedChange={v => toggleInviteMenu(opt.id, v === true)}
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <small className="hint">{t('account.team.inviteHint')}</small>
             </div>
           ) : (
             <div className="invite-done">
               <div className="ok"><Icon name="user" size={22} /></div>
-              <strong>{inviteResult.email} 已加入团队</strong>
+              <strong>{tpl('account.team.joinedTeam', inviteResult.email)}</strong>
               {inviteResult.password && (
                 <p>
-                  初始密码：<code>{inviteResult.password}</code><br/>
-                  <small className="text-xs text-[var(--xiaoone-fg-mute)]">请尽快通过安全渠道传递给该成员，并提醒首次登录后立即修改。</small>
+                  {t('account.team.initialPasswordLabel')}<code>{inviteResult.password}</code><br/>
+                  <small className="text-xs text-[var(--xiaoone-fg-mute)]">{t('account.team.passwordShareHint')}</small>
                 </p>
               )}
+              {inviteResult.note && <p className="text-sm text-[var(--xiaoone-fg-mute)]">{inviteResult.note}</p>}
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteOpen(false)}>{inviteResult ? '关闭' : '取消'}</Button>
-            {!inviteResult && <Button onClick={submitInvite} disabled={inviteSubmitting}>确认邀请</Button>}
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>{inviteResult ? t('account.common.close') : t('account.common.cancel')}</Button>
+            {!inviteResult && <Button onClick={submitInvite} disabled={inviteSubmitting}>{t('account.team.confirmAdd')}</Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -440,15 +569,19 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editTarget ? `编辑：${editTarget.user.email}` : '编辑成员'}</DialogTitle>
+            <DialogTitle>{editTarget ? tpl('account.team.editTitleWithEmail', editTarget.user.email) : t('account.team.editTitle')}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
             <div className="grid gap-2">
-              <label className="text-sm font-medium">显示名称</label>
+              <label className="text-sm font-medium">{t('account.team.loginAccount')}</label>
+              <Input value={editForm.email} onChange={e => setEditForm({ ...editForm, email: e.target.value })} placeholder="member@example.com" />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">{t('account.team.displayName')}</label>
               <Input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-medium">角色</label>
+              <label className="text-sm font-medium">{t('account.team.role')}</label>
               <Select value={editForm.role} onValueChange={(v: any) => {
                 setEditForm({ ...editForm, role: v, can_serve_live_chat: v === 'viewer' ? false : editForm.can_serve_live_chat })
               }}>
@@ -461,50 +594,54 @@ export function TeamMembersPanel({ embedded = false }: { embedded?: boolean }) {
               </Select>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-medium">重置密码（可选）</label>
-              <Input type="password" value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })} placeholder="留空则不修改密码" />
+              <label className="text-sm font-medium">{t('account.team.resetPasswordOptional')}</label>
+              <PasswordInput value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })} placeholder={t('account.team.resetPasswordPlaceholder')} />
             </div>
-            
+            {editForm.role !== 'owner' && (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">{t('account.team.leftMenuPermissions')}</label>
+                <div className="tm-permission-grid">
+                  {menuOptions.map(opt => (
+                    <label key={opt.id} className="tm-permission-item">
+                      <Checkbox
+                        checked={editForm.menu_permissions.includes(opt.id)}
+                        onCheckedChange={v => toggleEditMenu(opt.id, v === true)}
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <small className="hint">{t('account.team.menuPermissionsHint')}</small>
+              </div>
+            )}
+
             {editForm.role !== 'viewer' && (
               <>
                 <div className="flex items-center gap-4 my-2">
                   <div className="flex-1 h-px bg-[var(--xiaoone-border)]"></div>
-                  <span className="text-xs text-[var(--xiaoone-fg-mute)] font-medium">客户咨询</span>
+                  <span className="text-xs text-[var(--xiaoone-fg-mute)] font-medium">{t('account.team.liveChatSection')}</span>
                   <div className="flex-1 h-px bg-[var(--xiaoone-border)]"></div>
                 </div>
-                
+
                 <div className="grid gap-2">
-                  <label className="text-sm font-medium">接待客户咨询</label>
+                  <label className="text-sm font-medium">{t('account.team.serveLiveChat')}</label>
                   <div className="flex items-center space-x-2">
                     <Switch checked={editForm.can_serve_live_chat} onCheckedChange={v => setEditForm({ ...editForm, can_serve_live_chat: v })} />
-                    <span className="text-sm">{editForm.can_serve_live_chat ? '开启' : '关闭'}</span>
+                    <span className="text-sm">{editForm.can_serve_live_chat ? t('account.team.on') : t('account.team.off')}</span>
                   </div>
-                  <small className="hint">开启后同步到客服系统，可在会话中作为可指派客服出现。</small>
+                  <small className="hint">{t('account.team.liveChatHint')}</small>
                 </div>
-                
+
                 <div className="grid gap-2">
-                  <label className="text-sm font-medium">并发会话上限</label>
+                  <label className="text-sm font-medium">{t('account.team.concurrentLimit')}</label>
                   <InputNumber value={editForm.kefu_max_concurrent} onChange={v => setEditForm({ ...editForm, kefu_max_concurrent: v || 5 })} min={1} max={50} />
-                </div>
-                
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">技能组</label>
-                  <Select value={editForm.kefu_skill_ids.join(',')} onValueChange={(val) => {
-                    const ids = val ? val.split(',').map(Number) : []
-                    setEditForm({ ...editForm, kefu_skill_ids: ids })
-                  }}>
-                    <SelectTrigger><SelectValue placeholder="可选" /></SelectTrigger>
-                    <SelectContent>
-                      {skills.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
                 </div>
               </>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>取消</Button>
-            <Button onClick={submitEdit} disabled={editSubmitting}>保存</Button>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>{t('account.common.cancel')}</Button>
+            <Button onClick={submitEdit} disabled={editSubmitting}>{t('account.common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

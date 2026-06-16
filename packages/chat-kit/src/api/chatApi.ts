@@ -35,6 +35,43 @@ export { assignDefined } from '../types/live'
 export function createChatApiClient(api: AxiosInstance) {
   const BASE = '/api/v1/chat'
 
+  interface VisitorHandshakePayload {
+    merchant_id?: number
+    app_id?: string
+    api_key?: string
+    app_secret?: string
+    sdk_key?: string
+    store_id?: string | number
+    store_name?: string
+    visitor_name?: string
+    visitor_email?: string
+    visitor_key?: string
+    external_user_id?: string
+    external_user_name?: string
+    external_user_email?: string
+    locale?: string
+    channel?: LiveChannel
+    subject?: string
+  }
+
+  interface VisitorMessagePayload {
+    conversation: string
+    token: string
+    content?: string
+    attachment_id?: string
+    client_message_id?: string
+  }
+
+  interface VisitorSdkAppearance {
+    theme: 'auto' | 'light' | 'dark' | 'brand' | string
+    primary_color: string
+    bubble_position: string
+    welcome_message: string
+    status_waiting_label?: string
+    status_active_label?: string
+    status_closed_label?: string
+  }
+
   const ChatAPI = {
     conversations: async (params: {
       state?: LiveState
@@ -62,6 +99,14 @@ export function createChatApiClient(api: AxiosInstance) {
     },
     close: async (id: string) => {
       const r = await api.post(`${BASE}/conversations/${id}/close/`, {})
+      return r.data?.data
+    },
+    blockVisitor: async (id: string, payload: { reason?: string } = {}) => {
+      const r = await api.post(`${BASE}/conversations/${id}/block-visitor/`, payload)
+      return r.data?.data
+    },
+    unblockVisitor: async (id: string) => {
+      const r = await api.post(`${BASE}/conversations/${id}/unblock-visitor/`, {})
       return r.data?.data
     },
     send: async (
@@ -95,7 +140,7 @@ export function createChatApiClient(api: AxiosInstance) {
       }
     },
     aiSuggestReply: async (id: string) => {
-      const r = await api.post(`${BASE}/conversations/${id}/ai-suggest-reply/`, {})
+      const r = await api.post(`${BASE}/conversations/${id}/ai-suggest-reply/`, {}, { timeout: 90_000 })
       return r.data?.data as {
         conversation: string
         suggestion: string
@@ -104,7 +149,8 @@ export function createChatApiClient(api: AxiosInstance) {
         model: string
         reply_language?: string
         reply_language_label?: string
-        is_mock: boolean
+        degraded?: boolean
+        warning?: Record<string, any>
       }
     },
     translateMessage: async (conversationId: string, messageId: string, payload: { target_language?: string; agent_language?: string } = {}) => {
@@ -123,42 +169,28 @@ export function createChatApiClient(api: AxiosInstance) {
       }
     },
     aiSummary: async (id: string) => {
-      const r = await api.post(`${BASE}/conversations/${id}/ai-summary/`, {})
-      return r.data?.data as { conversation: string; summary: string; model: string; is_mock: boolean }
+      const r = await api.post(`${BASE}/conversations/${id}/ai-summary/`, {}, { timeout: 90_000 })
+      return r.data?.data as { conversation: string; summary: string; model: string }
     },
     onlineAgents: async () => {
       const r = await api.get(`${BASE}/agents/online/`)
       return r.data?.data?.items as Array<{ user_id: number; display_name: string; status: string }>
     },
-  }
-
-  const C_BASE = '/api/v1/channels'
-
-  const ChannelsAPI = {
-    list: async (params: { provider?: ChannelProvider } = {}) => {
-      const r = await api.get<PageEnvelope<ChannelAccount>>(`${C_BASE}/accounts/`, { params })
-      return r.data
+    visitorHandshake: async (payload: VisitorHandshakePayload) => {
+      const r = await api.post(`${BASE}/visitor/handshake/`, payload)
+      return r.data?.data as {
+        visitor: Record<string, any>
+        visitor_token: string
+        visitor_key: string
+        conversation: LiveConversation
+        sdk_appearance?: VisitorSdkAppearance
+      }
     },
-    create: async (payload: Partial<ChannelAccount>) => {
-      const r = await api.post<ChannelAccount>(`${C_BASE}/accounts/`, payload)
-      return r.data
-    },
-    update: async (id: string, payload: Partial<ChannelAccount>) => {
-      const r = await api.patch<ChannelAccount>(`${C_BASE}/accounts/${id}/`, payload)
-      return r.data
-    },
-    destroy: async (id: string) => {
-      await api.delete(`${C_BASE}/accounts/${id}/`)
-    },
-    rotateToken: async (id: string) => {
-      const r = await api.post<ChannelAccount>(`${C_BASE}/accounts/${id}/rotate_token/`, {})
-      return r.data
-    },
-    simulateInbound: async (id: string, content: string, from = '') => {
-      const r = await api.post(`${C_BASE}/accounts/${id}/simulate_inbound/`, { content, from })
-      return r.data
+    visitorSend: async (payload: VisitorMessagePayload) => {
+      const r = await api.post(`${BASE}/visitor/messages/`, payload)
+      return r.data?.data as Record<string, any>
     },
   }
 
-  return { ChatAPI, ChannelsAPI }
+  return { ChatAPI }
 }

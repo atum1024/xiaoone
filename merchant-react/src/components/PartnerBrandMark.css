@@ -1,0 +1,29 @@
+.partner-brand-mark {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--partner-brand-color, var(--xiaoone-accent)) 26%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--partner-brand-color, var(--xiaoone-accent)) 10%, var(--xiaoone-bg-elev));
+  color: var(--partner-brand-color, var(--xiaoone-accent));
+}
+
+.partner-brand-mark svg {
+  color: currentColor;
+}
+
+.partner-brand-mark img {
+  width: 70%;
+  height: 70%;
+  display: block;
+  object-fit: contain;
+}
+
+.partner-brand-mark--sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+}

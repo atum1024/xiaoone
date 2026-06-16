@@ -1,34 +1,95 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, type CSSProperties } from 'react'
 import {
+  Badge,
   Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
-  Badge, DataTable, Pagination, Empty, toast, Progress
+  DataTable, Pagination, Empty, toast, Progress
 } from '@xiaoone/react-ui'
 import { APageHeader } from './APageHeader'
-import { BillingAPI, type UsageEvent, type UsageSummary, type WalletSummary } from '../../lib/billingApi'
+import {
+  BillingAPI,
+  type ModelCostRate,
+  type UsageEvent,
+  type UsageSummary,
+  type WalletSummary,
+} from '../../lib/billingApi'
+import { usePreferences } from '../../app/preferences'
 import './usage-panel.css'
 
-const OP_LABEL: Record<string, string> = {
-  dispatch: '聊天 (非流式)',
-  stream: '聊天 (流式)',
-  translate: '翻译',
-  suggest: '建议',
-  persona: '人设',
-}
-
-const DOMAIN_LABEL: Record<string, string> = {
-  marketing: '营销',
-  support: '支持',
-  agency: '代理',
-  kefu: '客服',
-  general: '通用',
-}
-
-function fmtAmount(a: string | number) {
+function fmtAmount(a: string | number, pointsLabel: string) {
   const n = Number(a || 0)
-  return `¥${n.toFixed(4)}`
+  return `${n.toLocaleString()} ${pointsLabel}`
+}
+
+function fmtTokens(value?: string | number | null): string {
+  const n = Number(value ?? 0)
+  if (!Number.isFinite(n) || n <= 0)
+    return '—'
+  return n >= 1000 ? Math.round(n).toLocaleString('zh-CN') : n.toFixed(2)
+}
+
+function numeric(value?: string | number | null): number {
+  const n = Number(value ?? 0)
+  return Number.isFinite(n) ? n : 0
+}
+
+function pricingMeta(
+  p: ModelCostRate,
+  t: (key: string) => string,
+  tpl: (key: string, ...parts: string[]) => string,
+): { title: string; detail: string } {
+  if (numeric(p.tool_price) > 0) {
+    const unit = p.model.toLowerCase().includes('seedream')
+      ? t('account.usage.mediaUnitImage')
+      : t('account.usage.mediaUnitTimes')
+    const loadedCost = numeric(p.tool_price)
+      * numeric(p.exchange_rate || '1')
+      * (1 + numeric(p.channel_cost_rate) + numeric(p.risk_loss_rate))
+    const sale = loadedCost * numeric(p.markup_multiplier)
+    const points = Math.ceil(sale * 1000 - 1e-9)
+    return {
+      title: tpl('account.usage.pricingPointsPerUnit', points.toLocaleString('zh-CN'), unit),
+      detail: tpl(
+        'account.usage.pricingCostSale',
+        fmtCny(loadedCost),
+        unit,
+        fmtCny(sale),
+        unit,
+      ),
+    }
+  }
+  return {
+    title: tpl('account.usage.pricingTokensPerCny', fmtTokens(p.tokens_per_cny_blended)),
+    detail: tpl('account.usage.pricingInOut', fmtTokens(p.tokens_per_cny_input), fmtTokens(p.tokens_per_cny_output)),
+  }
+}
+
+function fmtCny(value: number): string {
+  if (!Number.isFinite(value) || value <= 0)
+    return '—'
+  return `¥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
 }
 
 export function UsagePanel() {
+  const { t, tpl, locale } = usePreferences()
+  const localeTag = locale === 'zh' ? 'zh-CN' : 'en-US'
+  const pointsLabel = t('account.common.points')
+
+  const OP_LABEL = useMemo(() => ({
+    dispatch: t('account.usage.opDispatch'),
+    stream: t('account.usage.opStream'),
+    translate: t('account.usage.opTranslate'),
+    suggest: t('account.usage.opSuggest'),
+    persona: t('account.usage.opPersona'),
+  }), [t])
+
+  const DOMAIN_LABEL = useMemo(() => ({
+    marketing: t('account.usage.domainMarketing'),
+    support: t('account.usage.domainSupport'),
+    agency: t('account.usage.domainAgency'),
+    kefu: t('account.usage.domainKefu'),
+    general: t('account.usage.domainGeneral'),
+  }), [t])
+
   const [wallet, setWallet] = useState<WalletSummary | null>(null)
   const [summary, setSummary] = useState<UsageSummary | null>(null)
   const [events, setEvents] = useState<UsageEvent[]>([])
@@ -38,6 +99,7 @@ export function UsagePanel() {
   const [filterOp, setFilterOp] = useState<string>('all')
   const [filterDomain, setFilterDomain] = useState<string>('all')
   const [loading, setLoading] = useState(false)
+  const [pricing, setPricing] = useState<ModelCostRate[]>([])
 
   const trendMaxTokens = useMemo(() => {
     if (!summary?.last_7_days?.length) return 1
@@ -47,7 +109,7 @@ export function UsagePanel() {
   const loadAll = async () => {
     setLoading(true)
     try {
-      const [w, s, list] = await Promise.all([
+      const [w, s, list, pricingResp] = await Promise.all([
         BillingAPI.wallet(),
         BillingAPI.summary(),
         BillingAPI.usageList({
@@ -56,13 +118,15 @@ export function UsagePanel() {
           page,
           page_size: pageSize,
         }),
+        BillingAPI.pricing(),
       ])
       setWallet(w)
       setSummary(s)
       setEvents(list.items)
       setTotal(list.total)
+      setPricing(pricingResp.items)
     } catch (e: any) {
-      toast({ title: '加载失败', description: e?.message || '未知错误' })
+      toast({ title: t('account.common.loadFailed'), description: e?.message || t('account.common.unknownError') })
     } finally {
       setLoading(false)
     }
@@ -72,23 +136,22 @@ export function UsagePanel() {
     loadAll()
   }, [filterOp, filterDomain, page, pageSize])
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       key: 'created_at',
-      title: '时间',
+      title: t('account.billing.colTime'),
       width: 160,
-      render: (row: UsageEvent) => <span className="text-[var(--xiaoone-fg-mute)]">{new Date(row.created_at).toLocaleString('zh-CN', { hour12: false })}</span>
+      render: (row: UsageEvent) => <span className="text-[var(--xiaoone-fg-mute)]">{new Date(row.created_at).toLocaleString(localeTag, { hour12: false })}</span>
     },
     {
       key: 'model_op',
-      title: '模型 / 操作',
+      title: t('account.usage.colModelOp'),
       render: (row: UsageEvent) => (
         <div>
           <div>
             <strong>{row.model}</strong>
-            {row.is_mock && <Badge variant="outline" className="ml-2 text-[10px] text-amber-600 border-amber-200 bg-amber-50 h-5">MOCK</Badge>}
           </div>
-          <div className="text-[var(--xiaoone-fg-mute)]">{OP_LABEL[row.operation] || row.operation} · {DOMAIN_LABEL[row.domain] || row.domain}</div>
+          <div className="text-[var(--xiaoone-fg-mute)]">{OP_LABEL[row.operation as keyof typeof OP_LABEL] || row.operation} · {DOMAIN_LABEL[row.domain as keyof typeof DOMAIN_LABEL] || row.domain}</div>
         </div>
       )
     },
@@ -99,56 +162,45 @@ export function UsagePanel() {
       render: (row: UsageEvent) => (
         <div>
           <span>{row.total_tokens.toLocaleString()}</span>
-          <div className="text-[var(--xiaoone-fg-mute)]">输入 {row.prompt_tokens} · 输出 {row.completion_tokens}</div>
+          <div className="text-[var(--xiaoone-fg-mute)]">{tpl('account.usage.inputOutput', String(row.prompt_tokens), String(row.completion_tokens))}</div>
         </div>
       )
     },
     {
       key: 'amount',
-      title: '金额',
+      title: t('account.usage.colPlatformPoints'),
       width: 120,
-      render: (row: UsageEvent) => <strong>{fmtAmount(row.amount)}</strong>
+      render: (row: UsageEvent) => <strong>{fmtAmount(row.points_charged, pointsLabel)}</strong>
     },
-    {
-      key: 'is_demo',
-      title: '状态',
-      width: 80,
-      render: (row: UsageEvent) => (
-        <Badge variant="outline" className={`rounded-full ${row.is_demo ? 'text-amber-500 border-amber-200' : 'text-green-500 border-green-200'}`}>
-          {row.is_demo ? '示例' : '实际'}
-        </Badge>
-      )
-    },
-  ]
+  ], [DOMAIN_LABEL, OP_LABEL, localeTag, pointsLabel, t, tpl])
 
   return (
     <section className="apage">
       <APageHeader
-        group="Token 用量"
-        title="AI 调用明细"
-        description="所有 AI 调用的 Token 消耗与计费明细 · 数据来自 ai → billing 自动上报。"
+        title={t('account.usage.title')}
+        description={t('account.usage.description')}
         iconName="sparkles"
-        service="billing service"
-        actions={<Button size="sm" onClick={loadAll} disabled={loading}>刷新</Button>}
+        compact
+        actions={<Button size="sm" onClick={loadAll} disabled={loading}>{t('account.common.refresh')}</Button>}
       />
 
       <div className="apage-body">
         {wallet && (
           <div className="overview-grid">
             <div className="ov-card balance">
-              <div className="ov-label">余额</div>
-              <div className="ov-value">¥{Number(wallet.wallet.balance).toFixed(2)}</div>
-              <div className="ov-foot">{wallet.wallet.currency} · 已充值 ¥{Number(wallet.wallet.total_topup).toFixed(2)}</div>
+              <div className="ov-label">{t('account.usage.balance')}</div>
+              <div className="ov-value">{Number(wallet.wallet.balance_points).toLocaleString()}</div>
+              <div className="ov-foot">{wallet.wallet.currency} · {tpl('account.usage.purchased', Number(wallet.wallet.purchased_points).toLocaleString())}</div>
             </div>
             <div className="ov-card">
-              <div className="ov-label">30 天 Token</div>
+              <div className="ov-label">{t('account.usage.tokens30d')}</div>
               <div className="ov-value">{wallet.tokens_30d.toLocaleString()}</div>
-              <div className="ov-foot">调用 {wallet.calls_30d} 次</div>
+              <div className="ov-foot">{tpl('account.usage.calls30d', String(wallet.calls_30d))}</div>
             </div>
             <div className="ov-card">
-              <div className="ov-label">30 天扣费</div>
-              <div className="ov-value">¥{Number(wallet.amount_30d).toFixed(4)}</div>
-              <div className="ov-foot">总扣费 ¥{Number(wallet.wallet.total_charge).toFixed(4)}</div>
+              <div className="ov-label">{t('account.usage.spent30d')}</div>
+              <div className="ov-value">{Number(wallet.points_30d).toLocaleString()} {pointsLabel}</div>
+              <div className="ov-foot">{tpl('account.usage.totalSpent', Number(wallet.wallet.spent_points).toLocaleString())}</div>
             </div>
           </div>
         )}
@@ -156,45 +208,45 @@ export function UsagePanel() {
         {summary && (
           <div className="dist-grid">
             <div className="dist-card">
-              <div className="dist-title">最近 7 天 · Token 消耗</div>
+              <div className="dist-title">{t('account.usage.trendTitle')}</div>
               <div className="trend">
                 {(summary.last_7_days || []).map(d => (
-                  <div key={d.date} className="trend-bar">
-                    <div
-                      className="bar"
-                      style={{ height: `${Math.max(6, (d.tokens / trendMaxTokens) * 100)}%` }}
-                      title={`${d.tokens.toLocaleString()} tokens · ${fmtAmount(d.amount)}`}
-                    />
+	                  <div key={d.date} className="trend-bar">
+	                    <div
+	                      className="bar"
+	                      style={{ '--trend-ratio': String(Math.max(0.05, d.tokens / trendMaxTokens)) } as CSSProperties}
+	                      title={tpl('account.usage.trendTooltip', d.tokens.toLocaleString(), fmtAmount(d.points, pointsLabel))}
+	                    />
                     <small>{d.date.slice(5)}</small>
                   </div>
                 ))}
               </div>
             </div>
             <div className="dist-card">
-              <div className="dist-title">按模型</div>
+              <div className="dist-title">{t('account.usage.byModel')}</div>
               <ul className="dist-list">
                 {(summary.by_model || []).map(m => (
                   <li key={m.model}>
                     <div className="dist-line">
                       <strong>{m.model}</strong>
-                      <span>{m.tokens.toLocaleString()} tk · {fmtAmount(m.amount)}</span>
+                      <span>{tpl('account.usage.modelLine', m.tokens.toLocaleString(), fmtAmount(m.points, pointsLabel))}</span>
                     </div>
                     <Progress value={Math.round((m.tokens / (summary.by_model[0]?.tokens || 1)) * 100)} className="h-1.5" />
                   </li>
                 ))}
                 {(!summary.by_model || summary.by_model.length === 0) && (
-                  <Empty description="暂无数据" className="mt-4" />
+                  <Empty description={t('account.common.noData')} className="mt-4" />
                 )}
               </ul>
             </div>
             <div className="dist-card">
-              <div className="dist-title">按业务</div>
+              <div className="dist-title">{t('account.usage.byDomain')}</div>
               <ul className="dist-list">
                 {(summary.by_domain || []).map(d => (
                   <li key={d.domain}>
                     <div className="dist-line">
-                      <strong>{DOMAIN_LABEL[d.domain] || d.domain}</strong>
-                      <span>{d.calls} 次 · {d.tokens.toLocaleString()} tk</span>
+                      <strong>{DOMAIN_LABEL[d.domain as keyof typeof DOMAIN_LABEL] || d.domain}</strong>
+                      <span>{tpl('account.usage.domainLine', String(d.calls), d.tokens.toLocaleString())}</span>
                     </div>
                     <Progress value={Math.round((d.tokens / (summary.by_domain[0]?.tokens || 1)) * 100)} className="h-1.5 [&>div]:bg-green-500" />
                   </li>
@@ -204,32 +256,58 @@ export function UsagePanel() {
           </div>
         )}
 
+        {pricing.length > 0 && (
+          <div className="pricing-card">
+            <div className="pricing-head">
+              <strong>{t('account.usage.pricingTitle')}</strong>
+              <small>{t('account.usage.pricingDesc')}</small>
+            </div>
+            <div className="pricing-grid">
+              {pricing.map((p) => {
+                const meta = pricingMeta(p, t, tpl)
+                return (
+                  <div key={p.model} className="pricing-item">
+                    <div className="model-row">
+                      <strong>{p.display_name}</strong>
+                      <Badge variant="outline" className="rounded-full text-xs font-normal">{p.provider}</Badge>
+                    </div>
+                    <div className="model-meta model-meta--stack">
+                      <span>{meta.title}</span>
+                      <span>{meta.detail}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="table-wrap">
           <div className="table-head">
-            <strong>调用明细</strong>
+            <strong>{t('account.usage.details')}</strong>
             <div className="filters">
               <Select value={filterOp} onValueChange={v => { setFilterOp(v); setPage(1); }}>
                 <SelectTrigger className="w-[130px] h-8 text-sm">
-                  <SelectValue placeholder="操作类型" />
+                  <SelectValue placeholder={t('account.usage.opPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">全部操作</SelectItem>
+                  <SelectItem value="all">{t('account.usage.allOps')}</SelectItem>
                   {Object.entries(OP_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Select value={filterDomain} onValueChange={v => { setFilterDomain(v); setPage(1); }}>
                 <SelectTrigger className="w-[110px] h-8 text-sm">
-                  <SelectValue placeholder="业务" />
+                  <SelectValue placeholder={t('account.usage.domainPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">全部业务</SelectItem>
+                  <SelectItem value="all">{t('account.usage.allDomains')}</SelectItem>
                   {Object.entries(DOMAIN_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
           
-          <DataTable columns={columns} data={events} rowKey={r => String(r.id)} emptyText={loading ? '加载中...' : '暂无调用记录'} />
+          <DataTable columns={columns} data={events} rowKey={r => String(r.id)} emptyText={loading ? t('account.common.loading') : t('account.usage.noRecords')} />
           
           <div className="flex justify-end mt-4">
             <Pagination

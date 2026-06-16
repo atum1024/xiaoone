@@ -1,0 +1,107 @@
+.membership-gate {
+  --xiaoone-bg: oklch(98% 0.006 264);
+  --xiaoone-bg-soft: oklch(100% 0.004 264);
+  --xiaoone-bg-elev: oklch(100% 0.004 264 / 0.82);
+  --xiaoone-bg-hover: oklch(95% 0.018 264);
+  --xiaoone-border: oklch(88% 0.018 264);
+  --xiaoone-border-soft: oklch(90% 0.015 264 / 0.74);
+  --xiaoone-fg: oklch(18% 0.02 264);
+  --xiaoone-fg-soft: oklch(30% 0.025 264);
+  --xiaoone-fg-mute: oklch(52% 0.035 264);
+  --xiaoone-fg-faint: oklch(66% 0.025 264);
+  --xiaoone-accent: oklch(55% 0.22 276);
+  --xiaoone-accent-2: oklch(60% 0.20 276);
+  --xiaoone-accent-bg: oklch(55% 0.22 276 / 0.1);
+  --xiaoone-accent-contrast: oklch(99% 0.004 276);
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, oklch(98% 0.006 264) 0%, oklch(95% 0.015 255) 48%, oklch(98% 0.006 264) 100%);
+  color: oklch(18% 0.02 264);
+  display: flex;
+  flex-direction: column;
+  color-scheme: light;
+}
+
+.membership-gate__bar {
+  min-height: 68px;
+  border-bottom: 1px solid oklch(88% 0.018 264 / 0.72);
+  background: oklch(100% 0.004 264 / 0.76);
+  backdrop-filter: blur(22px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 clamp(16px, 4vw, 44px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.membership-gate__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.membership-gate__brand div {
+  display: grid;
+  gap: 1px;
+}
+
+.membership-gate__mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--xiaoone-panel-radius);
+  display: grid;
+  place-items: center;
+  background: oklch(55% 0.22 276);
+  color: oklch(99% 0.004 276);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 12px 28px oklch(55% 0.22 276 / 0.22);
+}
+
+.membership-gate__bar strong {
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+.membership-gate__bar span {
+  font-size: 12px;
+  color: oklch(52% 0.035 264);
+}
+
+.membership-gate__main {
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+}
+
+.membership-gate .apage {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+}
+
+@media (max-width: 640px) {
+  .membership-gate__bar {
+    min-height: 60px;
+    padding: 0 14px;
+  }
+
+  .membership-gate__main {
+    padding: 18px 12px 36px;
+  }
+
+  .membership-gate__mark {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--xiaoone-control-radius);
+    font-size: 15px;
+  }
+}

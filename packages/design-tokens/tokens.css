@@ -8,42 +8,101 @@
     'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
   --xiaoone-font-mono: 'SF Mono', ui-monospace, Menlo, Monaco, 'PingFang SC', monospace;
 
+  /* 圆角阶梯 */
   --xiaoone-r-sm: 8px;
   --xiaoone-r-md: 12px;
   --xiaoone-r-lg: 16px;
   --xiaoone-r-xl: 20px;
   --xiaoone-r-pill: 999px;
 
-  --xiaoone-bg: #0a0c10;
-  --xiaoone-bg-soft: #11141b;
-  --xiaoone-bg-elev: #161a22;
-  --xiaoone-bg-hover: rgba(255, 255, 255, 0.045);
-  --xiaoone-bg-active: rgba(56, 146, 255, 0.16);
-  --xiaoone-border: rgba(255, 255, 255, 0.085);
+  /* 背景层级 */
+  --xiaoone-bg: oklch(16% 0.022 264);
+  --xiaoone-bg-soft: oklch(20% 0.022 264);
+  --xiaoone-bg-elev: oklch(23% 0.022 264);
+  --xiaoone-surface: oklch(23% 0.022 264); /* alias for bg-elev */
+
+  /* 交互态背景 */
+  --xiaoone-bg-hover: rgba(255, 255, 255, 0.05);
+  --xiaoone-bg-active: rgba(99, 102, 241, 0.18);
+
+  /* 边框 */
+  --xiaoone-border: rgba(255, 255, 255, 0.09);
   --xiaoone-border-soft: rgba(255, 255, 255, 0.055);
   --xiaoone-border-strong: rgba(148, 163, 184, 0.35);
-  --xiaoone-fg: #f1f4f8;
-  --xiaoone-fg-soft: #d1d9e4;
-  --xiaoone-fg-mute: #94a3b8;
-  --xiaoone-fg-faint: #64748b;
-  --xiaoone-accent: #3d94ff;
-  --xiaoone-accent-2: #8b6bff;
-  --xiaoone-accent-3: #f0b429;
-  --xiaoone-accent-rose: #ff6b6b;
-  --xiaoone-accent-soft: rgba(61, 148, 255, 0.5);
-  --xiaoone-accent-bg: rgba(61, 148, 255, 0.14);
+
+  /* 文本色 */
+  --xiaoone-fg: oklch(97% 0.006 264);
+  --xiaoone-fg-soft: oklch(85% 0.02 264);
+  --xiaoone-fg-mute: oklch(70% 0.025 264);
+  --xiaoone-fg-faint: oklch(58% 0.03 264);
+
+  /* 品牌主色 (Indigo) */
+  --xiaoone-accent: #6366f1;
+  --xiaoone-accent-hover: #818cf8;
+  --xiaoone-accent-2: #818cf8;
+  --xiaoone-accent-fg: oklch(98.5% 0.006 265);
+  --xiaoone-accent-text: var(--xiaoone-accent);
+  --xiaoone-accent-soft: rgba(99, 102, 241, 0.50);
+  --xiaoone-accent-bg: rgba(99, 102, 241, 0.18);
+  --xiaoone-accent-rose: #ff6b6b; /* legacy */
+
+  /* 语义色 */
+  --xiaoone-info: #22d3ee; /* cyan */
+  --xiaoone-support: #2dd4bf; /* teal */
+  --xiaoone-success: #34d399; /* emerald */
+  --xiaoone-success-bg: rgba(52, 211, 153, 0.14);
+  --xiaoone-price: #fb923c; /* orange */
+
   --xiaoone-warning: #e8b14a;
   --xiaoone-warning-bg: rgba(240, 180, 41, 0.1);
   --xiaoone-warning-border: rgba(240, 180, 41, 0.28);
+
   --xiaoone-danger: #f87171;
-  --xiaoone-success: #34d399;
-  --xiaoone-info: #38bdf8;
+  --xiaoone-danger-bg: rgba(248, 113, 113, 0.14);
+  --xiaoone-danger-border: rgba(248, 113, 113, 0.28);
+
+  /* 阴影 */
   --xiaoone-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 28px rgba(0, 0, 0, 0.42);
   --xiaoone-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
   --xiaoone-shadow-composer: 0 12px 40px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  /* 动效 */
+  --xiaoone-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --xiaoone-motion-fast: 150ms;
+  --xiaoone-motion-base: 220ms;
+  --xiaoone-motion-enter: 450ms;
+
+  /* 玻璃（product 层） */
+  --xiaoone-glass-bg: rgba(15, 23, 42, 0.72);
+  --xiaoone-glass-border: rgba(226, 232, 240, 0.14);
+  --xiaoone-glass-blur: 24px;
+  --xiaoone-glass-shadow: 0 24px 60px rgba(2, 6, 23, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --xiaoone-layer-overlay: rgba(2, 6, 23, 0.55);
+
+  /* 光晕基色 */
+  --xiaoone-glow-indigo: rgba(99, 102, 241, 0.20);
+  --xiaoone-glow-cyan: rgba(34, 211, 238, 0.14);
+  --xiaoone-glow-teal: rgba(45, 212, 191, 0.12);
+
+  /* 布局参数 */
   --xiaoone-header-h: 56px;
   --xiaoone-page-pad-x: 28px;
   --xiaoone-page-pad-y: 20px;
+
+  /* 产品 UI 控件体系 */
+  --xiaoone-control-radius: var(--xiaoone-r-sm);
+  --xiaoone-control-h-sm: 32px;
+  --xiaoone-control-h-md: 38px;
+  --xiaoone-control-h-lg: 44px;
+  --xiaoone-control-pad-sm: 10px;
+  --xiaoone-control-pad-md: 14px;
+  --xiaoone-control-pad-lg: 18px;
+  --xiaoone-panel-radius: var(--xiaoone-r-md);
+  --xiaoone-dialog-radius: var(--xiaoone-r-lg);
+  --xiaoone-focus-ring: 0 0 0 2px color-mix(in srgb, var(--xiaoone-accent-soft) 44%, transparent);
+  --xiaoone-shadow-popover: 0 18px 42px rgba(0, 0, 0, 0.34);
+  --xiaoone-shadow-dialog: 0 24px 70px rgba(0, 0, 0, 0.46);
+
   color-scheme: dark;
 }
 
@@ -51,41 +110,101 @@
   --xiaoone-font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
     'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
   --xiaoone-font-mono: 'SF Mono', ui-monospace, Menlo, Monaco, 'PingFang SC', monospace;
+
+  /* 圆角阶梯 */
   --xiaoone-r-sm: 8px;
   --xiaoone-r-md: 12px;
   --xiaoone-r-lg: 16px;
   --xiaoone-r-xl: 20px;
   --xiaoone-r-pill: 999px;
 
-  --xiaoone-bg: #fafafa;
-  --xiaoone-bg-soft: #f4f5f7;
+  /* 背景层级 */
+  --xiaoone-bg: #f8fafc;
+  --xiaoone-bg-soft: #f1f5f9;
   --xiaoone-bg-elev: #ffffff;
-  --xiaoone-bg-hover: rgba(15, 23, 42, 0.04);
-  --xiaoone-bg-active: rgba(0, 122, 255, 0.1);
-  --xiaoone-border: rgba(15, 23, 42, 0.08);
-  --xiaoone-border-soft: rgba(15, 23, 42, 0.05);
-  --xiaoone-border-strong: rgba(100, 116, 139, 0.35);
+  --xiaoone-surface: #ffffff;
+
+  /* 交互态背景 */
+  --xiaoone-bg-hover: rgba(79, 70, 229, 0.06);
+  --xiaoone-bg-active: rgba(79, 70, 229, 0.10);
+
+  /* 边框 */
+  --xiaoone-border: rgba(15, 23, 42, 0.10);
+  --xiaoone-border-soft: rgba(15, 23, 42, 0.06);
+  --xiaoone-border-strong: rgba(15, 23, 42, 0.16);
+
+  /* 文本色 */
   --xiaoone-fg: #0f172a;
   --xiaoone-fg-soft: #334155;
   --xiaoone-fg-mute: #64748b;
   --xiaoone-fg-faint: #94a3b8;
-  --xiaoone-accent: #0071e3;
-  --xiaoone-accent-2: #5856d6;
-  --xiaoone-accent-3: #c48a00;
-  --xiaoone-accent-rose: #e11d48;
-  --xiaoone-accent-soft: rgba(0, 113, 227, 0.38);
-  --xiaoone-accent-bg: rgba(0, 113, 227, 0.1);
-  --xiaoone-warning: #b45309;
+
+  /* 品牌主色 (Indigo) */
+  --xiaoone-accent: #4f46e5;
+  --xiaoone-accent-hover: #4338ca;
+  --xiaoone-accent-2: #6366f1;
+  --xiaoone-accent-fg: oklch(98.5% 0.006 265);
+  --xiaoone-accent-text: var(--xiaoone-accent);
+  --xiaoone-accent-soft: rgba(79, 70, 229, 0.34);
+  --xiaoone-accent-bg: rgba(79, 70, 229, 0.10);
+  --xiaoone-accent-rose: #e11d48; /* legacy */
+
+  /* 语义色 */
+  --xiaoone-info: #0891b2; /* cyan */
+  --xiaoone-support: #0d9488; /* teal */
+  --xiaoone-success: #059669; /* emerald */
+  --xiaoone-success-bg: rgba(5, 150, 105, 0.10);
+  --xiaoone-price: #ea580c; /* orange */
+
+  --xiaoone-warning: #d97706;
   --xiaoone-warning-bg: rgba(245, 158, 11, 0.12);
   --xiaoone-warning-border: rgba(217, 119, 6, 0.28);
+
   --xiaoone-danger: #dc2626;
-  --xiaoone-success: #059669;
-  --xiaoone-info: #0284c7;
+  --xiaoone-danger-bg: rgba(220, 38, 38, 0.10);
+  --xiaoone-danger-border: rgba(220, 38, 38, 0.28);
+
+  /* 阴影 */
   --xiaoone-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px rgba(15, 23, 42, 0.05);
   --xiaoone-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.06);
   --xiaoone-shadow-composer: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04),
     0 8px 28px rgba(15, 23, 42, 0.06);
+
+  /* 动效 */
+  --xiaoone-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --xiaoone-motion-fast: 150ms;
+  --xiaoone-motion-base: 220ms;
+  --xiaoone-motion-enter: 450ms;
+
+  /* 玻璃（product 层） */
+  --xiaoone-glass-bg: rgba(255, 255, 255, 0.55);
+  --xiaoone-glass-border: rgba(255, 255, 255, 0.60);
+  --xiaoone-glass-blur: 24px;
+  --xiaoone-glass-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), 0 16px 42px rgba(79, 70, 229, 0.10);
+  --xiaoone-layer-overlay: rgba(15, 23, 42, 0.40);
+
+  /* 光晕基色 */
+  --xiaoone-glow-indigo: rgba(79, 70, 229, 0.14);
+  --xiaoone-glow-cyan: rgba(8, 145, 178, 0.10);
+  --xiaoone-glow-teal: rgba(13, 148, 136, 0.10);
+
+  /* 布局参数 */
   --xiaoone-page-pad-x: 28px;
   --xiaoone-page-pad-y: 20px;
+
+  /* 产品 UI 控件体系 */
+  --xiaoone-control-radius: var(--xiaoone-r-sm);
+  --xiaoone-control-h-sm: 32px;
+  --xiaoone-control-h-md: 38px;
+  --xiaoone-control-h-lg: 44px;
+  --xiaoone-control-pad-sm: 10px;
+  --xiaoone-control-pad-md: 14px;
+  --xiaoone-control-pad-lg: 18px;
+  --xiaoone-panel-radius: var(--xiaoone-r-md);
+  --xiaoone-dialog-radius: var(--xiaoone-r-lg);
+  --xiaoone-focus-ring: 0 0 0 2px color-mix(in srgb, var(--xiaoone-accent-soft) 44%, transparent);
+  --xiaoone-shadow-popover: 0 14px 34px rgba(15, 23, 42, 0.12);
+  --xiaoone-shadow-dialog: 0 24px 70px rgba(15, 23, 42, 0.16);
+
   color-scheme: light;
 }

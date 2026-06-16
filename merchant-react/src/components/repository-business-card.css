@@ -1,0 +1,280 @@
+.repo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 14px;
+  padding: 0;
+}
+
+.repo-resource-card {
+  --repo-card-hue: 238;
+  --repo-card-brand: oklch(42% 0.17 var(--repo-card-hue));
+  --repo-card-brand-weak: color-mix(in oklch, var(--repo-card-brand) 8%, white);
+  --repo-card-brand-soft: color-mix(in oklch, var(--repo-card-brand) 15%, white);
+  --repo-card-brand-border: color-mix(in oklch, var(--repo-card-brand) 34%, white);
+  --repo-card-brand-strong: color-mix(in oklch, var(--repo-card-brand) 86%, black);
+  --repo-border: oklch(89% 0.018 260);
+  --repo-border-soft: oklch(91% 0.012 260);
+  --repo-surface: oklch(99.6% 0.003 260);
+  --repo-surface-soft: oklch(97.5% 0.005 260);
+  --repo-fg: oklch(23% 0.02 260);
+  --repo-fg-soft: oklch(35% 0.026 260);
+  --repo-fg-mute: oklch(49% 0.028 260);
+  position: relative;
+  border: 1px solid color-mix(in oklch, var(--repo-card-brand) 14%, var(--repo-border));
+  border-radius: var(--xiaoone-control-radius);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  padding: 0;
+  min-height: 424px;
+  background: var(--repo-surface);
+  box-shadow: 0 1px 2px oklch(25% 0.025 260 / 0.04), 0 14px 28px -24px color-mix(in oklch, var(--repo-card-brand) 36%, black);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.repo-resource-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--repo-card-brand) 34%, var(--repo-border));
+  box-shadow: 0 2px 4px oklch(25% 0.025 260 / 0.04), 0 18px 34px -26px color-mix(in oklch, var(--repo-card-brand) 48%, black);
+}
+
+.repo-card-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1774 / 887;
+  min-height: 0;
+  background: var(--repo-card-image);
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid color-mix(in oklch, var(--repo-card-brand) 12%, var(--repo-border-soft));
+}
+
+.repo-card-cover::before,
+.repo-card-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.repo-card-cover::before {
+  background:
+    linear-gradient(180deg, oklch(99% 0.003 260 / 0.04), transparent 36%),
+    linear-gradient(0deg, color-mix(in oklch, var(--repo-card-brand) 24%, oklch(13% 0.024 260 / 0.62)), transparent 58%);
+}
+
+.repo-card-cover::after {
+  inset: auto 14px 14px;
+  height: 2px;
+  border-radius: var(--xiaoone-r-pill);
+  background: color-mix(in oklch, var(--repo-card-brand) 72%, oklch(99% 0.003 260));
+}
+
+.repo-card-content {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 14px 18px 16px;
+  background:
+    linear-gradient(135deg, color-mix(in oklch, var(--repo-card-brand) 5%, transparent), transparent 46%),
+    var(--repo-surface);
+}
+
+.repo-card-top {
+  order: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.repo-card-icon {
+  width: 44px;
+  height: 38px;
+  border: 1px solid color-mix(in oklch, var(--repo-card-brand) 20%, var(--repo-border));
+  border-radius: var(--xiaoone-r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--repo-card-brand);
+  background: color-mix(in oklch, var(--repo-card-brand) 9%, var(--repo-surface-soft));
+  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.48);
+}
+
+.repo-card-flag {
+  width: 30px;
+  height: 22px;
+  border: 1px solid color-mix(in oklch, var(--repo-card-brand) 24%, oklch(100% 0 0));
+  border-radius: 4px;
+  display: block;
+  object-fit: cover;
+  box-shadow: 0 1px 2px color-mix(in oklch, var(--repo-card-brand) 24%, transparent);
+}
+
+.repo-card-badge {
+  max-width: 120px;
+  border: 1px solid color-mix(in oklch, var(--repo-card-brand) 18%, var(--repo-border));
+  border-radius: var(--xiaoone-r-pill);
+  color: var(--repo-card-brand-strong);
+  background: color-mix(in oklch, var(--repo-card-brand) 8%, var(--repo-surface-soft));
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-card-copy {
+  order: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.repo-card-copy strong {
+  color: var(--repo-fg);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.repo-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.repo-card-soon {
+  border: 1px solid var(--repo-border);
+  border-radius: var(--xiaoone-r-pill);
+  color: var(--repo-fg-mute);
+  background: var(--repo-surface-soft);
+  padding: 2px 8px;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.repo-card-copy span {
+  color: var(--repo-fg-soft);
+  font-size: 13px;
+  line-height: 1.5;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.repo-card-price {
+  order: 3;
+  color: var(--repo-card-brand-strong);
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.repo-card-specs {
+  order: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.repo-card-specs span {
+  border: 1px solid color-mix(in oklch, var(--repo-card-brand) 10%, var(--repo-border-soft));
+  border-radius: var(--xiaoone-r-pill);
+  color: var(--repo-fg-soft);
+  background: color-mix(in oklch, var(--repo-card-brand) 4%, var(--repo-surface-soft));
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.repo-card-actions {
+  order: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.repo-card-button {
+  min-height: 32px;
+  border: 1px solid var(--repo-card-brand-border);
+  border-radius: var(--xiaoone-r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.repo-card-button:hover {
+  transform: translateY(-1px);
+}
+
+.repo-card-button--buy,
+.repo-card-button--configure,
+.repo-card-button--numbers,
+.repo-card-button--cards {
+  color: oklch(99% 0.006 260);
+  background: var(--repo-card-brand);
+  border-color: var(--repo-card-brand);
+}
+
+.repo-card-button--chat,
+.repo-card-button--download,
+.repo-card-button--sms,
+.repo-card-button--transactions {
+  color: var(--repo-card-brand-strong);
+  background: color-mix(in oklch, var(--repo-card-brand) 4%, oklch(99% 0.003 260));
+}
+
+@media (max-width: 1120px) {
+  .repo-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .repo-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .repo-resource-card {
+    grid-template-rows: auto minmax(0, auto);
+    min-height: 0;
+  }
+
+  .repo-card-cover {
+    min-height: 0;
+    border-bottom: 1px solid color-mix(in oklch, var(--repo-card-brand) 12%, var(--repo-border-soft));
+  }
+
+  .repo-card-content {
+    padding: 16px;
+  }
+
+  .repo-card-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+    margin-top: 0;
+  }
+
+  .repo-card-button {
+    width: 100%;
+  }
+}

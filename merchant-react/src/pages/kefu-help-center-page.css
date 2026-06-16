@@ -1,0 +1,275 @@
+.kefu-help-center-page {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  background: var(--xiaoone-bg);
+}
+
+.kefu-help-center-toolbar {
+  min-height: 52px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--xiaoone-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  border-radius: var(--xiaoone-panel-radius) var(--xiaoone-panel-radius) 0 0;
+}
+
+.kefu-help-center-toolbar__lead {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kefu-help-center-toolbar__label {
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.kefu-help-center-toolbar__title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kefu-help-center-toolbar__urls {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kefu-help-center-toolbar__url-row {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kefu-help-center-toolbar__url-label {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.kefu-help-center-toolbar__url {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(100%, 28rem);
+}
+
+.kefu-help-center-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kefu-help-center-toolbar__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-color: var(--xiaoone-border);
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg);
+  border-radius: var(--xiaoone-control-radius);
+}
+
+.kefu-help-center-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--xiaoone-border);
+  background: color-mix(in srgb, var(--xiaoone-bg-elev) 90%, var(--xiaoone-bg-soft));
+  color: var(--xiaoone-fg);
+}
+
+.kefu-help-center-admin__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kefu-help-center-admin__title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.kefu-help-center-admin__title svg {
+  flex-shrink: 0;
+  color: var(--xiaoone-fg-mute);
+}
+
+.kefu-help-center-admin__title strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.kefu-help-center-admin__title span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--xiaoone-bg-soft);
+  color: var(--xiaoone-fg-mute);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.kefu-help-center-admin__title span.is-configured {
+  background: var(--xiaoone-success-bg);
+  color: var(--xiaoone-success);
+}
+
+.kefu-help-center-admin__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--xiaoone-accent);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.kefu-help-center-admin__form {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(160px, 1fr) max-content;
+  gap: 10px;
+  align-items: end;
+}
+
+.kefu-help-center-admin__field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kefu-help-center-admin__field span {
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.kefu-help-center-admin__field input {
+  width: 100%;
+  min-height: 36px;
+  box-sizing: border-box;
+  border: 1px solid var(--xiaoone-border);
+  border-radius: var(--xiaoone-control-radius);
+  padding: 0 11px;
+  background: var(--xiaoone-bg-elev);
+  color: var(--xiaoone-fg);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.kefu-help-center-admin__field input:focus {
+  border-color: var(--xiaoone-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--xiaoone-accent) 16%, transparent);
+}
+
+.kefu-help-center-admin__field input:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+}
+
+.kefu-help-center-admin__form button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.kefu-help-center-admin__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--xiaoone-fg-mute);
+}
+
+.kefu-help-center-admin__meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kefu-help-center-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  background: var(--xiaoone-bg);
+}
+
+.kefu-help-center-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 0;
+  padding: 32px 20px;
+  color: var(--xiaoone-fg);
+  text-align: center;
+}
+
+.kefu-help-center-state p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.kefu-help-center-state span {
+  max-width: 28rem;
+  font-size: 13px;
+  color: var(--xiaoone-fg-mute);
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .kefu-help-center-admin__form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .kefu-help-center-toolbar,
+  .kefu-help-center-admin {
+    padding-inline: 12px;
+  }
+
+  .kefu-help-center-admin__form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kefu-help-center-admin__form button {
+    justify-content: center;
+    width: 100%;
+  }
+}

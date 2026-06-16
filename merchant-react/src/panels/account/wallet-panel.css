@@ -1,8 +1,9 @@
 .mr-card {
-  background: var(--xiaoone-bg-soft);
+  background: var(--xiaoone-bg-elev);
   border: 1px solid var(--xiaoone-border);
-  border-radius: 14px;
+  border-radius: var(--xiaoone-panel-radius);
   padding: 16px 20px;
+  box-shadow: none;
 }
 
 .identity {
@@ -10,8 +11,12 @@
   justify-content: space-between;
   align-items: center;
   gap: 18px;
-  background: linear-gradient(135deg, rgba(124, 92, 255, 0.10), rgba(34, 211, 238, 0.06));
-  border-color: rgba(124, 92, 255, 0.25);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--xiaoone-accent) 10%, var(--xiaoone-bg-elev)),
+    color-mix(in srgb, var(--xiaoone-info) 6%, var(--xiaoone-bg-elev))
+  );
+  border-color: color-mix(in srgb, var(--xiaoone-accent) 25%, var(--xiaoone-border));
 }
 
 .ident-name {
@@ -30,14 +35,14 @@
   display: flex;
   gap: 8px;
 }
-.ident-meta code { background: var(--xiaoone-bg-hover); padding: 1px 6px; border-radius: 4px; }
+.ident-meta code { background: var(--xiaoone-bg-hover); padding: 1px 6px; border-radius: var(--xiaoone-control-radius); }
 .ident-meta .dot { color: var(--xiaoone-fg-faint); }
 
 .ident-right { display: flex; gap: 32px; flex-wrap: wrap; }
 .metric { display: flex; flex-direction: column; gap: 2px; min-width: 90px; }
 .metric small { color: var(--xiaoone-fg-mute); font-size: 11.5px; }
 .metric strong { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
-.metric strong.low { color: #ef4444; }
+.metric strong.low { color: var(--xiaoone-danger); }
 
 .subscription {
   display: flex;
@@ -57,10 +62,10 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #ef4444;
+  border-radius: var(--xiaoone-control-radius);
+  background: var(--xiaoone-danger-bg);
+  border: 1px solid var(--xiaoone-danger-border);
+  color: var(--xiaoone-danger);
   font-size: 13px;
 }
 .alert-box > svg { flex-shrink: 0; }
@@ -74,11 +79,11 @@
 
 .link-card {
   cursor: pointer;
-  transition: transform 0.1s, border-color 0.12s, background 0.12s;
+  transition: transform var(--xiaoone-motion-fast) var(--xiaoone-motion-ease), border-color var(--xiaoone-motion-fast) var(--xiaoone-motion-ease), background var(--xiaoone-motion-fast) var(--xiaoone-motion-ease), box-shadow var(--xiaoone-motion-base) var(--xiaoone-motion-ease);
 }
 .link-card:hover {
   border-color: var(--xiaoone-accent-soft);
-  transform: translateY(-1px);
+  background: var(--xiaoone-bg-hover);
 }
 
 .lc-head {

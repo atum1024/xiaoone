@@ -2,33 +2,33 @@
 // 行为与 src/api.ts 的 axios 拦截器保持一致：401 → refresh → retry，refresh 失败跳登录。
 
 import { notifyAccessTokenRefreshed } from './authEvents'
-
-const ACCESS_KEY = 'xiaoone.access_token'
-const REFRESH_KEY = 'xiaoone.refresh_token'
+import { applyLocalIpRegionHeaders, withLocalIpRegionHeaders } from '@xiaoone/region'
+import { clearTokens, readAccessToken, readRefreshToken, setTokens } from '../auth/token'
 
 let refreshing: Promise<string | null> | null = null
 
 function clearTokensAndBounce() {
-  localStorage.removeItem(ACCESS_KEY)
-  localStorage.removeItem(REFRESH_KEY)
+  clearTokens()
   if (location.pathname !== '/login')
     location.href = '/login'
 }
 
 async function refreshToken(): Promise<string | null> {
-  const rt = localStorage.getItem(REFRESH_KEY)
-  if (!rt) return null
+  const rt = readRefreshToken()
   try {
-    const resp = await fetch('/oauth2/token/', {
+    const payload: { grant_type: 'refresh_token'; refresh_token?: string } = { grant_type: 'refresh_token' }
+    if (rt)
+      payload.refresh_token = rt
+    const resp = await fetch('/oauth2/token/', withLocalIpRegionHeaders({
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: rt }),
-    })
+      body: JSON.stringify(payload),
+    }))
     if (!resp.ok) return null
     const data = await resp.json()
     if (!data.access_token) return null
-    localStorage.setItem(ACCESS_KEY, data.access_token)
-    if (data.refresh_token) localStorage.setItem(REFRESH_KEY, data.refresh_token)
+    setTokens(data.access_token, data.refresh_token || rt)
     notifyAccessTokenRefreshed(data.access_token)
     return data.access_token as string
   }
@@ -40,6 +40,7 @@ async function refreshToken(): Promise<string | null> {
 function withAuth(init: RequestInit | undefined, token: string | null): RequestInit {
   const headers = new Headers(init?.headers || {})
   if (token) headers.set('Authorization', `Bearer ${token}`)
+  applyLocalIpRegionHeaders(headers)
   return { ...init, headers }
 }
 
@@ -49,7 +50,7 @@ function withAuth(init: RequestInit | undefined, token: string | null): RequestI
  * 重试后才返回流；调用者按返回值正常处理 body 即可。
  */
 export async function authFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  const access = localStorage.getItem(ACCESS_KEY)
+  const access = readAccessToken()
   const r = await fetch(input, withAuth(init, access))
   if (r.status !== 401) return r
 
@@ -62,6 +63,7 @@ export async function authFetch(input: RequestInfo | URL, init?: RequestInit): P
   refreshing = null
 
   if (!next) {
+    // Refresh 失败说明 refresh token 也不可用了；继续保留旧 token 会让业务请求反复 401。
     clearTokensAndBounce()
     return r
   }
